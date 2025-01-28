@@ -6,5 +6,5 @@ CXX_DEFINES = -DBOOST_ALL_NO_LIB -DBOOST_FILESYSTEM_DYN_LINK -DBOOST_IOSTREAMS_D
 
 CXX_INCLUDES = -I/usr/lib/x86_64-linux-gnu/openmpi/include -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -isystem /usr/include/eigen3 -isystem /usr/local/include/pcl-1.14 -isystem /usr/include/ni -isystem /usr/include/openni2 -isystem /usr/local/include/open3d/3rdparty -isystem /usr/local/include/vtk-9.1 -isystem /usr/local/include/vtk-9.1/vtkfreetype/include
 
-CXX_FLAGS = -msse4.2 -mfpmath=sse -march=native -mavx2 -fopenmp
+CXX_FLAGS = -std=gnu++17 -msse4.2 -mfpmath=sse -march=native -mavx2 -fopenmp
 

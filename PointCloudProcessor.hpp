@@ -25,13 +25,13 @@ class PointCloudProcessor
 
         // Setter method to set the pointer
 
-        void setPointer(const std::shared_ptr<open3d::geometry::PointCloud>& pc_ptr) {
+        void setPointCloud(const std::shared_ptr<open3d::geometry::PointCloud>& pc_ptr) {
             pc_ptr_ = pc_ptr;
         }
 
 
         // Getter method to retrieve the point cloud pointer
-        PC_o3d_ptr getPOintCloud()
+        PC_o3d_ptr getPointCloud() const
         {
             return pc_ptr_;
         }
@@ -43,10 +43,11 @@ class PointCloudProcessor
             clusters_ptr_.clear();
         } 
 
-        // Method to load a point cloud from a file within the 'data' directory
+        // 1. Method to load a point cloud from a file within the 'data' directory
         bool loadPointCloud (const std::string& filename);
 
 
+        // 2. 
 
 
 };
@@ -56,7 +57,7 @@ class PointCloudProcessor
 
 
 // Visualization class inheriting from PointCloudProcessor
-class PointCloudVisualizer:public PointCloudProcessor
+class PointCloudVisualizer: virtual public PointCloudProcessor
 {
     public:
     //constructor and destructor
@@ -71,7 +72,17 @@ class PointCloudVisualizer:public PointCloudProcessor
 };
 
 
+class PointCloudPerception : public PointCloudProcessor , public PointCloudVisualizer
+{
 
+    // Constructor and Destructor
+    PointCloudPerception();
+    ~PointCloudPerception();
+
+    bool refinePointCloud();
+
+
+}
 
 
 

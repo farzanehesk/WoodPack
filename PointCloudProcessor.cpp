@@ -61,7 +61,7 @@ PointCloudVisualizer::~PointCloudVisualizer()
 
 void PointCloudVisualizer::visualizerPointCloud()
 {
-    auto pc = getPOintCloud();
+    auto pc = getPointCloud();
     if (pc && !pc->IsEmpty())
     {
         std::shared_ptr <open3d::visualization::Visualizer> vis =
@@ -81,5 +81,12 @@ void PointCloudVisualizer::visualizerPointCloud()
 }
 
 
+///////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
+// PointCloudPerception
 
+bool PointCloudPerception::refinePointCloud()
+{
+    auto pc = getPointCloud();
+}
 

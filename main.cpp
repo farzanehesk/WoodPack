@@ -1,5 +1,8 @@
 #include <iostream>
 #include <open3d/Open3D.h>
+
+
+
 #include "PointCloudProcessor.hpp"
 #include "custom_types.hpp"
 
@@ -8,8 +11,6 @@ int main() {
 
 
     // load pointcloud
- 
-
     PC_o3d_ptr pc = std::make_shared<open3d::geometry::PointCloud>();
 
     PointCloudVisualizer visualizer;
@@ -20,17 +21,19 @@ int main() {
     processor.setPointer(pc);
 
     
-    if (processor.loadPointCloud("segmented_pc_1707758375.pcd"))
+    if (processor.loadPointCloud("1694762329.600894788.pcd"))
     {
         std::cout << "Point cloud loaded successfully. '\n";
-        
-        // Visualize the shared point cloud
         visualizer.visualizerPointCloud();
     }
     else
     {
         std::cerr << "Error loading point cloud.'\n";
     }
+
+
+
+
 
 
 

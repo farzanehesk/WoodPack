@@ -1,8 +1,12 @@
 cmake_minimum_required(VERSION 3.18)
 
-
+# Enable C and C++ languages
 enable_language(C)
 enable_language(CXX) 
+
+# Set the C++ standard to C++17
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(Shingle_Optimization)
 

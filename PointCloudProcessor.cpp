@@ -1,4 +1,7 @@
 #include "iostream"
+#include <fstream>
+#include <string>
+
 #include "PointCloudProcessor.hpp"
 
 ///////////////////////////////////////////////////////////
@@ -20,7 +23,38 @@ PointCloudProcessor::~PointCloudProcessor()
 }
 
 
-// Method to load a point cloud from a file within the 'data' directory
+// 1. Load parameters 
+void PointCloudProcessor::loadParameters(const std::string& config_file_name) {
+    std::ifstream config_file(config_file_name);
+    
+    if (!config_file.is_open()) {
+        std::cerr << "Error: Could not open config file." << std::endl;
+        return;
+    }
+
+    std::string line;
+    while (std::getline(config_file, line)) {
+        size_t delimiter_pos = line.find('=');
+        if (delimiter_pos != std::string::npos) {
+            std::string key = line.substr(0, delimiter_pos);
+            std::string value = line.substr(delimiter_pos + 1);
+
+            // Simple assignment for known parameters
+            if (key == "verbose") {
+                verbose_ = (value == "true");
+            }
+            else if (key == "voxel_size") {
+                voxel_size_ = std::stod(value);  // Convert string to double
+            }
+        }
+    }
+
+    config_file.close();
+}
+
+
+
+// 2. Method to load a point cloud from a file within the 'data' directory
 bool PointCloudProcessor::loadPointCloud(const std::string& filename)
 {
     if (!pc_ptr_) {
@@ -46,7 +80,7 @@ bool PointCloudProcessor::loadPointCloud(const std::string& filename)
 // PointCloudVisualizer
 
 // Constructor for PointCloudVisualizer
-PointCloudVisualizer::PointCloudVisualizer()
+PointCloudVisualizer::PointCloudVisualizer() : PointCloudProcessor()
 {
     std::cout << "PointCloudVisualizer initialized." <<'\n';
 }
@@ -81,14 +115,60 @@ void PointCloudVisualizer::visualizerPointCloud()
 }
 
 
+
+
 ///////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////
 // PointCloudPerception
 
+ //constructor and destructor
+PointCloudPerception::PointCloudPerception() : PointCloudProcessor(), PointCloudVisualizer() {
+    std::cout << "PointCloudPerception initialized.\n";
+}
+
+PointCloudPerception::~PointCloudPerception() {
+    std::cout << "PointCloudPerception destroyed.\n";
+}
+
+
+// // 1.PointCloudPerception
 bool PointCloudPerception::refinePointCloud()
 {
-    auto pc = getPointCloud();
+
+    try
+    {
+
+        // Get the point cloud using the getter method
+        auto pc = getPointCloud();
+
+        //// Code that might throw exceptions
+        if (!checkPointCloud()) return false;
+
+
+        log("Starting point cloud preprocessing...");
+        logOriginalPointCloud();
+
+        
+
+        // Downsample the point cloud
+        auto downsampled_pc_ptr = pc->VoxelDownSample(voxel_size_);
+        logPointCloudSize("downsampled", downsampled_pc_ptr);
+
+
+
+
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
     
+
+
+
+    
+
+
 
 }
 

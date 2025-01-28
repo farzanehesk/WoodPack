@@ -14,11 +14,11 @@ int main() {
     PC_o3d_ptr pc = std::make_shared<open3d::geometry::PointCloud>();
 
     PointCloudVisualizer visualizer;
-    visualizer.setPointer(pc);
+    visualizer.setPointCloud(pc);
     std::cout << "Point cloud set via setPointer.'\n";
 
     PointCloudProcessor processor;
-    processor.setPointer(pc);
+    processor.setPointCloud(pc);
 
     
     if (processor.loadPointCloud("1694762329.600894788.pcd"))

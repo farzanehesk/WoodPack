@@ -17,7 +17,18 @@ class PointCloudProcessor
         PC_o3d_ptr pc_ptr_ ; // Internal shared pointer to the point cloud
         std::vector <PC_o3d_ptr> clusters_ptr_ ;
 
+
+
+
+
     public:
+
+
+        bool verbose_;
+
+
+        // function parameters
+        double voxel_size_;  // Voxel size for downsampling
     
         // Constructor and Destructor
         PointCloudProcessor ();
@@ -43,11 +54,54 @@ class PointCloudProcessor
             clusters_ptr_.clear();
         } 
 
-        // 1. Method to load a point cloud from a file within the 'data' directory
+        // Method to check if the point cloud is valid
+        bool checkPointCloud() const {
+            if (pc_ptr_ == nullptr || pc_ptr_->IsEmpty()) {
+                std::cerr << "Error: Point cloud is empty!" << std::endl;
+                return false;
+            }
+            return true;
+        }
+
+        // Method to log a message (logMessage is used here)
+        void log(const std::string& message) const {
+            if (verbose_) { // Assuming `verbose_` is a member variable
+                std::cout << message << std::endl;
+            }
+        }
+        // Method to log the original point cloud size
+        void logOriginalPointCloud() const {
+            log("Number of points in original point cloud: " + std::to_string(pc_ptr_->points_.size()));
+        }
+
+        // 
+        void logPointCloudSize(const std::string& stage, const std::shared_ptr<open3d::geometry::PointCloud>& cloud) const {
+        if (cloud) 
+        {
+            log("Number of points in " + stage + " point cloud: " + std::to_string(cloud->points_.size()));
+        } 
+        else 
+        {
+            log("Point cloud is empty at stage: " + stage);
+        }
+}
+
+
+        
+
+
+
+
+
+        // 1. Load parameters (simulating loading from a configuration)
+        void loadParameters(const std::string& config_file_name);
+
+        // 2. Method to load a point cloud from a file within the 'data' directory
         bool loadPointCloud (const std::string& filename);
 
 
-        // 2. 
+
+
 
 
 };
@@ -79,10 +133,11 @@ class PointCloudPerception : public virtual PointCloudProcessor , public PointCl
     PointCloudPerception();
     ~PointCloudPerception();
 
+    // 1. Method to refine point clouds
     bool refinePointCloud();
 
 
-}
+};
 
 
 

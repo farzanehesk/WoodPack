@@ -30,3 +30,11 @@ issues with aMPI and VTK
 IN CMAKELISTS: YOU SHOULE ENABLE :
 enable_language(C)
 enable_language(CXX)
+
+
+
+### Git
+If you want to completely undo the commit (delete the commit itself):
+	git reset --soft HEAD~1
+	
+

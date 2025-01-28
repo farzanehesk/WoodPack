@@ -88,5 +88,7 @@ void PointCloudVisualizer::visualizerPointCloud()
 bool PointCloudPerception::refinePointCloud()
 {
     auto pc = getPointCloud();
+    
+
 }
 

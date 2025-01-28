@@ -57,7 +57,7 @@ class PointCloudProcessor
 
 
 // Visualization class inheriting from PointCloudProcessor
-class PointCloudVisualizer: virtual public PointCloudProcessor
+class PointCloudVisualizer:  public virtual PointCloudProcessor
 {
     public:
     //constructor and destructor
@@ -72,7 +72,7 @@ class PointCloudVisualizer: virtual public PointCloudProcessor
 };
 
 
-class PointCloudPerception : public PointCloudProcessor , public PointCloudVisualizer
+class PointCloudPerception : public virtual PointCloudProcessor , public PointCloudVisualizer
 {
 
     // Constructor and Destructor

@@ -30,6 +30,9 @@ class PointCloudProcessor
 
         // function parameters
         double voxel_size_;  // Voxel size for downsampling
+        int nb_neighbors_;
+        double std_ratio_;
+
     
         // Constructor and Destructor
         PointCloudProcessor ();
@@ -61,6 +64,21 @@ class PointCloudProcessor
                 std::cerr << "Error: Point cloud is empty!" << std::endl;
                 return false;
             }
+
+            // Check the scale of the point cloud
+            auto points = pc_ptr_->points_;
+            Eigen::Vector3d min_point = points[0];
+            Eigen::Vector3d max_point = points[0];
+            for (const auto& point : points) {
+                min_point = min_point.cwiseMin(point);
+                max_point = max_point.cwiseMax(point);
+            }
+
+            if ((max_point - min_point).norm() < voxel_size_) {
+                std::cerr << "Error: Point cloud scale is too small for the given voxel size!" << std::endl;
+                return false;
+            }
+
             return true;
         }
 
@@ -130,12 +148,13 @@ class PointCloudVisualizer:  public virtual PointCloudProcessor
 class PointCloudPerception : public virtual PointCloudProcessor , public PointCloudVisualizer
 {
 
-    // Constructor and Destructor
-    PointCloudPerception();
-    ~PointCloudPerception();
+    public:
+        // Constructor and Destructor
+        PointCloudPerception();
+        ~PointCloudPerception();
 
-    // 1. Method to refine point clouds
-    bool refinePointCloud();
+        // 1. Method to refine point clouds
+        bool refinePointCloud();
 
 
 };

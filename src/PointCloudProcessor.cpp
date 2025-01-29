@@ -10,8 +10,11 @@
 
 //constructor fro PointCloudProcessor
 PointCloudProcessor::PointCloudProcessor ()
+: voxel_size_(0.004), nb_neighbors_(20), std_ratio_(2.0), verbose_(false)
 {
+
     std::cout << "PointCloudProcessor initialized." << '\n';
+
 }
 
 
@@ -45,6 +48,14 @@ void PointCloudProcessor::loadParameters(const std::string& config_file_name = "
             }
             else if (key == "voxel_size") {
                 voxel_size_ = std::stod(value);  // Convert string to double
+                std::cout << "Loaded voxel size: " << voxel_size_ << std::endl; // Debugging
+            }
+
+            else if (key == "nb_neighbors") {
+                nb_neighbors_ = std::stoi(value);  // Convert string to int
+            }
+            else if (key == "std_ratio") {
+                std_ratio_ = std::stod(value);  // Convert string to double
             }
         }
     }
@@ -124,6 +135,7 @@ void PointCloudVisualizer::visualizerPointCloud()
  //constructor and destructor
 PointCloudPerception::PointCloudPerception() : PointCloudProcessor(), PointCloudVisualizer() {
     std::cout << "PointCloudPerception initialized.\n";
+    std::cout << "Voxel size in PointCloudPerception constructor: " << voxel_size_ << std::endl;
 }
 
 PointCloudPerception::~PointCloudPerception() {
@@ -140,19 +152,24 @@ bool PointCloudPerception::refinePointCloud()
 
         // Get the point cloud using the getter method
         auto pc = getPointCloud();
-
+        std::cout << "Loaded voxel size for refinement: " << voxel_size_ << std::endl;
         //// Code that might throw exceptions
         if (!checkPointCloud()) return false;
-
-
         log("Starting point cloud preprocessing...");
         logOriginalPointCloud();
 
-        
-
         // Downsample the point cloud
+        log("Using voxel size: " + std::to_string(voxel_size_));  // Log voxel size
         auto downsampled_pc_ptr = pc->VoxelDownSample(voxel_size_);
         logPointCloudSize("downsampled", downsampled_pc_ptr);
+
+        // Outlier removal
+        auto [outlier_removed_pc_ptr, _] = downsampled_pc_ptr->RemoveStatisticalOutliers (nb_neighbors_ , std_ratio_);
+        logPointCloudSize("filtered" , outlier_removed_pc_ptr);
+
+
+        log("Point cloud preprocessing completed.");
+        return true;
 
 
 

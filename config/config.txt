@@ -3,3 +3,5 @@
 
 verbose=true
 voxel_size=0.005
+nb_neighbors =20
+std_ratio =2.0

@@ -7,28 +7,38 @@
 #include "../include/custom_types.hpp"
 
 int main() {
-    std::cout << "Open3D is successfully installed!" << std::endl;
-
-
-    // load pointcloud
-    PC_o3d_ptr pc = std::make_shared<open3d::geometry::PointCloud>();
-
-    PointCloudVisualizer visualizer;
-    visualizer.setPointCloud(pc);
-    std::cout << "Point cloud set via setPointer.'\n";
-
-    PointCloudProcessor processor;
-    processor.setPointCloud(pc);
-
     
-    if (processor.loadPointCloud("1694762329.600894788.pcd"))
-    {
-        std::cout << "Point cloud loaded successfully. '\n";
-        visualizer.visualizerPointCloud();
+
+    // Create shared point cloud
+    std::shared_ptr<open3d::geometry::PointCloud> pc = std::make_shared<open3d::geometry::PointCloud>();
+
+    // Create PointCloudPerception (which includes Processor + Visualizer)
+    PointCloudPerception perception;
+    perception.setPointCloud(pc);  
+
+    // Load parameters into PointCloudPerception (which is also a Processor)
+    perception.loadParameters("config/config.txt");  
+
+    std::cout << "Voxel size after loading: " << perception.voxel_size_ << std::endl;
+
+    // Load the point cloud 
+    if (!perception.loadPointCloud("example.ply")) {
+        std::cerr << "Failed to load point cloud'\n";
+        return -1;
     }
-    else
+
+    // Visualize the point cloud
+    std::cout << "Visualizing the point cloud...\n";
+    perception.visualizerPointCloud();
+
+    // Perform point cloud refinement
+    std::cout << "Refining the point cloud...\n";
+    if (perception.refinePointCloud()) {
+        std::cout << "Point cloud refinement completed.\n";
+    } 
+    else 
     {
-        std::cerr << "Error loading point cloud.'\n";
+        std::cerr << "Point cloud refinement failed.\n";
     }
 
 

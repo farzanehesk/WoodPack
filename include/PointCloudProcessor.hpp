@@ -5,7 +5,8 @@
 #include "memory"
 #include "vector"
 #include "open3d/Open3D.h"
-#include "custom_types.hpp"
+#include "../include/PointCloudProcessor.hpp"
+#include "../include/custom_types.hpp"
 
 
 ///////////////////////////////////////////////////////////

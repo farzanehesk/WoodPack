@@ -8,8 +8,8 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/PointCloudProcessor.cpp" "CMakeFiles/Shingle_Optimization.dir/PointCloudProcessor.cpp.o" "gcc" "CMakeFiles/Shingle_Optimization.dir/PointCloudProcessor.cpp.o.d"
-  "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/main.cpp" "CMakeFiles/Shingle_Optimization.dir/main.cpp.o" "gcc" "CMakeFiles/Shingle_Optimization.dir/main.cpp.o.d"
+  "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/PointCloudProcessor.cpp" "CMakeFiles/Shingle_Optimization.dir/src/PointCloudProcessor.cpp.o" "gcc" "CMakeFiles/Shingle_Optimization.dir/src/PointCloudProcessor.cpp.o.d"
+  "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/main.cpp" "CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o" "gcc" "CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

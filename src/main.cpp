@@ -3,8 +3,8 @@
 
 
 
-#include "PointCloudProcessor.hpp"
-#include "custom_types.hpp"
+#include "../include/PointCloudProcessor.hpp"
+#include "../include/custom_types.hpp"
 
 int main() {
     std::cout << "Open3D is successfully installed!" << std::endl;

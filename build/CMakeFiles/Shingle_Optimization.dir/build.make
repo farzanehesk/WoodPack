@@ -72,44 +72,44 @@ include CMakeFiles/Shingle_Optimization.dir/flags.make
 CMakeFiles/Shingle_Optimization.dir/codegen:
 .PHONY : CMakeFiles/Shingle_Optimization.dir/codegen
 
-CMakeFiles/Shingle_Optimization.dir/main.cpp.o: CMakeFiles/Shingle_Optimization.dir/flags.make
-CMakeFiles/Shingle_Optimization.dir/main.cpp.o: /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/main.cpp
-CMakeFiles/Shingle_Optimization.dir/main.cpp.o: CMakeFiles/Shingle_Optimization.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/Shingle_Optimization.dir/main.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Shingle_Optimization.dir/main.cpp.o -MF CMakeFiles/Shingle_Optimization.dir/main.cpp.o.d -o CMakeFiles/Shingle_Optimization.dir/main.cpp.o -c /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/main.cpp
+CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: CMakeFiles/Shingle_Optimization.dir/flags.make
+CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/main.cpp
+CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: CMakeFiles/Shingle_Optimization.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o -MF CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o.d -o CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o -c /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/main.cpp
 
-CMakeFiles/Shingle_Optimization.dir/main.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Shingle_Optimization.dir/main.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/main.cpp > CMakeFiles/Shingle_Optimization.dir/main.cpp.i
+CMakeFiles/Shingle_Optimization.dir/src/main.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Shingle_Optimization.dir/src/main.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/main.cpp > CMakeFiles/Shingle_Optimization.dir/src/main.cpp.i
 
-CMakeFiles/Shingle_Optimization.dir/main.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Shingle_Optimization.dir/main.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/main.cpp -o CMakeFiles/Shingle_Optimization.dir/main.cpp.s
+CMakeFiles/Shingle_Optimization.dir/src/main.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Shingle_Optimization.dir/src/main.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/main.cpp -o CMakeFiles/Shingle_Optimization.dir/src/main.cpp.s
 
-CMakeFiles/Shingle_Optimization.dir/PointCloudProcessor.cpp.o: CMakeFiles/Shingle_Optimization.dir/flags.make
-CMakeFiles/Shingle_Optimization.dir/PointCloudProcessor.cpp.o: /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/PointCloudProcessor.cpp
-CMakeFiles/Shingle_Optimization.dir/PointCloudProcessor.cpp.o: CMakeFiles/Shingle_Optimization.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/Shingle_Optimization.dir/PointCloudProcessor.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Shingle_Optimization.dir/PointCloudProcessor.cpp.o -MF CMakeFiles/Shingle_Optimization.dir/PointCloudProcessor.cpp.o.d -o CMakeFiles/Shingle_Optimization.dir/PointCloudProcessor.cpp.o -c /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/PointCloudProcessor.cpp
+CMakeFiles/Shingle_Optimization.dir/src/PointCloudProcessor.cpp.o: CMakeFiles/Shingle_Optimization.dir/flags.make
+CMakeFiles/Shingle_Optimization.dir/src/PointCloudProcessor.cpp.o: /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/PointCloudProcessor.cpp
+CMakeFiles/Shingle_Optimization.dir/src/PointCloudProcessor.cpp.o: CMakeFiles/Shingle_Optimization.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/Shingle_Optimization.dir/src/PointCloudProcessor.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Shingle_Optimization.dir/src/PointCloudProcessor.cpp.o -MF CMakeFiles/Shingle_Optimization.dir/src/PointCloudProcessor.cpp.o.d -o CMakeFiles/Shingle_Optimization.dir/src/PointCloudProcessor.cpp.o -c /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/PointCloudProcessor.cpp
 
-CMakeFiles/Shingle_Optimization.dir/PointCloudProcessor.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Shingle_Optimization.dir/PointCloudProcessor.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/PointCloudProcessor.cpp > CMakeFiles/Shingle_Optimization.dir/PointCloudProcessor.cpp.i
+CMakeFiles/Shingle_Optimization.dir/src/PointCloudProcessor.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Shingle_Optimization.dir/src/PointCloudProcessor.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/PointCloudProcessor.cpp > CMakeFiles/Shingle_Optimization.dir/src/PointCloudProcessor.cpp.i
 
-CMakeFiles/Shingle_Optimization.dir/PointCloudProcessor.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Shingle_Optimization.dir/PointCloudProcessor.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/PointCloudProcessor.cpp -o CMakeFiles/Shingle_Optimization.dir/PointCloudProcessor.cpp.s
+CMakeFiles/Shingle_Optimization.dir/src/PointCloudProcessor.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Shingle_Optimization.dir/src/PointCloudProcessor.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/PointCloudProcessor.cpp -o CMakeFiles/Shingle_Optimization.dir/src/PointCloudProcessor.cpp.s
 
 # Object files for target Shingle_Optimization
 Shingle_Optimization_OBJECTS = \
-"CMakeFiles/Shingle_Optimization.dir/main.cpp.o" \
-"CMakeFiles/Shingle_Optimization.dir/PointCloudProcessor.cpp.o"
+"CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o" \
+"CMakeFiles/Shingle_Optimization.dir/src/PointCloudProcessor.cpp.o"
 
 # External object files for target Shingle_Optimization
 Shingle_Optimization_EXTERNAL_OBJECTS =
 
-Shingle_Optimization: CMakeFiles/Shingle_Optimization.dir/main.cpp.o
-Shingle_Optimization: CMakeFiles/Shingle_Optimization.dir/PointCloudProcessor.cpp.o
+Shingle_Optimization: CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o
+Shingle_Optimization: CMakeFiles/Shingle_Optimization.dir/src/PointCloudProcessor.cpp.o
 Shingle_Optimization: CMakeFiles/Shingle_Optimization.dir/build.make
 Shingle_Optimization: /usr/local/lib/libOpen3D.so.0.19.0
 Shingle_Optimization: /usr/local/lib/libpcl_surface.so

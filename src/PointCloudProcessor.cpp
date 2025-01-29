@@ -24,7 +24,7 @@ PointCloudProcessor::~PointCloudProcessor()
 
 
 // 1. Load parameters 
-void PointCloudProcessor::loadParameters(const std::string& config_file_name) {
+void PointCloudProcessor::loadParameters(const std::string& config_file_name = "config/config.txt") {
     std::ifstream config_file(config_file_name);
     
     if (!config_file.is_open()) {

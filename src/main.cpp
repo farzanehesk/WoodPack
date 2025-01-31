@@ -22,27 +22,29 @@ int main() {
     std::cout << "Voxel size after loading: " << perception.voxel_size_ << std::endl;
 
     // Load the point cloud 
-    if (!perception.loadPointCloud("example.ply")) {
+    if (!perception.loadPointCloud("1694762329.600894788.pcd")) {
         std::cerr << "Failed to load point cloud'\n";
         return -1;
     }
 
-    // Visualize the point cloud
-    std::cout << "Visualizing the point cloud...\n";
-    perception.visualizerPointCloud();
-
-    // Perform point cloud refinement
-    std::cout << "Refining the point cloud...\n";
-    if (perception.refinePointCloud()) {
-        std::cout << "Point cloud refinement completed.\n";
-    } 
-    else 
-    {
-        std::cerr << "Point cloud refinement failed.\n";
-    }
 
 
+    // Refine point cloud
+    // std::cout << "Refining the point cloud...\n";
+    // if (perception.refinePointCloud()) 
+    // {
+    //     std::cout << "Point cloud refinement completed.\n";
+    // } 
+    // else 
+    // {
+    //     std::cerr << "Point cloud refinement failed.\n";
+    // }
 
+
+
+    // 
+    perception.segmentAndRemovePlane();
+    
 
 
 

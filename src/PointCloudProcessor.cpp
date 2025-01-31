@@ -57,6 +57,13 @@ void PointCloudProcessor::loadParameters(const std::string& config_file_name = "
             else if (key == "std_ratio") {
                 std_ratio_ = std::stod(value);  // Convert string to double
             }
+
+            else if (key == "ransac_n") {
+                ransac_n_ = std::stoi(value);
+            }
+            else if (key == "num_iterations") {
+                num_iterations_ = std::stoi(value);
+            }
         }
     }
 
@@ -75,7 +82,18 @@ bool PointCloudProcessor::loadPointCloud(const std::string& filename)
     if (open3d::io::ReadPointCloud(filepath , *pc_ptr_))
     {
         std::cout << "Successfully loaded point cloud from " <<filepath <<'\n';
+        
+        // Visualize the loaded point cloud
+        if (!pc_ptr_->IsEmpty()) {
+            std::cout << "Visualizing the loaded point cloud...\n";
+            open3d::visualization::DrawGeometries({pc_ptr_}, "Loaded Point Cloud", 800, 600);
+        } 
+        else {
+            std::cerr << "Loaded point cloud is empty.\n";
+        }
+
         return true;
+
     }
     else
     {
@@ -143,13 +161,11 @@ PointCloudPerception::~PointCloudPerception() {
 }
 
 
-// // 1.PointCloudPerception
+// 1.refinePointCloud
 bool PointCloudPerception::refinePointCloud()
 {
-
     try
     {
-
         // Get the point cloud using the getter method
         auto pc = getPointCloud();
         std::cout << "Loaded voxel size for refinement: " << voxel_size_ << std::endl;
@@ -164,28 +180,70 @@ bool PointCloudPerception::refinePointCloud()
         logPointCloudSize("downsampled", downsampled_pc_ptr);
 
         // Outlier removal
-        auto [outlier_removed_pc_ptr, _] = downsampled_pc_ptr->RemoveStatisticalOutliers (nb_neighbors_ , std_ratio_);
-        logPointCloudSize("filtered" , outlier_removed_pc_ptr);
+        auto outlier_removed_pc_ptr = downsampled_pc_ptr->RemoveStatisticalOutliers (nb_neighbors_ , std_ratio_);
+        auto inlier_indices = std::get<1>(outlier_removed_pc_ptr);// Extract inlier indices
+        auto inlier_pc_ptr = downsampled_pc_ptr->SelectByIndex(inlier_indices);
 
-
+        logPointCloudSize("filtered" , inlier_pc_ptr);
         log("Point cloud preprocessing completed.");
+
+        // Update the class member with the refined point cloud
+        setPointCloud(inlier_pc_ptr);
+
+        // Visualize the refined point cloud
+        log("Visualizing the refined point cloud...");
+        visualizerPointCloud();
+
         return true;
-
-
-
-
     }
     catch(const std::exception& e)
     {
         std::cerr << e.what() << '\n';
     }
-    
+}
 
+// 2. segmentAndRemovePlane
+void PointCloudPerception::segmentAndRemovePlane() {  // Make sure this matches
+    if (!checkPointCloud()) {
+        return;
+    }
 
+    auto pc = getPointCloud();
 
-    
+    // Step 1: Segment the largest plane using RANSAC
+    auto [plane_model, inlier_indices] = pc->SegmentPlane(0.005, ransac_n_, num_iterations_);
 
+    log("Detected plane equation: " +
+        std::to_string(plane_model(0)) + "x + " +
+        std::to_string(plane_model(1)) + "y + " +
+        std::to_string(plane_model(2)) + "z + " +
+        std::to_string(plane_model(3)) + " = 0");
+
+    // Step 2: Extract inliers (plane points) and outliers (remaining points)
+    auto plane_pc = pc->SelectByIndex(inlier_indices);
+    auto non_plane_pc = pc->SelectByIndex(inlier_indices, true); // true -> invert selection
+
+    logPointCloudSize("Plane (removed)", plane_pc);
+    logPointCloudSize("Remaining after plane removal", non_plane_pc);
+    open3d::visualization::DrawGeometries({plane_pc}, "Segmented Plane");
+
+    // Step 3: Update the class member with the processed point cloud
+    setPointCloud(non_plane_pc);
+    visualizerPointCloud();
 
 
 }
+
+
+
+
+
+
+
+
+    
+
+
+
+
 

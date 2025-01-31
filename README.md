@@ -38,3 +38,13 @@ If you want to completely undo the commit (delete the commit itself):
 	git reset --soft HEAD~1
 	
 
+
+
+### Phoxi
+
+	tar -xvf PhotoneoPhoXiControlInstaller-1.13.4-Ubuntu22-STABLE.tar.gz 
+	chmod +x PhotoneoPhoXiControlInstaller-1.13.4-Ubuntu22-STABLE.run
+	sudo ./PhotoneoPhoXiControlInstaller-1.13.4-Ubuntu22-STABLE.run 
+	sudo ./PhotoneoPhoXiControlInstaller-1.13.4-Ubuntu22-STABLE.run --accept /opt/Photoneo/PhoXiControl-1.13.4/
+
+

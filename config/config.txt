@@ -2,6 +2,9 @@
 
 
 verbose=true
-voxel_size=0.005
-nb_neighbors =20
+voxel_size=0.0007
+nb_neighbors =15
 std_ratio =2.0
+ransac_n=3
+num_iterations=200
+

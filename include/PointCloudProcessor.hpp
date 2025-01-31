@@ -33,6 +33,9 @@ class PointCloudProcessor
         int nb_neighbors_;
         double std_ratio_;
 
+        int ransac_n_;
+        int num_iterations_;
+
     
         // Constructor and Destructor
         PointCloudProcessor ();
@@ -106,11 +109,6 @@ class PointCloudProcessor
 }
 
 
-        
-
-
-
-
 
         // 1. Load parameters (simulating loading from a configuration)
         void loadParameters(const std::string& config_file_name);
@@ -141,6 +139,7 @@ class PointCloudVisualizer:  public virtual PointCloudProcessor
     void visualizerPointCloud();
     //void visualizerClusters();
 
+    //void visualizeMultiplePointClouds();
 
 };
 
@@ -155,6 +154,9 @@ class PointCloudPerception : public virtual PointCloudProcessor , public PointCl
 
         // 1. Method to refine point clouds
         bool refinePointCloud();
+
+        // 2. Method to segmentAndRemovePlane
+        void segmentAndRemovePlane(); 
 
 
 };

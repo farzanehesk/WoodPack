@@ -22,7 +22,7 @@ int main() {
     std::cout << "Voxel size after loading: " << perception.voxel_size_ << std::endl;
 
     // Load the point cloud 
-    if (!perception.loadPointCloud("1694762329.600894788.pcd")) {
+    if (!perception.loadPointCloud("test.ply")) {
         std::cerr << "Failed to load point cloud'\n";
         return -1;
     }
@@ -42,10 +42,9 @@ int main() {
 
 
 
-    // 
+    // segment the plane
     perception.segmentAndRemovePlane();
     
-
 
 
 

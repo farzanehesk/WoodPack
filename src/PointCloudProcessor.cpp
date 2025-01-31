@@ -26,7 +26,61 @@ PointCloudProcessor::~PointCloudProcessor()
 }
 
 
-// 1. Load parameters 
+
+//1. Method to check if the point cloud is valid
+bool PointCloudProcessor::checkPointCloud() const 
+{
+    if (pc_ptr_ == nullptr || pc_ptr_->IsEmpty()) 
+    {
+        std::cerr << "Error: Point cloud is empty!" << std::endl;
+        return false;
+    }
+
+    auto points = pc_ptr_->points_;
+    Eigen::Vector3d min_point = points[0];
+    Eigen::Vector3d max_point = points[0];
+    for (const auto& point : points) {
+        min_point = min_point.cwiseMin(point);
+        max_point = max_point.cwiseMax(point);
+    }
+
+    if ((max_point - min_point).norm() < voxel_size_) {
+        std::cerr << "Error: Point cloud scale is too small for the given voxel size!" << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+
+// 2. Method to log a message
+void PointCloudProcessor::log(const std::string& message) const {
+    if (verbose_) { // Assuming `verbose_` is a member variable
+        std::cout << message << std::endl;
+    }
+}
+
+// 3. Method to log the original point cloud size
+void PointCloudProcessor::logOriginalPointCloud() const {
+    log("Number of points in original point cloud: " + std::to_string(pc_ptr_->points_.size()));
+}
+
+// 4. Method to log the point cloud size
+void PointCloudProcessor::logPointCloudSize(const std::string& stage, const std::shared_ptr<open3d::geometry::PointCloud>& cloud) const 
+{
+if (cloud) 
+{
+    log("Number of points in " + stage + " point cloud: " + std::to_string(cloud->points_.size()));
+} 
+else 
+{
+    log("Point cloud is empty at stage: " + stage);
+}
+}
+
+
+
+// 5. Load parameters 
 void PointCloudProcessor::loadParameters(const std::string& config_file_name = "config/config.txt") {
     std::ifstream config_file(config_file_name);
     
@@ -72,7 +126,7 @@ void PointCloudProcessor::loadParameters(const std::string& config_file_name = "
 
 
 
-// 2. Method to load a point cloud from a file within the 'data' directory
+// 6. Method to load a point cloud from a file within the 'data' directory
 bool PointCloudProcessor::loadPointCloud(const std::string& filename)
 {
     if (!pc_ptr_) {

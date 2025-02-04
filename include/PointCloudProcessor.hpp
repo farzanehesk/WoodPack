@@ -27,12 +27,13 @@ class PointCloudProcessor
 
         bool verbose_;
         // function parameters
-        double voxel_size_;  // Voxel size for downsampling
+        double voxel_size_;  
         int nb_neighbors_;
         double std_ratio_;
-
         int ransac_n_;
         int num_iterations_;
+        double cluster_tolerance_;
+        int min_cluster_size_;
 
     
         // Constructor and Destructor
@@ -109,6 +110,9 @@ class PointCloudPerception : public virtual PointCloudProcessor , public PointCl
 
         // 2. Method to segmentAndRemovePlane
         void segmentAndRemovePlane(); 
+
+        // 3. Method to perform Euclidean Clustering
+        void EuclideanClustering();
 
 
 };

@@ -118,6 +118,15 @@ void PointCloudProcessor::loadParameters(const std::string& config_file_name = "
             else if (key == "num_iterations") {
                 num_iterations_ = std::stoi(value);
             }
+            // ✅ New Clustering Parameters
+            else if (key == "cluster_tolerance") {
+                cluster_tolerance_ = std::stod(value);
+                std::cout << "Loaded cluster_tolerance: " << cluster_tolerance_ << std::endl;
+            } else if (key == "min_cluster_size") {
+                min_cluster_size_ = std::stoi(value);
+                std::cout << "Loaded min_cluster_size: " << min_cluster_size_ << std::endl;
+            }
+
         }
     }
 
@@ -265,7 +274,7 @@ void PointCloudPerception::segmentAndRemovePlane() {  // Make sure this matches
     auto pc = getPointCloud();
 
     // Step 1: Segment the largest plane using RANSAC
-    auto [plane_model, inlier_indices] = pc->SegmentPlane(0.005, ransac_n_, num_iterations_);
+    auto [plane_model, inlier_indices] = pc->SegmentPlane(0.006, ransac_n_, num_iterations_);
 
     log("Detected plane equation: " +
         std::to_string(plane_model(0)) + "x + " +
@@ -284,11 +293,49 @@ void PointCloudPerception::segmentAndRemovePlane() {  // Make sure this matches
     // Step 3: Update the class member with the processed point cloud
     setPointCloud(non_plane_pc);
     visualizerPointCloud();
-
-
 }
 
 
+
+// 3. Method to perform Euclidean Clustering
+void PointCloudPerception::EuclideanClustering() {
+    if (!checkPointCloud()) {
+        return;
+    }
+
+    auto pc = getPointCloud();
+    log("Starting Euclidean Clustering...");
+
+    // Ensure the point cloud is not empty
+    if (pc->points_.empty()) {
+        log("Point cloud is empty, cannot perform clustering.");
+        return;
+    }
+
+    // Perform clustering
+    std::vector<int> labels = pc->ClusterDBSCAN(cluster_tolerance_, min_cluster_size_, false);
+
+    // Determine number of clusters
+    int num_clusters = *std::max_element(labels.begin(), labels.end()) + 1;
+    log("Number of clusters found: " + std::to_string(num_clusters));
+
+    // Create colored point clouds for visualization
+    std::vector<Eigen::Vector3d> cluster_colors;
+    for (int i = 0; i < num_clusters; ++i) {
+        cluster_colors.push_back(Eigen::Vector3d::Random().cwiseAbs()); // Random colors for clusters
+    }
+
+    for (size_t i = 0; i < labels.size(); ++i) {
+        if (labels[i] >= 0) {
+            pc->colors_[i] = cluster_colors[labels[i]];
+        } else {
+            pc->colors_[i] = Eigen::Vector3d(0.5, 0.5, 0.5); // Gray for unclustered points
+        }
+    }
+
+    // Visualize clustered point cloud
+    open3d::visualization::DrawGeometries({pc}, "Euclidean Clustering Result");
+}
 
 
 

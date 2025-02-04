@@ -22,7 +22,7 @@ int main() {
     std::cout << "Voxel size after loading: " << perception.voxel_size_ << std::endl;
 
     // Load the point cloud 
-    if (!perception.loadPointCloud("test.ply")) {
+    if (!perception.loadPointCloud("1694762329.600894788.pcd")) {
         std::cerr << "Failed to load point cloud'\n";
         return -1;
     }
@@ -48,7 +48,8 @@ int main() {
 
 
 
-
+    // cluster the elements
+    perception.EuclideanClustering();
 
 
 

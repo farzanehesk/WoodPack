@@ -45,11 +45,9 @@ int main() {
     // segment the plane
     perception.segmentAndRemovePlane();
     
-
-
-
     // cluster the elements
     perception.EuclideanClustering();
+
 
 
 

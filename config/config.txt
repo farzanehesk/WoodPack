@@ -8,6 +8,6 @@ std_ratio=2.0
 ransac_n=3
 num_iterations=200
 cluster_tolerance=0.021
-min_cluster_size=168
+min_cluster_size=185
 
 

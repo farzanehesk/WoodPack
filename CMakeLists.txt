@@ -36,3 +36,5 @@ add_executable(${PROJECT_NAME} src/main.cpp src/PointCloudProcessor.cpp)
 
 # Link Open3D
 target_link_libraries(${PROJECT_NAME} PUBLIC Open3D::Open3D ${PCL_LIBRARIES})
+
+

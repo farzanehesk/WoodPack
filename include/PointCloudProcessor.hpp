@@ -46,6 +46,12 @@ class PointCloudProcessor
         // Getter method to retrieve the point cloud pointer
         PC_o3d_ptr getPointCloud() const{ return pc_ptr_; }
 
+        // Setter: Store clusters
+        void setClusters(const std::vector<PC_o3d_ptr>& clusters) { clusters_ptr_ = clusters; }
+
+        // Getter: Retrieve clusters
+        std::vector<PC_o3d_ptr> getClusters() const { return clusters_ptr_; }
+
         void resetPointers() {
             pc_ptr_ = nullptr;
             clusters_ptr_.clear();
@@ -90,7 +96,10 @@ class PointCloudVisualizer:  public virtual PointCloudProcessor
     
     //Member Functions
     void visualizerPointCloud();
-    //void visualizerClusters();
+    //
+    
+    void visualizerClusters(const std::vector<PC_o3d_ptr>& clusters);  // Visualize clusters
+
 
     //void visualizeMultiplePointClouds();
 

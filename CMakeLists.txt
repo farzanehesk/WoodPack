@@ -32,7 +32,7 @@ link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
 # Add your source files
-add_executable(${PROJECT_NAME} src/main.cpp src/PointCloudProcessor.cpp)
+add_executable(${PROJECT_NAME} src/main.cpp src/PointCloudProcessor.cpp src/GeometryProcessor.cpp)
 
 # Link Open3D
 target_link_libraries(${PROJECT_NAME} PUBLIC Open3D::Open3D ${PCL_LIBRARIES})

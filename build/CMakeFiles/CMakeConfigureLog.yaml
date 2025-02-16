@@ -1677,3 +1677,333 @@ events:
         
       exitCode: 0
 ...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/snap/cmake/1441/share/cmake-3.31/Modules/FindMPI.cmake:1283 (try_compile)"
+      - "/snap/cmake/1441/share/cmake-3.31/Modules/FindMPI.cmake:1327 (_MPI_try_staged_settings)"
+      - "/snap/cmake/1441/share/cmake-3.31/Modules/FindMPI.cmake:1650 (_MPI_check_lang_works)"
+      - "/usr/local/lib/cmake/vtk-9.1/VTK-vtk-module-find-packages.cmake:209 (find_package)"
+      - "/usr/local/lib/cmake/vtk-9.1/vtk-config.cmake:150 (include)"
+      - "CMakeLists.txt:22 (find_package)"
+    description: "The MPI test test_mpi for C in mode normal"
+    directories:
+      source: "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-GmuGgj"
+      binary: "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-GmuGgj"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/usr/local/lib/cmake/vtk-9.1/patches/99;/usr/local/lib/cmake/vtk-9.1"
+    buildResult:
+      variable: "MPI_RESULT_C_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-GmuGgj'
+        
+        Run Build Command(s): /snap/cmake/1441/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_69ef9/fast
+        gmake[1]: Entering directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-GmuGgj'
+        /usr/bin/gmake  -f CMakeFiles/cmTC_69ef9.dir/build.make CMakeFiles/cmTC_69ef9.dir/build
+        gmake[2]: Entering directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-GmuGgj'
+        Building C object CMakeFiles/cmTC_69ef9.dir/test_mpi.c.o
+        /usr/bin/cc  -isystem /usr/lib/x86_64-linux-gnu/openmpi/include -isystem /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi  -o CMakeFiles/cmTC_69ef9.dir/test_mpi.c.o -c /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-GmuGgj/test_mpi.c
+        Linking C executable cmTC_69ef9
+        /snap/cmake/1441/bin/cmake -E cmake_link_script CMakeFiles/cmTC_69ef9.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_69ef9.dir/test_mpi.c.o -o cmTC_69ef9  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/openmpi/lib /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so
+        gmake[2]: Leaving directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-GmuGgj'
+        gmake[1]: Leaving directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-GmuGgj'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/snap/cmake/1441/share/cmake-3.31/Modules/FindMPI.cmake:1283 (try_compile)"
+      - "/snap/cmake/1441/share/cmake-3.31/Modules/FindMPI.cmake:1327 (_MPI_try_staged_settings)"
+      - "/snap/cmake/1441/share/cmake-3.31/Modules/FindMPI.cmake:1650 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:26 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode normal"
+    directories:
+      source: "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-5uAl9i"
+      binary: "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-5uAl9i"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-5uAl9i'
+        
+        Run Build Command(s): /snap/cmake/1441/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_964c0/fast
+        gmake[1]: Entering directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-5uAl9i'
+        /usr/bin/gmake  -f CMakeFiles/cmTC_964c0.dir/build.make CMakeFiles/cmTC_964c0.dir/build
+        gmake[2]: Entering directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-5uAl9i'
+        Building CXX object CMakeFiles/cmTC_964c0.dir/test_mpi.cpp.o
+        /usr/bin/c++  -isystem /usr/lib/x86_64-linux-gnu/openmpi/include -isystem /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -std=gnu++17 -o CMakeFiles/cmTC_964c0.dir/test_mpi.cpp.o -c /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-5uAl9i/test_mpi.cpp
+        Linking CXX executable cmTC_964c0
+        /snap/cmake/1441/bin/cmake -E cmake_link_script CMakeFiles/cmTC_964c0.dir/link.txt --verbose=1
+        /usr/bin/c++ CMakeFiles/cmTC_964c0.dir/test_mpi.cpp.o -o cmTC_964c0  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/openmpi/lib /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so
+        gmake[2]: Leaving directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-5uAl9i'
+        gmake[1]: Leaving directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-5uAl9i'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/snap/cmake/1441/share/cmake-3.31/Modules/FindMPI.cmake:1283 (try_compile)"
+      - "/snap/cmake/1441/share/cmake-3.31/Modules/FindMPI.cmake:1677 (_MPI_try_staged_settings)"
+      - "CMakeLists.txt:26 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode MPICXX"
+    directories:
+      source: "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-NnKLug"
+      binary: "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-NnKLug"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_MPICXX"
+      cached: true
+      stdout: |
+        Change Dir: '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-NnKLug'
+        
+        Run Build Command(s): /snap/cmake/1441/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_68b65/fast
+        gmake[1]: Entering directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-NnKLug'
+        /usr/bin/gmake  -f CMakeFiles/cmTC_68b65.dir/build.make CMakeFiles/cmTC_68b65.dir/build
+        gmake[2]: Entering directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-NnKLug'
+        Building CXX object CMakeFiles/cmTC_68b65.dir/test_mpi.cpp.o
+        /usr/bin/c++  -isystem /usr/lib/x86_64-linux-gnu/openmpi/include -isystem /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -std=gnu++17 -o CMakeFiles/cmTC_68b65.dir/test_mpi.cpp.o -c /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-NnKLug/test_mpi.cpp
+        Linking CXX executable cmTC_68b65
+        /snap/cmake/1441/bin/cmake -E cmake_link_script CMakeFiles/cmTC_68b65.dir/link.txt --verbose=1
+        /usr/bin/c++ CMakeFiles/cmTC_68b65.dir/test_mpi.cpp.o -o cmTC_68b65  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/openmpi/lib /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so
+        gmake[2]: Leaving directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-NnKLug'
+        gmake[1]: Leaving directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-NnKLug'
+        
+      exitCode: 0
+...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/snap/cmake/1441/share/cmake-3.31/Modules/FindMPI.cmake:1283 (try_compile)"
+      - "/snap/cmake/1441/share/cmake-3.31/Modules/FindMPI.cmake:1327 (_MPI_try_staged_settings)"
+      - "/snap/cmake/1441/share/cmake-3.31/Modules/FindMPI.cmake:1650 (_MPI_check_lang_works)"
+      - "/usr/local/lib/cmake/vtk-9.1/VTK-vtk-module-find-packages.cmake:209 (find_package)"
+      - "/usr/local/lib/cmake/vtk-9.1/vtk-config.cmake:150 (include)"
+      - "CMakeLists.txt:20 (find_package)"
+    description: "The MPI test test_mpi for C in mode normal"
+    directories:
+      source: "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-00f3qu"
+      binary: "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-00f3qu"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/usr/local/lib/cmake/vtk-9.1/patches/99;/usr/local/lib/cmake/vtk-9.1"
+    buildResult:
+      variable: "MPI_RESULT_C_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-00f3qu'
+        
+        Run Build Command(s): /snap/cmake/1441/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_bd3c6/fast
+        gmake[1]: Entering directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-00f3qu'
+        /usr/bin/gmake  -f CMakeFiles/cmTC_bd3c6.dir/build.make CMakeFiles/cmTC_bd3c6.dir/build
+        gmake[2]: Entering directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-00f3qu'
+        Building C object CMakeFiles/cmTC_bd3c6.dir/test_mpi.c.o
+        /usr/bin/cc  -isystem /usr/lib/x86_64-linux-gnu/openmpi/include -isystem /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi  -o CMakeFiles/cmTC_bd3c6.dir/test_mpi.c.o -c /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-00f3qu/test_mpi.c
+        Linking C executable cmTC_bd3c6
+        /snap/cmake/1441/bin/cmake -E cmake_link_script CMakeFiles/cmTC_bd3c6.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_bd3c6.dir/test_mpi.c.o -o cmTC_bd3c6  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/openmpi/lib /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so
+        gmake[2]: Leaving directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-00f3qu'
+        gmake[1]: Leaving directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-00f3qu'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/snap/cmake/1441/share/cmake-3.31/Modules/FindMPI.cmake:1283 (try_compile)"
+      - "/snap/cmake/1441/share/cmake-3.31/Modules/FindMPI.cmake:1327 (_MPI_try_staged_settings)"
+      - "/snap/cmake/1441/share/cmake-3.31/Modules/FindMPI.cmake:1650 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:24 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode normal"
+    directories:
+      source: "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-6diNVr"
+      binary: "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-6diNVr"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-6diNVr'
+        
+        Run Build Command(s): /snap/cmake/1441/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_89f8c/fast
+        gmake[1]: Entering directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-6diNVr'
+        /usr/bin/gmake  -f CMakeFiles/cmTC_89f8c.dir/build.make CMakeFiles/cmTC_89f8c.dir/build
+        gmake[2]: Entering directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-6diNVr'
+        Building CXX object CMakeFiles/cmTC_89f8c.dir/test_mpi.cpp.o
+        /usr/bin/c++  -isystem /usr/lib/x86_64-linux-gnu/openmpi/include -isystem /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -std=gnu++17 -o CMakeFiles/cmTC_89f8c.dir/test_mpi.cpp.o -c /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-6diNVr/test_mpi.cpp
+        Linking CXX executable cmTC_89f8c
+        /snap/cmake/1441/bin/cmake -E cmake_link_script CMakeFiles/cmTC_89f8c.dir/link.txt --verbose=1
+        /usr/bin/c++ CMakeFiles/cmTC_89f8c.dir/test_mpi.cpp.o -o cmTC_89f8c  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/openmpi/lib /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so
+        gmake[2]: Leaving directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-6diNVr'
+        gmake[1]: Leaving directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-6diNVr'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/snap/cmake/1441/share/cmake-3.31/Modules/FindMPI.cmake:1283 (try_compile)"
+      - "/snap/cmake/1441/share/cmake-3.31/Modules/FindMPI.cmake:1677 (_MPI_try_staged_settings)"
+      - "CMakeLists.txt:24 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode MPICXX"
+    directories:
+      source: "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-LDcLqv"
+      binary: "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-LDcLqv"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_MPICXX"
+      cached: true
+      stdout: |
+        Change Dir: '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-LDcLqv'
+        
+        Run Build Command(s): /snap/cmake/1441/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_b19ff/fast
+        gmake[1]: Entering directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-LDcLqv'
+        /usr/bin/gmake  -f CMakeFiles/cmTC_b19ff.dir/build.make CMakeFiles/cmTC_b19ff.dir/build
+        gmake[2]: Entering directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-LDcLqv'
+        Building CXX object CMakeFiles/cmTC_b19ff.dir/test_mpi.cpp.o
+        /usr/bin/c++  -isystem /usr/lib/x86_64-linux-gnu/openmpi/include -isystem /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -std=gnu++17 -o CMakeFiles/cmTC_b19ff.dir/test_mpi.cpp.o -c /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-LDcLqv/test_mpi.cpp
+        Linking CXX executable cmTC_b19ff
+        /snap/cmake/1441/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b19ff.dir/link.txt --verbose=1
+        /usr/bin/c++ CMakeFiles/cmTC_b19ff.dir/test_mpi.cpp.o -o cmTC_b19ff  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/openmpi/lib /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so
+        gmake[2]: Leaving directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-LDcLqv'
+        gmake[1]: Leaving directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-LDcLqv'
+        
+      exitCode: 0
+...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/snap/cmake/1441/share/cmake-3.31/Modules/FindMPI.cmake:1283 (try_compile)"
+      - "/snap/cmake/1441/share/cmake-3.31/Modules/FindMPI.cmake:1327 (_MPI_try_staged_settings)"
+      - "/snap/cmake/1441/share/cmake-3.31/Modules/FindMPI.cmake:1650 (_MPI_check_lang_works)"
+      - "/usr/local/lib/cmake/vtk-9.1/VTK-vtk-module-find-packages.cmake:209 (find_package)"
+      - "/usr/local/lib/cmake/vtk-9.1/vtk-config.cmake:150 (include)"
+      - "CMakeLists.txt:20 (find_package)"
+    description: "The MPI test test_mpi for C in mode normal"
+    directories:
+      source: "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-mcP1Yp"
+      binary: "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-mcP1Yp"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/usr/local/lib/cmake/vtk-9.1/patches/99;/usr/local/lib/cmake/vtk-9.1"
+    buildResult:
+      variable: "MPI_RESULT_C_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-mcP1Yp'
+        
+        Run Build Command(s): /snap/cmake/1441/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_14807/fast
+        gmake[1]: Entering directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-mcP1Yp'
+        /usr/bin/gmake  -f CMakeFiles/cmTC_14807.dir/build.make CMakeFiles/cmTC_14807.dir/build
+        gmake[2]: Entering directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-mcP1Yp'
+        Building C object CMakeFiles/cmTC_14807.dir/test_mpi.c.o
+        /usr/bin/cc  -isystem /usr/lib/x86_64-linux-gnu/openmpi/include -isystem /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi  -o CMakeFiles/cmTC_14807.dir/test_mpi.c.o -c /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-mcP1Yp/test_mpi.c
+        Linking C executable cmTC_14807
+        /snap/cmake/1441/bin/cmake -E cmake_link_script CMakeFiles/cmTC_14807.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_14807.dir/test_mpi.c.o -o cmTC_14807  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/openmpi/lib /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so
+        gmake[2]: Leaving directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-mcP1Yp'
+        gmake[1]: Leaving directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-mcP1Yp'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/snap/cmake/1441/share/cmake-3.31/Modules/FindMPI.cmake:1283 (try_compile)"
+      - "/snap/cmake/1441/share/cmake-3.31/Modules/FindMPI.cmake:1327 (_MPI_try_staged_settings)"
+      - "/snap/cmake/1441/share/cmake-3.31/Modules/FindMPI.cmake:1650 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:24 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode normal"
+    directories:
+      source: "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-jvZDqo"
+      binary: "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-jvZDqo"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-jvZDqo'
+        
+        Run Build Command(s): /snap/cmake/1441/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_8c64a/fast
+        gmake[1]: Entering directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-jvZDqo'
+        /usr/bin/gmake  -f CMakeFiles/cmTC_8c64a.dir/build.make CMakeFiles/cmTC_8c64a.dir/build
+        gmake[2]: Entering directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-jvZDqo'
+        Building CXX object CMakeFiles/cmTC_8c64a.dir/test_mpi.cpp.o
+        /usr/bin/c++  -isystem /usr/lib/x86_64-linux-gnu/openmpi/include -isystem /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -std=gnu++17 -o CMakeFiles/cmTC_8c64a.dir/test_mpi.cpp.o -c /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-jvZDqo/test_mpi.cpp
+        Linking CXX executable cmTC_8c64a
+        /snap/cmake/1441/bin/cmake -E cmake_link_script CMakeFiles/cmTC_8c64a.dir/link.txt --verbose=1
+        /usr/bin/c++ CMakeFiles/cmTC_8c64a.dir/test_mpi.cpp.o -o cmTC_8c64a  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/openmpi/lib /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so
+        gmake[2]: Leaving directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-jvZDqo'
+        gmake[1]: Leaving directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-jvZDqo'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/snap/cmake/1441/share/cmake-3.31/Modules/FindMPI.cmake:1283 (try_compile)"
+      - "/snap/cmake/1441/share/cmake-3.31/Modules/FindMPI.cmake:1677 (_MPI_try_staged_settings)"
+      - "CMakeLists.txt:24 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode MPICXX"
+    directories:
+      source: "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-OS753r"
+      binary: "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-OS753r"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_MPICXX"
+      cached: true
+      stdout: |
+        Change Dir: '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-OS753r'
+        
+        Run Build Command(s): /snap/cmake/1441/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_6b75a/fast
+        gmake[1]: Entering directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-OS753r'
+        /usr/bin/gmake  -f CMakeFiles/cmTC_6b75a.dir/build.make CMakeFiles/cmTC_6b75a.dir/build
+        gmake[2]: Entering directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-OS753r'
+        Building CXX object CMakeFiles/cmTC_6b75a.dir/test_mpi.cpp.o
+        /usr/bin/c++  -isystem /usr/lib/x86_64-linux-gnu/openmpi/include -isystem /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -std=gnu++17 -o CMakeFiles/cmTC_6b75a.dir/test_mpi.cpp.o -c /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-OS753r/test_mpi.cpp
+        Linking CXX executable cmTC_6b75a
+        /snap/cmake/1441/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6b75a.dir/link.txt --verbose=1
+        /usr/bin/c++ CMakeFiles/cmTC_6b75a.dir/test_mpi.cpp.o -o cmTC_6b75a  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/openmpi/lib /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so
+        gmake[2]: Leaving directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-OS753r'
+        gmake[1]: Leaving directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/CMakeScratch/TryCompile-OS753r'
+        
+      exitCode: 0
+...

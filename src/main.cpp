@@ -5,6 +5,7 @@
 
 #include "../include/PointCloudProcessor.hpp"
 #include "../include/custom_types.hpp"
+#include "../include/GeometryProcessor.hpp"
 
 int main() {
     
@@ -48,6 +49,17 @@ int main() {
     // cluster the elements
     perception.EuclideanClustering();
 
+
+    // retrieve the clustered pointclouds
+    std::vector <PC_o3d_ptr> clusters = perception.getClusters();
+
+
+    // instantiate geometryprocessor
+    GeometryProcessor geom_processor;
+    auto bounding_boxes = geom_processor.computeOrientedBoundingBoxes(clusters);
+
+    // 
+    geom_processor.visualizeBoundingBoxes(clusters, bounding_boxes);
 
 
 

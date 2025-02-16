@@ -407,7 +407,6 @@ void PointCloudPerception::EuclideanClustering() {
     }
 
     // Store clusters in class member
-
     setClusters(cluster_clouds);
 
     log("Clustering completed. " + std::to_string(cluster_clouds.size()) + " clusters detected.");

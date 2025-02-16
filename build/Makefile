@@ -129,6 +129,30 @@ Shingle_Optimization/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/build
 .PHONY : Shingle_Optimization/fast
 
+src/GeometryProcessor.o: src/GeometryProcessor.cpp.o
+.PHONY : src/GeometryProcessor.o
+
+# target to build an object file
+src/GeometryProcessor.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/src/GeometryProcessor.cpp.o
+.PHONY : src/GeometryProcessor.cpp.o
+
+src/GeometryProcessor.i: src/GeometryProcessor.cpp.i
+.PHONY : src/GeometryProcessor.i
+
+# target to preprocess a source file
+src/GeometryProcessor.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/src/GeometryProcessor.cpp.i
+.PHONY : src/GeometryProcessor.cpp.i
+
+src/GeometryProcessor.s: src/GeometryProcessor.cpp.s
+.PHONY : src/GeometryProcessor.s
+
+# target to generate assembly for a file
+src/GeometryProcessor.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/src/GeometryProcessor.cpp.s
+.PHONY : src/GeometryProcessor.cpp.s
+
 src/PointCloudProcessor.o: src/PointCloudProcessor.cpp.o
 .PHONY : src/PointCloudProcessor.o
 
@@ -186,6 +210,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... Shingle_Optimization"
+	@echo "... src/GeometryProcessor.o"
+	@echo "... src/GeometryProcessor.i"
+	@echo "... src/GeometryProcessor.s"
 	@echo "... src/PointCloudProcessor.o"
 	@echo "... src/PointCloudProcessor.i"
 	@echo "... src/PointCloudProcessor.s"

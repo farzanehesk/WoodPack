@@ -1,4 +1,6 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/Shingle_Optimization.dir/src/GeometryProcessor.cpp.o"
+  "CMakeFiles/Shingle_Optimization.dir/src/GeometryProcessor.cpp.o.d"
   "CMakeFiles/Shingle_Optimization.dir/src/PointCloudProcessor.cpp.o"
   "CMakeFiles/Shingle_Optimization.dir/src/PointCloudProcessor.cpp.o.d"
   "CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o"

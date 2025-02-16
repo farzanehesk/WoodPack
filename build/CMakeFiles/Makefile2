@@ -85,12 +85,12 @@ clean: CMakeFiles/Shingle_Optimization.dir/clean
 CMakeFiles/Shingle_Optimization.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles --progress-num=1,2,3 "Built target Shingle_Optimization"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles --progress-num=1,2,3,4 "Built target Shingle_Optimization"
 .PHONY : CMakeFiles/Shingle_Optimization.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/Shingle_Optimization.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles 4
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/Shingle_Optimization.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles 0
 .PHONY : CMakeFiles/Shingle_Optimization.dir/rule
@@ -102,7 +102,7 @@ Shingle_Optimization: CMakeFiles/Shingle_Optimization.dir/rule
 # codegen rule for target.
 CMakeFiles/Shingle_Optimization.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles --progress-num=1,2,3 "Finished codegen for target Shingle_Optimization"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles --progress-num=1,2,3,4 "Finished codegen for target Shingle_Optimization"
 .PHONY : CMakeFiles/Shingle_Optimization.dir/codegen
 
 # clean rule for target.

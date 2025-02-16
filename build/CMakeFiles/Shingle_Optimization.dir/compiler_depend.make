@@ -210,6 +210,7 @@ CMakeFiles/Shingle_Optimization.dir/src/GeometryProcessor.cpp.o: /home/farzaneh/
   /usr/include/ctype.h \
   /usr/include/eigen3/Eigen/Cholesky \
   /usr/include/eigen3/Eigen/Core \
+  /usr/include/eigen3/Eigen/Eigenvalues \
   /usr/include/eigen3/Eigen/Geometry \
   /usr/include/eigen3/Eigen/Householder \
   /usr/include/eigen3/Eigen/Jacobi \
@@ -339,6 +340,17 @@ CMakeFiles/Shingle_Optimization.dir/src/GeometryProcessor.cpp.o: /home/farzaneh/
   /usr/include/eigen3/Eigen/src/Core/util/StaticAssert.h \
   /usr/include/eigen3/Eigen/src/Core/util/SymbolicIndex.h \
   /usr/include/eigen3/Eigen/src/Core/util/XprHelper.h \
+  /usr/include/eigen3/Eigen/src/Eigenvalues/ComplexEigenSolver.h \
+  /usr/include/eigen3/Eigen/src/Eigenvalues/ComplexSchur.h \
+  /usr/include/eigen3/Eigen/src/Eigenvalues/EigenSolver.h \
+  /usr/include/eigen3/Eigen/src/Eigenvalues/GeneralizedEigenSolver.h \
+  /usr/include/eigen3/Eigen/src/Eigenvalues/GeneralizedSelfAdjointEigenSolver.h \
+  /usr/include/eigen3/Eigen/src/Eigenvalues/HessenbergDecomposition.h \
+  /usr/include/eigen3/Eigen/src/Eigenvalues/MatrixBaseEigenvalues.h \
+  /usr/include/eigen3/Eigen/src/Eigenvalues/RealQZ.h \
+  /usr/include/eigen3/Eigen/src/Eigenvalues/RealSchur.h \
+  /usr/include/eigen3/Eigen/src/Eigenvalues/SelfAdjointEigenSolver.h \
+  /usr/include/eigen3/Eigen/src/Eigenvalues/Tridiagonalization.h \
   /usr/include/eigen3/Eigen/src/Geometry/AlignedBox.h \
   /usr/include/eigen3/Eigen/src/Geometry/AngleAxis.h \
   /usr/include/eigen3/Eigen/src/Geometry/EulerAngles.h \
@@ -2559,7 +2571,23 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 
 /usr/local/include/open3d/t/pipelines/registration/RobustKernel.h:
 
+/usr/local/include/open3d/t/pipelines/odometry/RGBDOdometry.h:
+
+/usr/local/include/open3d/t/pipelines/kernel/TransformationConverter.h:
+
+/usr/local/include/open3d/t/io/sensor/realsense/RealSenseSensor.h:
+
+/usr/local/include/open3d/t/io/sensor/realsense/RSBagReader.h:
+
+/usr/local/include/open3d/t/io/sensor/RGBDVideoReader.h:
+
+/usr/local/include/open3d/t/io/sensor/RGBDVideoMetadata.h:
+
 /usr/local/include/open3d/t/io/PointCloudIO.h:
+
+/usr/local/include/open3d/t/io/NumpyIO.h:
+
+/usr/local/include/open3d/t/io/ImageIO.h:
 
 /usr/include/eigen3/Eigen/src/Core/util/Memory.h:
 
@@ -2599,6 +2627,8 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 
 /usr/include/eigen3/Eigen/src/Core/functors/StlFunctors.h:
 
+/usr/include/eigen3/Eigen/src/Eigenvalues/EigenSolver.h:
+
 /usr/include/eigen3/Eigen/src/Core/functors/AssignmentFunctors.h:
 
 /usr/lib/gcc/x86_64-linux-gnu/11/include/mwaitxintrin.h:
@@ -2635,8 +2665,6 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 
 /usr/include/eigen3/Eigen/src/Core/Swap.h:
 
-/usr/include/eigen3/Eigen/src/Core/Stride.h:
-
 /usr/include/eigen3/Eigen/src/Core/StableNorm.h:
 
 /usr/local/include/open3d/visualization/visualizer/Visualizer.h:
@@ -2670,6 +2698,8 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 /usr/include/eigen3/Eigen/src/Core/ProductEvaluators.h:
 
 /usr/include/eigen3/Eigen/src/Cholesky/LLT.h:
+
+/usr/include/eigen3/Eigen/src/Eigenvalues/SelfAdjointEigenSolver.h:
 
 /usr/include/eigen3/Eigen/src/Core/PermutationMatrix.h:
 
@@ -2755,6 +2785,10 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 
 /usr/include/x86_64-linux-gnu/bits/errno.h:
 
+/usr/include/eigen3/Eigen/src/Core/Stride.h:
+
+/usr/include/eigen3/Eigen/Eigenvalues:
+
 /usr/lib/gcc/x86_64-linux-gnu/11/include/rdseedintrin.h:
 
 /usr/include/c++/11/condition_variable:
@@ -2766,6 +2800,8 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 /usr/local/include/open3d/core/kernel/UnaryEW.h:
 
 /usr/include/c++/11/tr1/hypergeometric.tcc:
+
+/usr/include/eigen3/Eigen/src/Eigenvalues/RealQZ.h:
 
 /usr/include/c++/11/tr1/beta_function.tcc:
 
@@ -2815,6 +2851,8 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 
 /usr/include/eigen3/Eigen/src/Core/Matrix.h:
 
+/usr/include/eigen3/Eigen/src/Eigenvalues/HessenbergDecomposition.h:
+
 /usr/include/c++/11/tr1/gamma.tcc:
 
 /usr/local/include/open3d/core/nns/NNSIndex.h:
@@ -2842,10 +2880,6 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 /usr/include/eigen3/Eigen/src/Core/products/SelfadjointMatrixVector.h:
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/cxxabi_tweaks.h:
-
-/usr/include/eigen3/Eigen/src/Core/NumTraits.h:
-
-/usr/include/c++/11/bits/postypes.h:
 
 /usr/include/c++/11/bits/locale_classes.h:
 
@@ -2955,6 +2989,8 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 
 /usr/include/c++/11/bits/stl_construct.h:
 
+/usr/include/eigen3/Eigen/src/Eigenvalues/RealSchur.h:
+
 /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/GeometryProcessor.cpp:
 
 /usr/include/x86_64-linux-gnu/bits/types/struct___jmp_buf_tag.h:
@@ -2986,8 +3022,6 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 /usr/include/x86_64-linux-gnu/bits/mathcalls.h:
 
 /usr/local/include/open3d/geometry/LineSet.h:
-
-/usr/local/include/open3d/t/io/sensor/RGBDVideoReader.h:
 
 /usr/include/c++/11/array:
 
@@ -3125,6 +3159,12 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 
 /usr/include/eigen3/Eigen/src/Core/StlIterators.h:
 
+/usr/local/include/open3d/t/io/sensor/realsense/RealSenseSensorConfig.h:
+
+/usr/include/c++/11/bits/ptr_traits.h:
+
+/usr/include/eigen3/Eigen/src/Geometry/Scaling.h:
+
 /usr/include/x86_64-linux-gnu/bits/posix2_lim.h:
 
 /usr/include/c++/11/bits/specfun.h:
@@ -3181,6 +3221,8 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/gthr-default.h:
 
+/usr/include/eigen3/Eigen/src/Eigenvalues/MatrixBaseEigenvalues.h:
+
 /usr/local/include/open3d/3rdparty/fmt/format-inl.h:
 
 /usr/include/c++/11/bits/cpp_type_traits.h:
@@ -3200,6 +3242,12 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 /usr/include/eigen3/Eigen/src/Geometry/Rotation2D.h:
 
 /usr/include/x86_64-linux-gnu/bits/stdio_lim.h:
+
+/usr/include/eigen3/Eigen/src/Core/arch/AVX/Complex.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/11/include/avx512bwintrin.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/11/include/xsaveintrin.h:
 
 /usr/include/c++/11/bits/cxxabi_forced.h:
 
@@ -3397,8 +3445,6 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 
 /usr/local/include/open3d/geometry/Keypoint.h:
 
-/usr/local/include/open3d/t/io/NumpyIO.h:
-
 /usr/include/eigen3/Eigen/src/Core/Dot.h:
 
 /usr/include/c++/11/codecvt:
@@ -3420,6 +3466,28 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 /usr/include/eigen3/Eigen/src/Core/util/SymbolicIndex.h:
 
 /usr/include/eigen3/Eigen/src/Core/util/XprHelper.h:
+
+/usr/include/c++/11/bits/basic_string.tcc:
+
+/usr/include/x86_64-linux-gnu/bits/xopen_lim.h:
+
+/usr/include/eigen3/Eigen/src/Eigenvalues/ComplexSchur.h:
+
+/usr/local/include/open3d/pipelines/registration/PoseGraph.h:
+
+/usr/include/eigen3/Eigen/src/Core/NumTraits.h:
+
+/usr/include/c++/11/bits/postypes.h:
+
+/usr/include/eigen3/Eigen/src/Eigenvalues/GeneralizedEigenSolver.h:
+
+/usr/include/c++/11/bits/erase_if.h:
+
+/usr/include/wchar.h:
+
+/usr/include/eigen3/Eigen/src/Eigenvalues/Tridiagonalization.h:
+
+/usr/include/eigen3/Eigen/src/Householder/HouseholderSequence.h:
 
 /usr/include/x86_64-linux-gnu/bits/waitstatus.h:
 
@@ -3466,8 +3534,6 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 /usr/include/c++/11/ext/type_traits.h:
 
 /usr/include/eigen3/Eigen/src/Householder/Householder.h:
-
-/usr/include/eigen3/Eigen/src/Householder/HouseholderSequence.h:
 
 /usr/include/eigen3/Eigen/src/Jacobi/Jacobi.h:
 
@@ -3539,8 +3605,6 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 
 /usr/include/linux/errno.h:
 
-/usr/local/include/open3d/t/io/sensor/RGBDVideoMetadata.h:
-
 /usr/include/linux/limits.h:
 
 /usr/local/include/open3d/Open3DConfig.h:
@@ -3572,10 +3636,6 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 /usr/include/eigen3/Eigen/src/Core/products/SelfadjointMatrixMatrix.h:
 
 /usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h:
-
-/usr/include/c++/11/bits/erase_if.h:
-
-/usr/include/wchar.h:
 
 /usr/include/x86_64-linux-gnu/asm/errno.h:
 
@@ -3693,10 +3753,6 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 
 /usr/include/x86_64-linux-gnu/bits/wordsize.h:
 
-/usr/include/c++/11/bits/basic_string.tcc:
-
-/usr/include/x86_64-linux-gnu/bits/xopen_lim.h:
-
 /usr/include/x86_64-linux-gnu/c++/11/bits/ctype_base.h:
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/ctype_inline.h:
@@ -3723,19 +3779,11 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/os_defines.h:
 
-/usr/include/c++/11/bits/ptr_traits.h:
-
-/usr/include/eigen3/Eigen/src/Geometry/Scaling.h:
-
-/usr/local/include/open3d/t/io/sensor/realsense/RealSenseSensorConfig.h:
-
 /usr/include/x86_64-linux-gnu/gnu/stubs-64.h:
 
 /usr/include/x86_64-linux-gnu/bits/wchar.h:
 
 /usr/include/x86_64-linux-gnu/gnu/stubs.h:
-
-/usr/local/include/open3d/t/pipelines/kernel/TransformationConverter.h:
 
 /usr/include/x86_64-linux-gnu/sys/cdefs.h:
 
@@ -3775,12 +3823,6 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 
 /usr/local/include/open3d/geometry/VoxelGrid.h:
 
-/usr/include/eigen3/Eigen/src/Core/arch/AVX/Complex.h:
-
-/usr/lib/gcc/x86_64-linux-gnu/11/include/xsaveintrin.h:
-
-/usr/lib/gcc/x86_64-linux-gnu/11/include/avx512bwintrin.h:
-
 /usr/include/eigen3/Eigen/SVD:
 
 /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512dqintrin.h:
@@ -3807,9 +3849,13 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 
 /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vnnivlintrin.h:
 
+/usr/include/eigen3/Eigen/src/Eigenvalues/GeneralizedSelfAdjointEigenSolver.h:
+
 /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vp2intersectvlintrin.h:
 
 /usr/include/eigen3/Eigen/src/Core/DenseCoeffsBase.h:
+
+/usr/include/eigen3/Eigen/src/Eigenvalues/ComplexEigenSolver.h:
 
 /usr/lib/gcc/x86_64-linux-gnu/11/include/avxvnniintrin.h:
 
@@ -3890,6 +3936,10 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 /usr/lib/gcc/x86_64-linux-gnu/11/include/xsaveoptintrin.h:
 
 /usr/lib/gcc/x86_64-linux-gnu/11/include/xsavesintrin.h:
+
+/usr/local/include/open3d/t/io/sensor/RGBDSensor.h:
+
+/usr/local/include/open3d/3rdparty/GL/glew.h:
 
 /usr/local/include/open3d/3rdparty/GLFW/glfw3.h:
 
@@ -3999,8 +4049,6 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 
 /usr/local/include/open3d/pipelines/registration/GlobalOptimization.h:
 
-/usr/local/include/open3d/pipelines/registration/PoseGraph.h:
-
 /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vpopcntdqvlintrin.h:
 
 /usr/local/include/open3d/pipelines/registration/RobustKernel.h:
@@ -4016,15 +4064,3 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 /usr/local/include/open3d/t/geometry/TensorMap.h:
 
 /usr/local/include/open3d/t/geometry/VoxelBlockGrid.h:
-
-/usr/local/include/open3d/t/io/ImageIO.h:
-
-/usr/local/include/open3d/3rdparty/GL/glew.h:
-
-/usr/local/include/open3d/t/io/sensor/RGBDSensor.h:
-
-/usr/local/include/open3d/t/io/sensor/realsense/RSBagReader.h:
-
-/usr/local/include/open3d/t/io/sensor/realsense/RealSenseSensor.h:
-
-/usr/local/include/open3d/t/pipelines/odometry/RGBDOdometry.h:

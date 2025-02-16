@@ -42,6 +42,8 @@ int main() {
     // }
 
 
+    // store the original point cloud
+    auto original_pc = std::make_shared<open3d::geometry::PointCloud>(*perception.getPointCloud());
 
     // segment the plane
     perception.segmentAndRemovePlane();
@@ -59,7 +61,8 @@ int main() {
     auto bounding_boxes = geom_processor.computeOrientedBoundingBoxes(clusters);
 
     // 
-    geom_processor.visualizeBoundingBoxes(clusters, bounding_boxes);
+    //geom_processor.visualizeBoundingBoxes(clusters, bounding_boxes);
+    geom_processor.visualizeBoundingBoxes(original_pc , bounding_boxes);
 
 
 

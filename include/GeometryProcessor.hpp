@@ -42,28 +42,28 @@ public:
     // 5. visualize bounding boxes on the original poitn cloud
     void visualizeBoundingBoxes(
         const std::shared_ptr<open3d::geometry::PointCloud>& original_pc,
-        const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes)
-        {
+        const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes);
+        // {
 
-        // create a vector to store geometries
-        std::vector <std::shared_ptr <const open3d::geometry::Geometry>> geometries ;
+        // // create a vector to store geometries
+        // std::vector <std::shared_ptr <const open3d::geometry::Geometry>> geometries ;
 
-        // add the original point cloud
-        geometries.push_back(original_pc);
+        // // add the original point cloud
+        // geometries.push_back(original_pc);
 
 
-        // add all bounding boxes
-        for (const auto& obb : bounding_boxes)
-        {
-            auto obb_mesh = open3d::geometry::TriangleMesh::CreateFromOrientedBoundingBox(obb);
-            obb_mesh->PaintUniformColor({1.0 , 0.0 , 0.0});
-            geometries.push_back(obb_mesh);
-        }
+        // // add all bounding boxes
+        // for (const auto& obb : bounding_boxes)
+        // {
+        //     auto obb_mesh = open3d::geometry::TriangleMesh::CreateFromOrientedBoundingBox(obb);
+        //     obb_mesh->PaintUniformColor({1.0 , 0.0 , 0.0});
+        //     geometries.push_back(obb_mesh);
+        // }
 
-        //open3d visualization
-        open3d::visualization::DrawGeometries(geometries,  "Bounding Boxes on original point cloud"); 
+        // //open3d visualization
+        // open3d::visualization::DrawGeometries(geometries,  "Bounding Boxes on original point cloud"); 
 
-        }
+        // }
 
 
 

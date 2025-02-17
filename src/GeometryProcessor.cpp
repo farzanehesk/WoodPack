@@ -119,30 +119,30 @@ return bounding_boxes;
 
 
 ///////////////////////////////////////////
-// void visualizeBoundingBoxes(
-//         const std::shared_ptr<open3d::geometry::PointCloud>& original_pc,
-//         const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes)
-// {
+void GeometryProcessor::visualizeBoundingBoxes(
+        const std::shared_ptr<open3d::geometry::PointCloud>& original_pc,
+        const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes)
+{
 
-// // create a vector to store geometries
-// std::vector <std::shared_ptr <const open3d::geometry::Geometry>> geometries ;
+// create a vector to store geometries
+std::vector <std::shared_ptr <const open3d::geometry::Geometry>> geometries ;
 
-// // add the original point cloud
-// geometries.push_back(original_pc);
+// add the original point cloud
+geometries.push_back(original_pc);
 
 
-// // add all bounding boxes
-// for (const auto& obb : bounding_boxes)
-// {
-//     auto obb_mesh = open3d::geometry::TriangleMesh::CreateFromOrientedBoundingBox(obb);
-//     obb_mesh->PaintUniformColor({1.0 , 0.0 , 0.0});
-//     geometries.push_back(obb_mesh);
-// }
+// add all bounding boxes
+for (const auto& obb : bounding_boxes)
+{
+        auto obb_ptr = std::make_shared<open3d::geometry::OrientedBoundingBox>(obb);
+        obb_ptr->color_ = Eigen::Vector3d(1.0, 0.0, 0.0); // Set color to red
+        geometries.push_back(obb_ptr);
+}
 
-// //open3d visualization
-// open3d::visualization::DrawGeometries(geometries,  "Bounding Boxes on original point cloud"); 
+//open3d visualization
+open3d::visualization::DrawGeometries(geometries,  "Bounding Boxes on original point cloud"); 
 
-// }
+}
 
 
 // // 3. Compute axis-aligned bounding boxes for a vector of point clouds

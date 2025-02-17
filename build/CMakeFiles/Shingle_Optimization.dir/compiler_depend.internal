@@ -4,6 +4,7 @@
 CMakeFiles/Shingle_Optimization.dir/src/GeometryProcessor.cpp.o
  /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/GeometryProcessor.cpp
  /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/include/GeometryProcessor.hpp
+ /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/include/custom_types.hpp
  /usr/include/GL/gl.h
  /usr/include/GL/glu.h
  /usr/include/alloca.h

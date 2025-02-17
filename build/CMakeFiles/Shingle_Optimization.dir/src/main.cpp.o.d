@@ -733,4 +733,5 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: \
  /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/../include/../include/PointCloudProcessor.hpp \
  /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/../include/../include/custom_types.hpp \
  /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/../include/custom_types.hpp \
- /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/../include/GeometryProcessor.hpp
+ /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/../include/GeometryProcessor.hpp \
+ /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/../include/custom_types.hpp

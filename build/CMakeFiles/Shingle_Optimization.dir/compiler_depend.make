@@ -3,6 +3,7 @@
 
 CMakeFiles/Shingle_Optimization.dir/src/GeometryProcessor.cpp.o: /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/GeometryProcessor.cpp \
   /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/include/GeometryProcessor.hpp \
+  /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/include/custom_types.hpp \
   /usr/include/GL/gl.h \
   /usr/include/GL/glu.h \
   /usr/include/alloca.h \
@@ -2589,6 +2590,8 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 
 /usr/local/include/open3d/t/io/ImageIO.h:
 
+/usr/local/include/open3d/t/io/HashMapIO.h:
+
 /usr/include/eigen3/Eigen/src/Core/util/Memory.h:
 
 /usr/include/c++/11/bits/quoted_string.h:
@@ -2747,8 +2750,6 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 
 /usr/include/c++/11/bits/locale_facets_nonio.h:
 
-/usr/include/eigen3/Eigen/src/Core/DenseBase.h:
-
 /usr/include/eigen3/Eigen/src/Core/CwiseTernaryOp.h:
 
 /usr/include/eigen3/Eigen/src/Core/util/Meta.h:
@@ -2875,12 +2876,6 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 
 /usr/local/include/open3d/core/SizeVector.h:
 
-/usr/include/c++/11/bits/std_thread.h:
-
-/usr/include/eigen3/Eigen/src/Core/products/SelfadjointMatrixVector.h:
-
-/usr/include/x86_64-linux-gnu/c++/11/bits/cxxabi_tweaks.h:
-
 /usr/include/c++/11/bits/locale_classes.h:
 
 /usr/include/c++/11/cwctype:
@@ -2995,14 +2990,6 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 
 /usr/include/x86_64-linux-gnu/bits/types/struct___jmp_buf_tag.h:
 
-/usr/include/c++/11/bits/nested_exception.h:
-
-/usr/include/c++/11/bits/move.h:
-
-/usr/include/eigen3/Eigen/Cholesky:
-
-/usr/local/include/open3d/core/MemoryManager.h:
-
 /usr/local/include/open3d/visualization/visualizer/RenderOption.h:
 
 /usr/include/asm-generic/errno-base.h:
@@ -3010,6 +2997,16 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 /usr/include/x86_64-linux-gnu/bits/types/timer_t.h:
 
 /usr/include/eigen3/Eigen/StdVector:
+
+/usr/include/eigen3/Eigen/src/Core/DiagonalMatrix.h:
+
+/usr/include/c++/11/new:
+
+/usr/include/c++/11/bits/stl_list.h:
+
+/usr/include/c++/11/exception:
+
+/usr/include/x86_64-linux-gnu/sys/types.h:
 
 /usr/include/eigen3/Eigen/src/Core/util/Macros.h:
 
@@ -3087,7 +3084,41 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 
 /usr/include/c++/11/variant:
 
+/usr/include/eigen3/Eigen/src/Core/DenseBase.h:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/time_members.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/11/include/movdirintrin.h:
+
+/usr/include/eigen3/Eigen/src/Core/Solve.h:
+
+/usr/include/x86_64-linux-gnu/bits/stdint-intn.h:
+
+/usr/include/eigen3/Eigen/src/Core/Array.h:
+
+/usr/include/c++/11/bits/shared_ptr.h:
+
+/usr/include/GL/glu.h:
+
+/usr/include/c++/11/bits/fs_path.h:
+
+/usr/include/eigen3/Eigen/src/Core/GeneralProduct.h:
+
+/usr/include/c++/11/unordered_map:
+
+/usr/include/c++/11/bits/charconv.h:
+
 /usr/include/c++/11/bits/functional_hash.h:
+
+/usr/include/ctype.h:
+
+/usr/include/c++/11/bits/unordered_map.h:
+
+/usr/include/c++/11/bits/list.tcc:
+
+/usr/include/eigen3/Eigen/src/LU/FullPivLU.h:
+
+/usr/include/c++/11/locale:
 
 /usr/include/c++/11/type_traits:
 
@@ -3108,6 +3139,14 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 /usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h:
 
 /usr/include/c++/11/bits/char_traits.h:
+
+/usr/include/c++/11/bits/nested_exception.h:
+
+/usr/include/c++/11/bits/move.h:
+
+/usr/include/eigen3/Eigen/Cholesky:
+
+/usr/local/include/open3d/core/MemoryManager.h:
 
 /usr/include/c++/11/sstream:
 
@@ -3135,15 +3174,15 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 
 /usr/include/c++/11/bits/allocated_ptr.h:
 
+/usr/include/eigen3/Eigen/src/Core/util/ForwardDeclarations.h:
+
+/usr/include/c++/11/tr1/riemann_zeta.tcc:
+
+/usr/include/c++/11/initializer_list:
+
 /usr/include/c++/11/bits/stl_multimap.h:
 
 /usr/include/c++/11/memory:
-
-/usr/include/c++/11/exception:
-
-/usr/include/c++/11/bits/stl_list.h:
-
-/usr/include/x86_64-linux-gnu/sys/types.h:
 
 /usr/include/c++/11/bits/uses_allocator.h:
 
@@ -3153,65 +3192,21 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 
 /usr/include/c++/11/bits/stl_vector.h:
 
+/usr/include/x86_64-linux-gnu/bits/types/wint_t.h:
+
+/usr/include/c++/11/bits/istream.tcc:
+
+/usr/lib/gcc/x86_64-linux-gnu/11/include/avx512cdintrin.h:
+
 /usr/include/c++/11/atomic:
 
 /usr/include/c++/11/bits/stl_raw_storage_iter.h:
-
-/usr/include/eigen3/Eigen/src/Core/StlIterators.h:
-
-/usr/local/include/open3d/t/io/sensor/realsense/RealSenseSensorConfig.h:
-
-/usr/include/c++/11/bits/ptr_traits.h:
-
-/usr/include/eigen3/Eigen/src/Geometry/Scaling.h:
-
-/usr/include/x86_64-linux-gnu/bits/posix2_lim.h:
-
-/usr/include/c++/11/bits/specfun.h:
-
-/usr/include/eigen3/Eigen/src/QR/CompleteOrthogonalDecomposition.h:
-
-/usr/local/include/open3d/visualization/gui/WindowSystem.h:
-
-/usr/include/features.h:
-
-/usr/include/c++/11/iosfwd:
-
-/usr/include/c++/11/ios:
-
-/usr/include/c++/11/bits/list.tcc:
-
-/usr/include/c++/11/bits/unordered_map.h:
-
-/usr/include/eigen3/Eigen/src/LU/FullPivLU.h:
-
-/usr/include/c++/11/locale:
 
 /usr/include/c++/11/tr1/ell_integral.tcc:
 
 /usr/local/include/open3d/visualization/gui/Dialog.h:
 
 /usr/include/c++/11/bits/hash_bytes.h:
-
-/usr/include/x86_64-linux-gnu/c++/11/bits/time_members.h:
-
-/usr/lib/gcc/x86_64-linux-gnu/11/include/movdirintrin.h:
-
-/usr/include/eigen3/Eigen/src/Core/Solve.h:
-
-/usr/include/c++/11/bits/shared_ptr.h:
-
-/usr/include/GL/glu.h:
-
-/usr/include/c++/11/bits/fs_path.h:
-
-/usr/include/ctype.h:
-
-/usr/include/eigen3/Eigen/src/Core/GeneralProduct.h:
-
-/usr/include/c++/11/unordered_map:
-
-/usr/include/c++/11/bits/charconv.h:
 
 /usr/include/eigen3/Eigen/src/Core/arch/Default/TypeCasting.h:
 
@@ -3226,14 +3221,6 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 /usr/local/include/open3d/3rdparty/fmt/format-inl.h:
 
 /usr/include/c++/11/bits/cpp_type_traits.h:
-
-/usr/include/eigen3/Eigen/src/Core/DiagonalMatrix.h:
-
-/usr/include/c++/11/new:
-
-/usr/include/eigen3/Eigen/src/Core/Array.h:
-
-/usr/include/x86_64-linux-gnu/bits/stdint-intn.h:
 
 /usr/include/c++/11/bits/exception.h:
 
@@ -3252,6 +3239,34 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 /usr/include/c++/11/bits/cxxabi_forced.h:
 
 /usr/include/c++/11/bits/stream_iterator.h:
+
+/usr/include/eigen3/Eigen/src/Core/StlIterators.h:
+
+/usr/local/include/open3d/t/io/sensor/realsense/RealSenseSensorConfig.h:
+
+/usr/include/c++/11/bits/ptr_traits.h:
+
+/usr/include/eigen3/Eigen/src/Geometry/Scaling.h:
+
+/usr/include/x86_64-linux-gnu/bits/posix2_lim.h:
+
+/usr/include/c++/11/iosfwd:
+
+/usr/include/c++/11/ios:
+
+/usr/include/c++/11/bits/specfun.h:
+
+/usr/include/eigen3/Eigen/src/QR/CompleteOrthogonalDecomposition.h:
+
+/usr/local/include/open3d/visualization/gui/WindowSystem.h:
+
+/usr/include/features.h:
+
+/usr/include/c++/11/bits/std_thread.h:
+
+/usr/include/eigen3/Eigen/src/Core/products/SelfadjointMatrixVector.h:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/cxxabi_tweaks.h:
 
 /usr/local/include/open3d/visualization/gui/Combobox.h:
 
@@ -3426,18 +3441,6 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 /usr/include/c++/11/fstream:
 
 /usr/include/eigen3/Eigen/src/plugins/ArrayCwiseBinaryOps.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/wint_t.h:
-
-/usr/lib/gcc/x86_64-linux-gnu/11/include/avx512cdintrin.h:
-
-/usr/include/c++/11/bits/istream.tcc:
-
-/usr/include/eigen3/Eigen/src/Core/util/ForwardDeclarations.h:
-
-/usr/include/c++/11/tr1/riemann_zeta.tcc:
-
-/usr/include/c++/11/initializer_list:
 
 /usr/include/eigen3/Eigen/src/Core/MathFunctionsImpl.h:
 
@@ -3986,8 +3989,6 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h:
 
 /usr/local/include/open3d/io/PinholeCameraTrajectoryIO.h:
-
-/usr/local/include/open3d/t/io/HashMapIO.h:
 
 /usr/local/include/open3d/core/nns/FixedRadiusIndex.h:
 

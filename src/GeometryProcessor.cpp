@@ -30,7 +30,8 @@
 
 
 
-
+// 1. Method to compute oriented bounding boxes for a vector of point clouds 
+// Implementing PCA-based Oriented Bounding Box (OBB) computation for better alignment with object orientation
 std::vector<open3d::geometry::OrientedBoundingBox> GeometryProcessor::computeOrientedBoundingBoxes(
     const std::vector<PC_o3d_ptr>& clusters) 
 {
@@ -92,34 +93,35 @@ return bounding_boxes;
 
 
 
-///
-// // Visualize clusters with precomputed bounding boxes 
+////////////////////////////////////////////
+// 2. Visualize clusters with precomputed bounding boxes 
 
-// void GeometryProcessor::visualizeBoundingBoxes( 
-// const std::vector<PC_o3d_ptr>& clusters, 
-// const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes) 
-// { 
-// std::vector<std::shared_ptr<const open3d::geometry::Geometry>> geometry_list; 
+void GeometryProcessor::visualizeBoundingBoxes( 
+const std::vector<PC_o3d_ptr>& clusters, 
+const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes) 
+{ 
+std::vector<std::shared_ptr<const open3d::geometry::Geometry>> geometry_list; 
 
-// for (size_t i = 0; i < clusters.size(); ++i) 
-// { 
-// if (!clusters[i]->points_.empty()) 
-// { 
-// geometry_list.push_back(clusters[i]); // Add cluster point cloud 
-// auto obb = std::make_shared<open3d::geometry::OrientedBoundingBox>(bounding_boxes[i]); 
-// obb->color_ = Eigen::Vector3d(1, 0, 0); // Red color for bounding boxes 
-// geometry_list.push_back(obb); 
-// } 
-// }
-//  // Open3D visualization
-// open3d::visualization::DrawGeometries(geometry_list, "Cluster Bounding Boxes"); 
-// }
+for (size_t i = 0; i < clusters.size(); ++i) 
+{ 
+if (!clusters[i]->points_.empty()) 
+{ 
+geometry_list.push_back(clusters[i]); // Add cluster point cloud 
+auto obb = std::make_shared<open3d::geometry::OrientedBoundingBox>(bounding_boxes[i]); 
+obb->color_ = Eigen::Vector3d(1, 0, 0); // Red color for bounding boxes 
+geometry_list.push_back(obb); 
+} 
+}
+ // Open3D visualization
+open3d::visualization::DrawGeometries(geometry_list, "Cluster Bounding Boxes"); 
+}
 
 
 
 
 ///////////////////////////////////////////
-void GeometryProcessor::visualizeBoundingBoxes(
+// 5. visualize bounding boxes on the original poitn cloud
+void GeometryProcessor::visualizeBoundingBoxesAndOriginalPc(
         const std::shared_ptr<open3d::geometry::PointCloud>& original_pc,
         const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes)
 {
@@ -183,3 +185,51 @@ open3d::visualization::DrawGeometries(geometries,  "Bounding Boxes on original p
 //     // Open3D visualization
 //     open3d::visualization::DrawGeometries(geometry_list, "Cluster AABBs", 640, 480, 50, 50, true);
 // }
+
+
+
+
+//////////////////////////////////////////////
+// 6.Method to getWidthsOfBoundingBoxes
+std::vector <double> GeometryProcessor::getWidthsOfBoundingBoxes(
+    const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes)
+    {
+            std::vector<double> widths;
+    widths.reserve(bounding_boxes.size());
+
+    for (const auto& obb : bounding_boxes) {
+        // Extract the width (first component of extent_)
+        double width = obb.extent_.x();
+        widths.push_back(width);
+    }
+
+    return widths;
+    }
+
+
+//////////////////////////////////////////////
+ // 7. Method to generate a list of random rectangles
+ std::vector<Rectangle> GeometryProcessor::generateRandomRectangles(int count)
+{ 
+std::vector<Rectangle> rectangles; 
+std::random_device rd;
+std::mt19937 gen(rd());
+std::uniform_real_distribution<double> width_dist(0.08, 0.2); 
+//std::uniform_real_distribution<double> height_dist(5.0, 15.0); // Example heights 
+
+for (int i = 0; i < count; ++i)
+ { 
+double width = width_dist(gen); 
+rectangles.push_back({width, 0.25}); 
+} 
+return rectangles; }
+
+
+//////////////////////////////////////////////
+// 8.  8. Method to print rectangles
+void GeometryProcessor::printRectangles(const std::vector<Rectangle>& rectangles) 
+{ 
+std::cout << "Rectangles in Row:\n"; 
+for (const auto& rect : rectangles) 
+{ 
+std::cout << "Width: " << rect.width << " cm, " << "Height: " << rect.length << " cm, " << "X Position: " << rect.x_position << " cm\n"; } }

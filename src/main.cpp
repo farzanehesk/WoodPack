@@ -62,7 +62,28 @@ int main() {
 
     // 
     //geom_processor.visualizeBoundingBoxes(clusters, bounding_boxes);
-    geom_processor.visualizeBoundingBoxes(original_pc , bounding_boxes);
+    geom_processor.visualizeBoundingBoxesAndOriginalPc(original_pc , bounding_boxes);
+
+
+    // get a vector of width of all shingles
+
+    // Extract widths of bounding boxes
+    auto widths = geom_processor.getWidthsOfBoundingBoxes(bounding_boxes);
+
+    // Print widths
+    for (size_t i = 0; i < widths.size(); ++i) {
+        std::cout << "Width of bounding box " << i << ": " << widths[i] << std::endl;
+    }
+
+    
+    // crete a virtual first row of shingles with e=random width 
+    std::vector <Rectangle> first_row_shingles = geom_processor.generateRandomRectangles(20);
+    geom_processor.printRectangles(first_row_shingles);
+
+    // find the next best element for the second row, from the available shingles
+
+
+
 
 
 

@@ -68,19 +68,28 @@ int main() {
     // get a vector of width of all shingles
 
     // Extract widths of bounding boxes
-    auto widths = geom_processor.getWidthsOfBoundingBoxes(bounding_boxes);
+    auto dimensions = geom_processor.getDimensionsOfBoundingBoxes(bounding_boxes);
 
-    // Print widths
-    for (size_t i = 0; i < widths.size(); ++i) {
-        std::cout << "Width of bounding box " << i << ": " << widths[i] << std::endl;
-    }
+
+
+    auto upper_rectangles = geom_processor.extractUpperRectangles(bounding_boxes);
+    
+
+    // // Print dimensions
+    // for (size_t i = 0; i < dimensions.size(); ++i) {
+    //     std::cout << "Dimensions of bounding box " << i << ": "
+    //             << "Heigt = " << dimensions[i][0] << ", "
+    //             << "Width = " << dimensions[i][1] << ", "
+    //             << "Length = " << dimensions[i][2] << std::endl;
+    // }
+
 
     
-    // crete a virtual first row of shingles with e=random width 
-    std::vector <Rectangle> first_row_shingles = geom_processor.generateRandomRectangles(20);
-    geom_processor.printRectangles(first_row_shingles);
+    // // crete a virtual first row of shingles with e=random width 
+    // std::vector <Rectangle> first_row_shingles = geom_processor.generateRandomRectangles(20);
+    // geom_processor.printRectangles(first_row_shingles);
 
-    // find the next best element for the second row, from the available shingles
+    // // find the next best element for the second row, from the available shingles
 
 
 

@@ -11,10 +11,45 @@
 using PC_o3d_ptr = std::shared_ptr<open3d::geometry::PointCloud>;
 
 
+
+class Rectangle 
+{
+public: 
+// Constructor 
+Rectangle(std::array<Eigen::Vector3d , 4> corners); 
+
+// Getters for properties 
+double getWidth() const; 
+double getLength() const; 
+Eigen::Vector3d getCenter() const; 
+Eigen::Vector3d getNormal() const;
+std::array <Eigen::Vector3d , 4> getSortedCorners() const ;
+//std::vector<Eigen::Vector3d> getEdges() const; 
+std::array <std::pair <Eigen::Vector3d ,Eigen::Vector3d > , 4>  getEdges() const; 
+
+// utility function
+void sortCornersClockwise();
+void visualizeEdges() const ;
+
+
+private: 
+
+std::array <Eigen::Vector3d , 4> corners_; 
+Eigen::Vector3d center_; 
+Eigen::Vector3d normal_; 
+//std::vector<Eigen::Vector3d> edges_; 
+
+//helper function to compute center and normal
+void computeProperties(); 
+};
+
+
+
+
+
+
 class GeometryProcessor
 {
-
-
 
 public:
     // Constructor and Destructor
@@ -50,12 +85,24 @@ public:
     const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes);
 
 
-    // 7. Method to generate a list of random rectangles
-    std::vector <Rectangle> generateRandomRectangles (int count);
+    // 7. Method to getDimensionsOfBoundingBoxes
+    std::vector<std::array<double, 3>> getDimensionsOfBoundingBoxes(
+    const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes);
 
 
-    // 8. Method to print rectangles
-    void printRectangles(const std::vector<Rectangle>& rectangles);
+    // // 8. Method to generate a list of random rectangles
+    // std::vector <Rectangle> generateRandomRectangles (int count);
+
+
+    // // 9. Method to print rectangles
+    // void printRectangles(const std::vector<Rectangle>& rectangles);
+
+
+    // 10. Method to Extract upper rectangles of bounding boxes
+    std::vector <Rectangle> extractUpperRectangles(const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes);
+
+    // 11.
+    
 
 
 
@@ -64,6 +111,10 @@ public:
 
 
 };
+
+
+
+
 
 
 

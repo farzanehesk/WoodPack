@@ -2,6 +2,8 @@
 #include <open3d/Open3D.h>
 #include <iostream>
 #include <Eigen/Eigenvalues> // For SelfAdjointEigenSolver
+#include <cmath>
+
 
 
  GeometryProcessor::GeometryProcessor() {} 
@@ -147,6 +149,8 @@ open3d::visualization::DrawGeometries(geometries,  "Bounding Boxes on original p
 }
 
 
+
+///////////////////////////////////////////
 // // 3. Compute axis-aligned bounding boxes for a vector of point clouds
 // std::vector<open3d::geometry::AxisAlignedBoundingBox> GeometryProcessor::computeAxisAlignedBoundingBoxes(
 //     const std::vector<PC_o3d_ptr>& clusters) {
@@ -166,6 +170,8 @@ open3d::visualization::DrawGeometries(geometries,  "Bounding Boxes on original p
 //     return bounding_boxes;
 // }
 
+
+///////////////////////////////////////////
 // // 4. Visualize clusters with precomputed AABBs
 // void GeometryProcessor::visualizeBoundingBoxes(
 //     const std::vector<PC_o3d_ptr>& clusters,
@@ -206,30 +212,197 @@ std::vector <double> GeometryProcessor::getWidthsOfBoundingBoxes(
     return widths;
     }
 
+/////////////////////////////////////////////
+// 7. Method to getDimensionsOfBoundingBoxes
+std::vector<std::array<double, 3>> GeometryProcessor::getDimensionsOfBoundingBoxes(
+    const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes) {
+    std::vector<std::array<double, 3>> dimensions;
+    dimensions.reserve(bounding_boxes.size());
+
+    for (const auto& obb : bounding_boxes) {
+        // Get the extent components
+        double x = obb.extent_.x();
+        double y = obb.extent_.y();
+        double z = obb.extent_.z();
+
+        // Sort the dimensions (smallest, middle, largest)
+        std::array<double, 3> sorted_extent = {x, y, z};
+        std::sort(sorted_extent.begin(), sorted_extent.end());
+
+        dimensions.push_back(sorted_extent);
+    }
+
+    return dimensions;
+}
+
+
 
 //////////////////////////////////////////////
- // 7. Method to generate a list of random rectangles
- std::vector<Rectangle> GeometryProcessor::generateRandomRectangles(int count)
-{ 
-std::vector<Rectangle> rectangles; 
-std::random_device rd;
-std::mt19937 gen(rd());
-std::uniform_real_distribution<double> width_dist(0.08, 0.2); 
-//std::uniform_real_distribution<double> height_dist(5.0, 15.0); // Example heights 
+//  // 8. Method to generate a list of random rectangles
+//  std::vector<Rectangle> GeometryProcessor::generateRandomRectangles(int count)
+// { 
+// std::vector<Rectangle> rectangles; 
+// std::random_device rd;
+// std::mt19937 gen(rd());
+// std::uniform_real_distribution<double> width_dist(0.08, 0.2); 
+// //std::uniform_real_distribution<double> height_dist(5.0, 15.0); // Example heights 
 
-for (int i = 0; i < count; ++i)
- { 
-double width = width_dist(gen); 
-rectangles.push_back({width, 0.25}); 
-} 
-return rectangles; }
+// for (int i = 0; i < count; ++i)
+//  { 
+// double width = width_dist(gen); 
+// rectangles.push_back({width, 0.25}); 
+// } 
+// return rectangles; }
+
+
+// //////////////////////////////////////////////
+// // 9. Method to print rectangles
+// void GeometryProcessor::printRectangles(const std::vector<Rectangle>& rectangles) 
+// { 
+// std::cout << "Rectangles in Row:\n"; 
+// for (const auto& rect : rectangles) 
+// { 
+// std::cout << "Width: " << rect.width << " cm, " << "Length: " << rect.length << " cm, " << "X Position: " << rect.x_position << " cm\n"; } }
+
+
 
 
 //////////////////////////////////////////////
-// 8.  8. Method to print rectangles
-void GeometryProcessor::printRectangles(const std::vector<Rectangle>& rectangles) 
+// 10. Method to Extract upper rectangles of bounding boxes
+
+std::vector<Rectangle> GeometryProcessor::extractUpperRectangles(const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes) {
+
+    std::vector<Rectangle> upper_rectangles;
+
+    for (const auto& box : bounding_boxes) {
+
+        // Get the rotation matrix and center of the bounding box
+        Eigen::Matrix3d R = box.R_;  
+        Eigen::Vector3d center = box.center_;  
+
+        // Get the bounding box corners (in world coordinates)
+        std::vector<Eigen::Vector3d> corners = box.GetBoxPoints();
+
+        // Select the four upper corners and store them in a sorted array
+        std::array<Eigen::Vector3d, 4> upper_corners;
+
+        for (int i = 0; i < 4; ++i) {
+
+            upper_corners[i] = corners[i];  // Extracting upper rectangle
+
+        }
+        // Create a Rectangle object with the sorted corners
+        Rectangle rect(upper_corners);
+
+        upper_rectangles.push_back(rect);
+
+        // Directly visualize the edges of the rectangle
+        rect.visualizeEdges();  
+    }
+    return upper_rectangles;
+
+}
+
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+// class Rectangle
+
+
+// Constructor
+Rectangle::Rectangle(std::array<Eigen::Vector3d , 4> corners)
+: corners_(corners)
 { 
-std::cout << "Rectangles in Row:\n"; 
-for (const auto& rect : rectangles) 
-{ 
-std::cout << "Width: " << rect.width << " cm, " << "Height: " << rect.length << " cm, " << "X Position: " << rect.x_position << " cm\n"; } }
+    computeProperties();
+    sortCornersClockwise(); // Ensure corners are sorted  
+}
+
+//////////////////////////////
+double Rectangle::getWidth() const 
+{
+    double width = (corners_[0]- corners_[1]).norm();
+    return width;
+}
+
+//////////////////////////////
+double Rectangle::getLength() const 
+{
+double length = (corners_[1]- corners_[2]).norm();
+return length ;
+}
+
+//////////////////////////////
+Eigen::Vector3d Rectangle::getCenter() const { return center_;}
+//////////////////////////////
+Eigen::Vector3d Rectangle::getNormal() const { return normal_;}
+//////////////////////////////
+std::array <Eigen::Vector3d , 4> Rectangle::getSortedCorners() const { return corners_;}
+//////////////////////////////
+std::array <std::pair <Eigen::Vector3d ,Eigen::Vector3d > , 4>  Rectangle::getEdges() const
+{
+    std::array <std::pair <Eigen::Vector3d ,Eigen::Vector3d > , 4> edges;
+    // each edge is represented as a pair of corner points
+    for (int i =0 ; i< 4 ; ++i)
+    {
+        edges[i] = {corners_[i] , corners_ [(i+1) % 4]};
+    }
+    return edges;
+}
+//////////////////////////////
+void Rectangle::sortCornersClockwise()
+{
+    // sorting based on angles
+    auto center = getCenter();
+    std::sort(corners_.begin(), corners_.end() ,
+    [&center](const Eigen::Vector3d& a , const Eigen::Vector3d& b )
+    {
+        return std::atan2(a.y() - center.y() , a.x() - center.x()) < std::atan2(b.y() - center.y() , b.x() - center.x());
+    });
+
+    computeProperties(); // recompute center and normal after sorting
+}
+//////////////////////////////
+void Rectangle::computeProperties()
+{
+    // calculate the center of the rectangle (mean of corners)
+    center_ = (corners_[0] + corners_[1] + corners_[2] + corners_[3]) / 4.0;
+
+    // compute normal vectors of rectangle (cross product of two edges)
+    Eigen::Vector3d edge1 = corners_[1] - corners_[0];
+    Eigen::Vector3d edge2 = corners_[2] - corners_[1];
+    normal_ = edge1.cross(edge2). normalized();
+}
+
+
+//////////////////////////////
+void Rectangle::visualizeEdges() const {
+
+    // Create a LineSet to visualize edges
+    auto line_set = std::make_shared<open3d::geometry::LineSet>();
+    // Convert corner points into Open3D format
+    std::vector<Eigen::Vector3d> points(corners_.begin(), corners_.end());
+    line_set->points_ = points;
+
+    // Define edges using index pairs
+    std::vector<Eigen::Vector2i> edges = {
+        {0, 1}, {1, 2}, {2, 3}, {3, 0}  // Connect corners in order
+    };
+    line_set->lines_ = edges;
+
+    // Create a visualizer and display the edges
+    open3d::visualization::DrawGeometries({line_set}, "Rectangle Edges");
+
+}
+
+
+
+
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+
+

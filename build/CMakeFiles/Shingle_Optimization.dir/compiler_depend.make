@@ -211,6 +211,7 @@ CMakeFiles/Shingle_Optimization.dir/src/GeometryProcessor.cpp.o: /home/farzaneh/
   /usr/include/ctype.h \
   /usr/include/eigen3/Eigen/Cholesky \
   /usr/include/eigen3/Eigen/Core \
+  /usr/include/eigen3/Eigen/Dense \
   /usr/include/eigen3/Eigen/Eigenvalues \
   /usr/include/eigen3/Eigen/Geometry \
   /usr/include/eigen3/Eigen/Householder \
@@ -1835,6 +1836,8 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
   /usr/include/ctype.h \
   /usr/include/eigen3/Eigen/Cholesky \
   /usr/include/eigen3/Eigen/Core \
+  /usr/include/eigen3/Eigen/Dense \
+  /usr/include/eigen3/Eigen/Eigenvalues \
   /usr/include/eigen3/Eigen/Geometry \
   /usr/include/eigen3/Eigen/Householder \
   /usr/include/eigen3/Eigen/Jacobi \
@@ -1964,6 +1967,17 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
   /usr/include/eigen3/Eigen/src/Core/util/StaticAssert.h \
   /usr/include/eigen3/Eigen/src/Core/util/SymbolicIndex.h \
   /usr/include/eigen3/Eigen/src/Core/util/XprHelper.h \
+  /usr/include/eigen3/Eigen/src/Eigenvalues/ComplexEigenSolver.h \
+  /usr/include/eigen3/Eigen/src/Eigenvalues/ComplexSchur.h \
+  /usr/include/eigen3/Eigen/src/Eigenvalues/EigenSolver.h \
+  /usr/include/eigen3/Eigen/src/Eigenvalues/GeneralizedEigenSolver.h \
+  /usr/include/eigen3/Eigen/src/Eigenvalues/GeneralizedSelfAdjointEigenSolver.h \
+  /usr/include/eigen3/Eigen/src/Eigenvalues/HessenbergDecomposition.h \
+  /usr/include/eigen3/Eigen/src/Eigenvalues/MatrixBaseEigenvalues.h \
+  /usr/include/eigen3/Eigen/src/Eigenvalues/RealQZ.h \
+  /usr/include/eigen3/Eigen/src/Eigenvalues/RealSchur.h \
+  /usr/include/eigen3/Eigen/src/Eigenvalues/SelfAdjointEigenSolver.h \
+  /usr/include/eigen3/Eigen/src/Eigenvalues/Tridiagonalization.h \
   /usr/include/eigen3/Eigen/src/Geometry/AlignedBox.h \
   /usr/include/eigen3/Eigen/src/Geometry/AngleAxis.h \
   /usr/include/eigen3/Eigen/src/Geometry/EulerAngles.h \
@@ -2592,6 +2606,8 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 
 /usr/local/include/open3d/t/io/HashMapIO.h:
 
+/usr/local/include/open3d/t/geometry/VoxelBlockGrid.h:
+
 /usr/include/eigen3/Eigen/src/Core/util/Memory.h:
 
 /usr/include/c++/11/bits/quoted_string.h:
@@ -3086,6 +3102,8 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 
 /usr/include/eigen3/Eigen/src/Core/DenseBase.h:
 
+/usr/include/eigen3/Eigen/Dense:
+
 /usr/include/x86_64-linux-gnu/c++/11/bits/time_members.h:
 
 /usr/lib/gcc/x86_64-linux-gnu/11/include/movdirintrin.h:
@@ -3223,18 +3241,6 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 /usr/include/c++/11/bits/cpp_type_traits.h:
 
 /usr/include/c++/11/bits/exception.h:
-
-/usr/include/eigen3/Eigen/src/Core/util/ReenableStupidWarnings.h:
-
-/usr/include/eigen3/Eigen/src/Geometry/Rotation2D.h:
-
-/usr/include/x86_64-linux-gnu/bits/stdio_lim.h:
-
-/usr/include/eigen3/Eigen/src/Core/arch/AVX/Complex.h:
-
-/usr/lib/gcc/x86_64-linux-gnu/11/include/avx512bwintrin.h:
-
-/usr/lib/gcc/x86_64-linux-gnu/11/include/xsaveintrin.h:
 
 /usr/include/c++/11/bits/cxxabi_forced.h:
 
@@ -3465,6 +3471,18 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 /usr/local/include/open3d/core/Tensor.h:
 
 /usr/include/c++/11/list:
+
+/usr/include/eigen3/Eigen/src/Core/util/ReenableStupidWarnings.h:
+
+/usr/include/eigen3/Eigen/src/Geometry/Rotation2D.h:
+
+/usr/include/x86_64-linux-gnu/bits/stdio_lim.h:
+
+/usr/include/eigen3/Eigen/src/Core/arch/AVX/Complex.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/11/include/avx512bwintrin.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/11/include/xsaveintrin.h:
 
 /usr/include/eigen3/Eigen/src/Core/util/SymbolicIndex.h:
 
@@ -4063,5 +4081,3 @@ CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o: /home/farzaneh/Work/EPFL/The
 /usr/local/include/open3d/t/geometry/RGBDImage.h:
 
 /usr/local/include/open3d/t/geometry/TensorMap.h:
-
-/usr/local/include/open3d/t/geometry/VoxelBlockGrid.h:

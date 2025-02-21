@@ -732,7 +732,8 @@ CMakeFiles/Shingle_Optimization.dir/src/GeometryProcessor.cpp.o: \
  /usr/local/include/open3d/visualization/webrtc_server/WebRTCWindowSystem.h \
  /usr/local/include/open3d/visualization/gui/BitmapWindowSystem.h \
  /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/../include/custom_types.hpp \
- /usr/include/eigen3/Eigen/Eigenvalues /usr/include/eigen3/Eigen/Geometry \
+ /usr/include/eigen3/Eigen/Dense /usr/include/eigen3/Eigen/Geometry \
+ /usr/include/eigen3/Eigen/Eigenvalues \
  /usr/include/eigen3/Eigen/src/Eigenvalues/Tridiagonalization.h \
  /usr/include/eigen3/Eigen/src/Eigenvalues/RealSchur.h \
  /usr/include/eigen3/Eigen/src/Eigenvalues/HessenbergDecomposition.h \
@@ -748,4 +749,5 @@ CMakeFiles/Shingle_Optimization.dir/src/GeometryProcessor.cpp.o: \
  /usr/include/eigen3/Eigen/src/Eigenvalues/RealQZ.h \
  /usr/include/eigen3/Eigen/src/Eigenvalues/GeneralizedEigenSolver.h \
  /usr/include/eigen3/Eigen/src/Eigenvalues/RealQZ.h \
- /usr/include/eigen3/Eigen/src/Eigenvalues/MatrixBaseEigenvalues.h
+ /usr/include/eigen3/Eigen/src/Eigenvalues/MatrixBaseEigenvalues.h \
+ /usr/include/eigen3/Eigen/Eigenvalues

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <Eigen/Eigenvalues> // For SelfAdjointEigenSolver
 #include <cmath>
+#include <Eigen/Dense>
 
 
 
@@ -269,44 +270,391 @@ std::vector<std::array<double, 3>> GeometryProcessor::getDimensionsOfBoundingBox
 
 //////////////////////////////////////////////
 // 10. Method to Extract upper rectangles of bounding boxes
+// std::vector<Rectangle> GeometryProcessor::extractUpperRectangles
+// (const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes) 
+// {
+//     std::vector<Rectangle> upper_rectangles;
+// for (const auto& box : bounding_boxes) 
+// {
+//     // Get all 8 corner points of the bounding box        
+// std::vector<Eigen::Vector3d> corners = box.GetBoxPoints();
+// // Sort corners based on Z value (height)        
+// std::sort(corners.begin(), corners.end(), [](const Eigen::Vector3d& a, const Eigen::Vector3d& b) 
+// { return a.z() > b.z();
+// // Sort descending to get highest points first        
+// });
+// // Select the highest four points        
+// std::array<Eigen::Vector3d, 4> upper_corners; 
+// for (int i = 0; i < 4; ++i) 
+// {
+//     upper_corners[i] = corners[i];
+// }
+// // Create a Rectangle object        
+// Rectangle rect(upper_corners);
+// // Add to the list        
+// upper_rectangles.push_back(rect);
+// //rect.visualizeEdges();
 
-std::vector<Rectangle> GeometryProcessor::extractUpperRectangles(const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes) {
+// }
+// return upper_rectangles;
+// }
+
+
+
+
+//////
+// std::vector<Rectangle> GeometryProcessor::extractUpperRectangles
+// (const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes) 
+// {
+
+// std::vector<Rectangle> upper_rectangles;
+
+// for (const auto& box : bounding_boxes) 
+// {
+// std::vector<Eigen::Vector3d> corners = box.GetBoxPoints();
+// Eigen::Vector3d normal = box.R_.col(2);// Z-direction of the bounding box        
+// Eigen::Vector3d center = box.center_;
+// std::vector<Eigen::Vector3d> upper_corners;
+
+// for (const auto& corner : corners) 
+// {
+//     if ((corner - center).dot(normal) > 0) 
+//     {
+//     // Select upper corners                
+//     upper_corners.push_back(corner); }}
+
+// if (upper_corners.size() != 4) 
+// {std::cerr << "Error: Could not extract 4 coplanar upper corners from bounding box!" << std::endl;
+// continue;}
+
+// // Convert vector to std::array for Rectangle constructor        
+// std::array<Eigen::Vector3d, 4> sorted_corners;
+// std::copy(upper_corners.begin(), upper_corners.end(), sorted_corners.begin());
+
+// // Create rectangle (sorting happens inside constructor)        
+// Rectangle rect(sorted_corners);
+// upper_rectangles.push_back(rect);
+// // Automatically visualize edges        
+// //rect.visualizeEdges()
+// ;}
+// return upper_rectangles;}
+
+
+
+////////////
+// std::vector<Rectangle> GeometryProcessor::extractUpperRectangles(
+//     const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes) 
+// {
+// std::vector<Rectangle> upper_rectangles;
+// for (const auto& box : bounding_boxes) 
+// {
+// std::vector<Eigen::Vector3d> corners = box.GetBoxPoints();
+// // Sort corners based on Z-coordinate (highest points first)        
+// std::sort(corners.begin(), corners.end(), [](const Eigen::Vector3d& a, const Eigen::Vector3d& b) 
+// {
+// return a.z() > b.z(); // Sort in descending order                  
+// });
+// // Take the top 4 points        
+// std::vector<Eigen::Vector3d> upper_corners(corners.begin(), corners.begin() + 4);
+// // Convert to std::array        
+// std::array<Eigen::Vector3d, 4> upper_corners_array;
+// std::copy(upper_corners.begin(), upper_corners.end(), upper_corners_array.begin());
+// // Sort corners in clockwise order        
+// Rectangle rect(upper_corners_array);
+// rect.sortCornersClockwise();
+// upper_rectangles.push_back(rect);
+// rect.visualizeEdges();
+// }
+// return upper_rectangles;
+
+// }
+
+
+/////////////////////////
+
+Eigen::Vector3d GeometryProcessor::projectToPlane
+(const Eigen::Vector3d& point, const Eigen::Vector3d& normal, const Eigen::Vector3d& point_on_plane) 
+
+{
+// Vector from point on the plane to the point we want to project    
+Eigen::Vector3d vector_to_plane = point - point_on_plane;
+// Compute the distance of the point to the plane    
+double distance_to_plane = vector_to_plane.dot(normal);
+// Subtract the projection of the vector from the point to get the projected point    
+return point - distance_to_plane * normal;}
+
+
+
+////////////////////
+// Projection function to ensure corners are projected onto the horizontal plane
+Eigen::Vector3d GeometryProcessor::projectPointOntoPlane(const Eigen::Vector3d& point,
+const Eigen::Vector3d& normal,
+const Eigen::Vector3d& point_on_plane)
+{
+// Compute the projection of the point onto the plane defined by the normal and point_on_plane    
+Eigen::Vector3d v = point - point_on_plane;
+double distance = v.dot(normal);// distance from the point to the plane    
+return point - distance * normal; // projected point
+}
+
+
+////////////////
+Eigen::Vector3d GeometryProcessor::projectPointOntoXYPlane
+(const Eigen::Vector3d& point) 
+{
+// Projecting the point onto the XY plane (z=0)    
+return Eigen::Vector3d(point.x(), point.y(), 0);}
+
+
+
+///////////////////
+Eigen::Vector3d GeometryProcessor::projectToXYPlane(const Eigen::Vector3d& point) {
+    return Eigen::Vector3d(point.x(), point.y(), 0);// Set the Z-coordinate to 0
+    }
+
+
+/////////////////
+
+
+// std::vector<Rectangle> GeometryProcessor::extractUpperRectangles
+// (const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes) 
+
+// {
+// std::vector<Rectangle> upper_rectangles;
+// for (const auto& box : bounding_boxes) 
+// {
+//     std::vector<Eigen::Vector3d> corners = box.GetBoxPoints();
+// // Get the normal vector for the Z-axis (which is perpendicular to the top of the box)        
+// Eigen::Vector3d normal = box.R_.col(2);
+// // Z-direction of the bounding box        
+// Eigen::Vector3d center = box.center_;
+// // Project the corners onto the plane defined by the normal (horizontal alignment)        
+// std::vector<Eigen::Vector3d> projected_corners;
+
+// for (const auto& corner : corners) {
+//     Eigen::Vector3d projected_point = projectToPlane(corner, normal, center);// Project the point onto the top plane            
+//     projected_corners.push_back(projected_point);}
+
+// // Select the upper corners (after projection)        
+// std::vector<Eigen::Vector3d> upper_corners;
+// for (const auto& corner : projected_corners) 
+// {
+//     if ((corner - center).dot(normal) > 0) 
+//     {// Only the upper corners                
+//     upper_corners.push_back(corner);}}
+
+//     if (upper_corners.size() != 4) 
+//     {std::cerr << "Error: Could not extract 4 coplanar upper corners from bounding box!" << std::endl;
+//     continue;}
+// // Convert vector to std::array        
+// std::array<Eigen::Vector3d, 4> upper_corners_array;
+// std::copy(upper_corners.begin(), upper_corners.end(), upper_corners_array.begin());
+
+// // Sort the corners in a consistent clockwise order        
+// std::array<Eigen::Vector3d, 4> sorted_corners = Rectangle::sortCornersClockwise(upper_corners_array);
+// // Create rectangle with sorted corners        
+// Rectangle rect(sorted_corners);
+// upper_rectangles.push_back(rect);
+// // Automatically visualize edges on the point cloud        
+// rect.visualizeEdges();}
+// return upper_rectangles;}
+
+///////////////////////////////////////
+
+// std::vector<Rectangle> GeometryProcessor::extractUpperRectangles(
+//     const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes) 
+    
+// {
+//     std::vector<Rectangle> upper_rectangles;
+
+//     for (const auto& box : bounding_boxes) {
+//         std::vector<Eigen::Vector3d> corners = box.GetBoxPoints();
+//         Eigen::Vector3d normal = box.R_.col(2);// Z-direction of the bounding box        
+//         Eigen::Vector3d center = box.center_;
+//         std::vector<Eigen::Vector3d> upper_corners;
+        
+//     for (const auto& corner : corners) {
+//         // Ensure that we're selecting the upper corners            
+//         if ((corner - center).dot(normal) > 0) { 
+//             upper_corners.push_back(corner);}}
+
+//         if (upper_corners.size() != 4) 
+//         {std::cerr << "Error: Could not extract 4 coplanar upper corners from bounding box!" << std::endl;
+//             continue;}
+
+// // Project corners onto a horizontal plane if needed (using the normal of the box)        
+
+// for (auto& corner : upper_corners) 
+// {
+//     corner = projectPointOntoPlane(corner, normal, center); // project onto plane        
+//     }
+//     // Convert vector to std::array        
+//     std::array<Eigen::Vector3d, 4> upper_corners_array; 
+//     std::copy(upper_corners.begin(), upper_corners.end(), upper_corners_array.begin());
+//     // Sort the corners in a consistent clockwise order        
+//     std::array<Eigen::Vector3d, 4> sorted_corners = Rectangle::sortCornersClockwise(upper_corners_array);
+
+//     // Create rectangle with sorted corners        
+//     Rectangle rect(sorted_corners);
+//     upper_rectangles.push_back(rect);
+//     // Automatically visualize edges        
+//     rect.visualizeEdges();
+//     }
+//     return upper_rectangles;}
+
+
+
+
+///////////////////////////////
+std::vector<Rectangle> GeometryProcessor::extractUpperRectangles(
+
+    const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes) {
+
+    
 
     std::vector<Rectangle> upper_rectangles;
 
     for (const auto& box : bounding_boxes) {
 
-        // Get the rotation matrix and center of the bounding box
-        Eigen::Matrix3d R = box.R_;  
-        Eigen::Vector3d center = box.center_;  
-
-        // Get the bounding box corners (in world coordinates)
+        // Step 1: Get all 8 corners of the bounding box
         std::vector<Eigen::Vector3d> corners = box.GetBoxPoints();
 
-        // Select the four upper corners and store them in a sorted array
-        std::array<Eigen::Vector3d, 4> upper_corners;
+        // Step 2: Get the normal vector of the bounding box
+        Eigen::Vector3d normal = box.R_.col(2); // Z-axis of the bounding box
 
-        for (int i = 0; i < 4; ++i) {
 
-            upper_corners[i] = corners[i];  // Extracting upper rectangle
+        // Step 3: Define faces of the bounding box
+        std::vector<std::array<Eigen::Vector3d, 4>> faces
+        {
+            {corners[0], corners[1], corners[2], corners[3]} ,
+            {corners[0], corners[1], corners[5], corners[4]},
+            {corners[0], corners[1], corners[5], corners[4]},
+            {corners[2], corners[3], corners[7], corners[6]},
+            {corners[0], corners[3], corners[7], corners[4]},
+            {corners[1], corners[2], corners[6], corners[5]}
+
+        };
+
+        
+
+
+        // Step 4: Find the largest face that is closest to horizontal
+
+        double max_area = 0;
+
+        std::array<Eigen::Vector3d, 4> upper_face;
+
+
+
+        for (const auto& face : faces) {
+
+            Eigen::Vector3d edge1 = face[1] - face[0];
+
+            Eigen::Vector3d edge2 = face[2] - face[0];
+
+            double area = edge1.cross(edge2).norm(); // Compute area
+
+            
+
+            Eigen::Vector3d face_normal = edge1.cross(edge2).normalized();
+
+            
+
+            // Ensure the face is roughly horizontal and has the largest area
+
+            if (std::abs(face_normal.z()) > 0.9 && area > max_area) {
+
+                max_area = area;
+
+                upper_face = face;
+
+            }
 
         }
-        // Create a Rectangle object with the sorted corners
-        Rectangle rect(upper_corners);
 
-        upper_rectangles.push_back(rect);
 
-        // Directly visualize the edges of the rectangle
-        rect.visualizeEdges();  
+
+        // Step 5: Ensure a valid upper face was found
+
+        if (max_area == 0) {
+
+            std::cerr << "Warning: No valid upper face found for a bounding box!" << std::endl;
+
+            continue;
+
+        }
+
+
+
+        // Step 6: Sort the corners in a consistent order
+
+        std::array<Eigen::Vector3d, 4> sorted_corners = Rectangle::sortCornersClockwise(upper_face);
+
+
+
+        // Step 7: Create the rectangle and store it
+
+        upper_rectangles.emplace_back(sorted_corners);
+
     }
+
+
+
     return upper_rectangles;
 
 }
 
 
+////////////////////////////////
+
+// 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////
+
+void GeometryProcessor::visualizeRectanglesAndOriginalPc(
+
+const std::vector<Rectangle>& rectangles,
+const std::shared_ptr<open3d::geometry::PointCloud>& original_pc)
+{
+// Create a LineSet for visualization
+    auto line_set = std::make_shared<open3d::geometry::LineSet>();
+
+    // Add edges of all rectangles
+
+    for (const auto& rect : rectangles) {
+
+        auto rect_lines = rect.getEdges();  // Get rectangle edges as line segments
+
+        for (const auto& edge : rect_lines) {
+
+            line_set->points_.push_back(edge.first);
+
+            line_set->points_.push_back(edge.second);
+
+            line_set->lines_.emplace_back(line_set->points_.size() - 2, line_set->points_.size() - 1);
+
+        }
+
+    }
+
+    // Visualize rectangles on the original point cloud
+
+    open3d::visualization::DrawGeometries({original_pc, line_set}, "Rectangles on Point Cloud");
+
+}
 
 
 ///////////////////////////////////////////////////////////////////////////
@@ -315,11 +663,12 @@ std::vector<Rectangle> GeometryProcessor::extractUpperRectangles(const std::vect
 
 
 // Constructor
-Rectangle::Rectangle(std::array<Eigen::Vector3d , 4> corners)
+Rectangle::Rectangle(const std::array<Eigen::Vector3d , 4>& corners)
 : corners_(corners)
 { 
+    
+    corners_ = sortCornersClockwise(corners); // Ensure corners are sorted  
     computeProperties();
-    sortCornersClockwise(); // Ensure corners are sorted  
 }
 
 //////////////////////////////
@@ -354,18 +703,33 @@ std::array <std::pair <Eigen::Vector3d ,Eigen::Vector3d > , 4>  Rectangle::getEd
     return edges;
 }
 //////////////////////////////
-void Rectangle::sortCornersClockwise()
-{
-    // sorting based on angles
-    auto center = getCenter();
-    std::sort(corners_.begin(), corners_.end() ,
-    [&center](const Eigen::Vector3d& a , const Eigen::Vector3d& b )
-    {
-        return std::atan2(a.y() - center.y() , a.x() - center.x()) < std::atan2(b.y() - center.y() , b.x() - center.x());
-    });
+// static std::array <Eigen::Vector3d , 4> sortCornersClockwise(const std::array<Eigen::Vector3d , 4>& corners) 
+// {
+// Eigen::Vector3d centroid = (corners_[0] + corners_[1] + corners_[2] + corners_[3]) / 4.0;
+// std::sort(corners_.begin(), corners_.end(),[&centroid]
+// (const Eigen::Vector3d& a, const Eigen::Vector3d& b) 
+// {
+// double angle_a = atan2(a.y() - centroid.y(), a.x() - centroid.x());
+// double angle_b = atan2(b.y() - centroid.y(), b.x() - centroid.x());
+// return angle_a < angle_b;// Sort counterclockwise        
+// });}
 
-    computeProperties(); // recompute center and normal after sorting
-}
+
+////////////////////////////
+std::array<Eigen::Vector3d, 4> Rectangle::sortCornersClockwise
+(const std::array<Eigen::Vector3d, 4>& corners) 
+{
+// Compute centroid    
+Eigen::Vector3d centroid = (corners[0] + corners[1] + corners[2] + corners[3]) / 4.0;
+// Sort based on angle from centroid    
+std::array<Eigen::Vector3d, 4> sorted_corners = corners;
+std::sort(sorted_corners.begin(), sorted_corners.end(),[&centroid](const Eigen::Vector3d& a, const Eigen::Vector3d& b) 
+
+{double angleA = atan2(a.y() - centroid.y(), a.x() - centroid.x());
+double angleB = atan2(b.y() - centroid.y(), b.x() - centroid.x());
+return angleA < angleB; });
+return sorted_corners;}
+
 //////////////////////////////
 void Rectangle::computeProperties()
 {
@@ -398,8 +762,6 @@ void Rectangle::visualizeEdges() const {
     open3d::visualization::DrawGeometries({line_set}, "Rectangle Edges");
 
 }
-
-
 
 
 ///////////////////////////////////////////////////////////////////////////

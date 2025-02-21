@@ -5,10 +5,23 @@
 #include <open3d/Open3D.h>
 #include <vector>
 #include "custom_types.hpp"
-
+#include <Eigen/Dense>
+#include <functional> // For std::hash
 
 // Forward declaration of the PointCloud type
 using PC_o3d_ptr = std::shared_ptr<open3d::geometry::PointCloud>;
+
+
+
+namespace std 
+{
+    template <>
+    struct hash<Eigen::Vector3d> 
+    {size_t operator()(const Eigen::Vector3d& v) const 
+    {return std::hash<double>()(v.x()) ^ (std::hash<double>()(v.y()) << 1) ^ (std::hash<double>()(v.z()) << 2);
+    }
+    };}
+
 
 
 
@@ -16,7 +29,7 @@ class Rectangle
 {
 public: 
 // Constructor 
-Rectangle(std::array<Eigen::Vector3d , 4> corners); 
+Rectangle(const std::array<Eigen::Vector3d , 4>& corners); 
 
 // Getters for properties 
 double getWidth() const; 
@@ -28,9 +41,9 @@ std::array <Eigen::Vector3d , 4> getSortedCorners() const ;
 std::array <std::pair <Eigen::Vector3d ,Eigen::Vector3d > , 4>  getEdges() const; 
 
 // utility function
-void sortCornersClockwise();
+//void sortCornersClockwise();
+static std::array <Eigen::Vector3d , 4> sortCornersClockwise(const std::array<Eigen::Vector3d , 4>& corners);
 void visualizeEdges() const ;
-
 
 private: 
 
@@ -42,6 +55,7 @@ Eigen::Vector3d normal_;
 //helper function to compute center and normal
 void computeProperties(); 
 };
+
 
 
 
@@ -101,8 +115,32 @@ public:
     // 10. Method to Extract upper rectangles of bounding boxes
     std::vector <Rectangle> extractUpperRectangles(const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes);
 
-    // 11.
-    
+    // 11. Method to visualize rectangles on the original point cloud
+    void visualizeRectanglesAndOriginalPc(
+    const std::vector<Rectangle>& rectangles,
+    const std::shared_ptr<open3d::geometry::PointCloud>& original_pc);
+
+
+    // 
+    Eigen::Vector3d projectToPlane (
+        const Eigen::Vector3d& point, const Eigen::Vector3d& normal, 
+        const Eigen::Vector3d& point_on_plane);
+
+
+    //
+    Eigen::Vector3d projectPointOntoPlane(const Eigen::Vector3d& point,
+                                            const Eigen::Vector3d& normal,
+                                            const Eigen::Vector3d& point_on_plane);
+
+
+    ///
+    Eigen::Vector3d projectPointOntoXYPlane (const Eigen::Vector3d& point);
+
+    ///
+    Eigen::Vector3d projectToXYPlane(const Eigen::Vector3d& point);
+
+
+
 
 
 

@@ -73,6 +73,7 @@ int main() {
 
 
     auto upper_rectangles = geom_processor.extractUpperRectangles(bounding_boxes);
+    geom_processor.visualizeRectanglesAndOriginalPc(upper_rectangles , original_pc);
     
 
     // // Print dimensions

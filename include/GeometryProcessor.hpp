@@ -13,14 +13,7 @@ using PC_o3d_ptr = std::shared_ptr<open3d::geometry::PointCloud>;
 
 
 
-namespace std 
-{
-    template <>
-    struct hash<Eigen::Vector3d> 
-    {size_t operator()(const Eigen::Vector3d& v) const 
-    {return std::hash<double>()(v.x()) ^ (std::hash<double>()(v.y()) << 1) ^ (std::hash<double>()(v.z()) << 2);
-    }
-    };}
+
 
 
 
@@ -138,6 +131,10 @@ public:
 
     ///
     Eigen::Vector3d projectToXYPlane(const Eigen::Vector3d& point);
+
+
+    /// Method to visualize rectangle corner points
+    void visualizeRectangleEdgesWithLabels(const std::vector<Rectangle>& rectangles);
 
 
 

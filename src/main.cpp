@@ -75,6 +75,7 @@ int main() {
     auto upper_rectangles = geom_processor.extractUpperRectangles(bounding_boxes);
     geom_processor.visualizeRectanglesAndOriginalPc(upper_rectangles , original_pc);
     
+    geom_processor.visualizeRectangleEdgesWithLabels(upper_rectangles);
 
     // // Print dimensions
     // for (size_t i = 0; i < dimensions.size(); ++i) {

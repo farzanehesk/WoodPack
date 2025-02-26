@@ -137,6 +137,19 @@ public:
     void visualizeRectangleEdgesWithLabels(const std::vector<Rectangle>& rectangles);
 
 
+    /// Method to obtain bounding box 3D planes and visualize them
+    std::vector<Eigen::Matrix4d> getPlanesFromBoundingBoxes(
+    const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes);
+
+
+    //// METHOD TO VISUALIZE PLANES
+    void visualizePlanesOnBoundingBoxes(
+    const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes,
+    const std::vector<Eigen::Matrix4d>& planes,
+    const std::shared_ptr<open3d::geometry::PointCloud>& point_cloud);
+    
+
+
 
 
 

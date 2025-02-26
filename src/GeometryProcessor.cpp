@@ -410,22 +410,6 @@ std::vector<Rectangle> GeometryProcessor::extractUpperRectangles(
 }
 
 
-////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ///////////////////////////////////////////////////////////////
 //// 11. Method to visualize rectangles on the original point cloud
@@ -553,6 +537,273 @@ void GeometryProcessor::visualizeRectangleEdgesWithLabels(const std::vector<Rect
     open3d::visualization::DrawGeometries({line_set, point_cloud}, "Rectangle Corners with Color-coded Order", 800, 600);
 
 }
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////
+// std::vector<Eigen::Matrix4d> GeometryProcessor::getPlanesFromBoundingBoxes(
+
+//     const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes) {
+
+    
+
+//     std::vector<Eigen::Matrix4d> planes;
+
+
+
+//     for (const auto& box : bounding_boxes) {
+
+//         // Step 1: Extract the origin and rotation from the bounding box
+
+//         Eigen::Vector3d origin = box.center_;
+
+//         Eigen::Matrix3d rotation = box.R_;
+
+
+
+//         // Step 2: Define the plane's transformation matrix
+
+//         Eigen::Matrix4d plane = Eigen::Matrix4d::Identity();
+
+//         plane.block<3, 3>(0, 0) = rotation;
+
+//         plane.block<3, 1>(0, 3) = origin;
+
+
+
+//         // Step 3: Ensure the plane is not flipped
+
+//         // We will ensure the normal points upward by checking the Z-axis vector
+
+//         Eigen::Vector3d normal = rotation.col(2);  // Extract the normal vector (Z direction)
+
+//         if (normal.z() < 0) {
+
+//             // If the normal is flipped, flip it back by inverting the rotation matrix
+
+//             plane.block<3, 3>(0, 0) = -rotation;
+
+//         }
+
+
+
+//         planes.push_back(plane);
+
+//     }
+
+
+
+//     return planes;
+
+// }
+
+
+
+
+
+////////////////////////
+std::vector<Eigen::Matrix4d> GeometryProcessor::getPlanesFromBoundingBoxes(
+    const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes) {
+
+    std::vector<Eigen::Matrix4d> planes;
+    Eigen::Vector3d global_up(0, 0, 1); // Define a consistent upward direction
+
+    for (size_t i = 0; i < bounding_boxes.size(); ++i) {
+        const auto& box = bounding_boxes[i];
+
+        // Extract origin and rotation
+        Eigen::Vector3d origin = box.center_;
+        Eigen::Matrix3d rotation = box.R_;
+
+        // Extract the three principal axes
+        Eigen::Vector3d x_axis = rotation.col(0);  // First principal axis
+        Eigen::Vector3d y_axis = rotation.col(1);  // Second principal axis
+        Eigen::Vector3d normal = rotation.col(2);  // Third principal axis (Z direction)
+
+        // Debug output before correction
+        std::cout << "Bounding Box " << i << " original axes:\n";
+        std::cout << "X-axis: " << x_axis.transpose() << "\n";
+        std::cout << "Y-axis: " << y_axis.transpose() << "\n";
+        std::cout << "Z-axis (normal): " << normal.transpose() << "\n";
+        std::cout << "Origin: " << origin.transpose() << "\n";
+
+        // Step 1: Check and correct normal direction
+        if (fabs(normal.z()) < fabs(normal.x()) || fabs(normal.z()) < fabs(normal.y())) {
+            global_up = Eigen::Vector3d(0, 1, 0); // Use Y if Z is small
+        }
+        if (normal.dot(global_up) < 0) { 
+            normal = -normal;
+            x_axis = -x_axis;
+        }
+
+        // Step 2: Identify shorter and longer edges
+        double x_length = (box.extent_(0) < box.extent_(1)) ? box.extent_(0) : box.extent_(1);
+        double y_length = (box.extent_(0) > box.extent_(1)) ? box.extent_(0) : box.extent_(1);
+
+        if (x_length > y_length) {
+            std::swap(x_axis, y_axis);
+        }
+
+        // Debug output after correction
+        std::cout << "Bounding Box " << i << " corrected axes:\n";
+        std::cout << "X-axis: " << x_axis.transpose() << "\n";
+        std::cout << "Y-axis: " << y_axis.transpose() << "\n";
+        std::cout << "Z-axis (normal): " << normal.transpose() << "\n\n";
+
+        // Step 3: Construct the transformation matrix
+        Eigen::Matrix4d plane = Eigen::Matrix4d::Identity();
+        plane.block<3, 1>(0, 0) = x_axis;
+        plane.block<3, 1>(0, 1) = y_axis;
+        plane.block<3, 1>(0, 2) = normal;
+        plane.block<3, 1>(0, 3) = origin;
+
+        planes.push_back(plane);
+
+        // Print the final transformation matrix
+        std::cout << "Final Transformation Matrix for Plane " << i << ":\n" << plane << "\n\n";
+    }
+
+    return planes;
+}
+
+///////////////////////////////////////////////////////////////////
+//
+
+void GeometryProcessor::visualizePlanesOnBoundingBoxes(
+
+    const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes,
+
+    const std::vector<Eigen::Matrix4d>& planes,
+    const std::shared_ptr<open3d::geometry::PointCloud>& point_cloud) {
+
+
+
+    // Initialize Open3D Visualizer
+
+    open3d::visualization::Visualizer vis;
+
+    vis.CreateVisualizerWindow("Bounding Boxes and Planes", 800, 600);
+
+
+
+    // Add Point Cloud to Visualizer
+    if (point_cloud) {
+        vis.AddGeometry(point_cloud);
+    }
+
+    // Visualize Bounding Boxes
+
+    for (const auto& box : bounding_boxes) {
+
+        // Create Open3D OrientedBoundingBox object
+
+        auto open3d_box = std::make_shared<open3d::geometry::OrientedBoundingBox>(box);
+
+        open3d_box->color_ = Eigen::Vector3d(0, 0, 1);  // Blue color for the bounding box
+
+
+
+        // Add the bounding box to the visualizer
+
+        vis.AddGeometry(open3d_box);
+
+    }
+
+
+
+    // Visualize Planes
+
+    auto line_set = std::make_shared<open3d::geometry::LineSet>();
+
+
+
+    for (const auto& plane : planes) {
+
+        // Step 1: Extract the origin and the axes (vectors from the transformation matrix)
+
+        Eigen::Vector3d origin = plane.block<3,1>(0,3);
+
+        Eigen::Vector3d x_axis = plane.block<3,1>(0,0);
+
+        Eigen::Vector3d y_axis = plane.block<3,1>(0,1);
+
+        Eigen::Vector3d z_axis = plane.block<3,1>(0,2);
+
+
+
+        // Step 2: Define the axis endpoints for visualization (length = 0.1 for visibility)
+
+        Eigen::Vector3d x_end = origin + 0.1 * x_axis;
+
+        Eigen::Vector3d y_end = origin + 0.1 * y_axis;
+
+        Eigen::Vector3d z_end = origin + 0.1 * z_axis;
+
+
+
+        // Step 3: Add points for the origin and the axis endpoints
+
+        int start_idx = line_set->points_.size();
+
+        line_set->points_.push_back(origin);
+
+        line_set->points_.push_back(x_end);
+
+        line_set->points_.push_back(y_end);
+
+        line_set->points_.push_back(z_end);
+
+
+
+        // Step 4: Add lines for the X, Y, and Z axes (red, green, blue)
+
+        line_set->lines_.push_back({start_idx, start_idx + 1});  // X-axis (red)
+
+        line_set->lines_.push_back({start_idx, start_idx + 2});  // Y-axis (green)
+
+        line_set->lines_.push_back({start_idx, start_idx + 3});  // Z-axis (blue)
+
+
+
+        // Step 5: Color the axes accordingly
+
+        line_set->colors_.push_back(Eigen::Vector3d(1, 0, 0)); // Red for X-axis
+
+        line_set->colors_.push_back(Eigen::Vector3d(0, 1, 0)); // Green for Y-axis
+
+        line_set->colors_.push_back(Eigen::Vector3d(0, 0, 1)); // Blue for Z-axis
+
+    }
+
+
+
+    // Add line set (planes) to the visualizer
+
+    vis.AddGeometry(line_set);
+
+
+
+    // Step 6: Start the visualizer
+
+    vis.Run();
+
+    vis.DestroyVisualizerWindow();
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

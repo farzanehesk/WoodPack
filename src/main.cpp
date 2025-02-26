@@ -77,6 +77,9 @@ int main() {
     
     geom_processor.visualizeRectangleEdgesWithLabels(upper_rectangles);
 
+    auto planes = geom_processor.getPlanesFromBoundingBoxes(bounding_boxes);
+    geom_processor.visualizePlanesOnBoundingBoxes(bounding_boxes, planes,original_pc );
+
     // // Print dimensions
     // for (size_t i = 0; i < dimensions.size(); ++i) {
     //     std::cout << "Dimensions of bounding box " << i << ": "

@@ -73,26 +73,25 @@ int main() {
 
 
     auto upper_rectangles = geom_processor.extractUpperRectangles(bounding_boxes);
-    geom_processor.visualizeRectanglesAndOriginalPc(upper_rectangles , original_pc);
+    geom_processor.visualizeRectangles(upper_rectangles , original_pc);
     
     geom_processor.visualizeRectangleEdgesWithLabels(upper_rectangles);
 
-    auto planes = geom_processor.getPlanesFromBoundingBoxes(bounding_boxes);
+    auto planes = geom_processor.getPlanesFromBoundingBoxes(bounding_boxes, false);
     geom_processor.visualizePlanesOnBoundingBoxes(bounding_boxes, planes,original_pc );
 
     // // Print dimensions
-    // for (size_t i = 0; i < dimensions.size(); ++i) {
-    //     std::cout << "Dimensions of bounding box " << i << ": "
-    //             << "Heigt = " << dimensions[i][0] << ", "
-    //             << "Width = " << dimensions[i][1] << ", "
-    //             << "Length = " << dimensions[i][2] << std::endl;
-    // }
+    for (size_t i = 0; i < dimensions.size(); ++i) {
+        std::cout << "Dimensions of bounding box " << i << ": "
+                << "Heigt = " << dimensions[i][0] << ", "
+                << "Width = " << dimensions[i][1] << ", "
+                << "Length = " << dimensions[i][2] << std::endl;
+    }
 
 
     
-    // // crete a virtual first row of shingles with e=random width 
-    // std::vector <Rectangle> first_row_shingles = geom_processor.generateRandomRectangles(20);
-    // geom_processor.printRectangles(first_row_shingles);
+    // crete a virtual first row of shingles with random width 
+
 
     // // find the next best element for the second row, from the available shingles
 

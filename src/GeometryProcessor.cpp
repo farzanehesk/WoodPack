@@ -4,6 +4,8 @@
 #include <Eigen/Eigenvalues> // For SelfAdjointEigenSolver
 #include <cmath>
 #include <Eigen/Dense>
+#include <random>
+#include <chrono>
 
 
 
@@ -236,38 +238,6 @@ std::vector<std::array<double, 3>> GeometryProcessor::getDimensionsOfBoundingBox
     return dimensions;
 }
 
-
-
-//////////////////////////////////////////////
-//  // 8. Method to generate a list of random rectangles
-//  std::vector<Rectangle> GeometryProcessor::generateRandomRectangles(int count)
-// { 
-// std::vector<Rectangle> rectangles; 
-// std::random_device rd;
-// std::mt19937 gen(rd());
-// std::uniform_real_distribution<double> width_dist(0.08, 0.2); 
-// //std::uniform_real_distribution<double> height_dist(5.0, 15.0); // Example heights 
-
-// for (int i = 0; i < count; ++i)
-//  { 
-// double width = width_dist(gen); 
-// rectangles.push_back({width, 0.25}); 
-// } 
-// return rectangles; }
-
-
-// //////////////////////////////////////////////
-// // 9. Method to print rectangles
-// void GeometryProcessor::printRectangles(const std::vector<Rectangle>& rectangles) 
-// { 
-// std::cout << "Rectangles in Row:\n"; 
-// for (const auto& rect : rectangles) 
-// { 
-// std::cout << "Width: " << rect.width << " cm, " << "Length: " << rect.length << " cm, " << "X Position: " << rect.x_position << " cm\n"; } }
-
-
-
-
 ////////////////////////////////////////////
 
 
@@ -330,17 +300,12 @@ Eigen::Vector3d GeometryProcessor::projectToXYPlane(const Eigen::Vector3d& point
 std::vector<Rectangle> GeometryProcessor::extractUpperRectangles(
 
     const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes) {
-
     std::vector<Rectangle> upper_rectangles;
-
     for (const auto& box : bounding_boxes) {
-
         // Step 1: Get all 8 corners of the bounding box
         std::vector<Eigen::Vector3d> corners = box.GetBoxPoints();
-
         // Step 2: Get the normal vector of the bounding box
         Eigen::Vector3d normal = box.R_.col(2); // Z-axis of the bounding box
-
 
         // Step 3: Define faces of the bounding box
         std::vector<std::array<Eigen::Vector3d, 4>> faces
@@ -358,21 +323,13 @@ std::vector<Rectangle> GeometryProcessor::extractUpperRectangles(
         // Step 4: Find the largest face that is closest to horizontal
 
         double max_area = 0;
-
         std::array<Eigen::Vector3d, 4> upper_face;
-
         for (const auto& face : faces) {
-
             Eigen::Vector3d edge1 = face[1] - face[0];
-
             Eigen::Vector3d edge2 = face[2] - face[0];
-
             double area = edge1.cross(edge2).norm(); // Compute area
-
             Eigen::Vector3d face_normal = edge1.cross(edge2).normalized();
-
             // Ensure the face is roughly horizontal and has the largest area
-
             if (std::abs(face_normal.z()) > 0.9 && area > max_area) {
                 max_area = area;
                 upper_face = face;
@@ -382,9 +339,7 @@ std::vector<Rectangle> GeometryProcessor::extractUpperRectangles(
         // Step 5: Ensure a valid upper face was found
 
         if (max_area == 0) {
-
             std::cerr << "Warning: No valid upper face found for a bounding box!" << std::endl;
-
             continue;
 
         }
@@ -392,57 +347,43 @@ std::vector<Rectangle> GeometryProcessor::extractUpperRectangles(
 
 
         // Step 6: Sort the corners in a consistent order
-
         std::array<Eigen::Vector3d, 4> sorted_corners = Rectangle::sortCornersClockwise(upper_face);
 
-
-
         // Step 7: Create the rectangle and store it
-
         upper_rectangles.emplace_back(sorted_corners);
 
     }
 
-
-
     return upper_rectangles;
-
 }
 
 
 
 ///////////////////////////////////////////////////////////////
 //// 11. Method to visualize rectangles on the original point cloud
-void GeometryProcessor::visualizeRectanglesAndOriginalPc(
-
-const std::vector<Rectangle>& rectangles,
-const std::shared_ptr<open3d::geometry::PointCloud>& original_pc)
+void GeometryProcessor::visualizeRectangles(
+    const std::vector<Rectangle>& rectangles,
+    const std::shared_ptr<open3d::geometry::PointCloud>& original_pc) 
 {
-// Create a LineSet for visualization
+    // Create a LineSet for visualization
     auto line_set = std::make_shared<open3d::geometry::LineSet>();
 
     // Add edges of all rectangles
-
     for (const auto& rect : rectangles) {
-
-        auto rect_lines = rect.getEdges();  // Get rectangle edges as line segments
-
+        auto rect_lines = rect.getEdges();
         for (const auto& edge : rect_lines) {
-
             line_set->points_.push_back(edge.first);
-
             line_set->points_.push_back(edge.second);
-
             line_set->lines_.emplace_back(line_set->points_.size() - 2, line_set->points_.size() - 1);
-
         }
-
     }
 
-    // Visualize rectangles on the original point cloud
-
-    open3d::visualization::DrawGeometries({original_pc, line_set}, "Rectangles on Point Cloud");
-
+    // If an original point cloud is provided, visualize it together with rectangles
+    if (original_pc) {
+        open3d::visualization::DrawGeometries({original_pc, line_set}, "Rectangles Visualization");
+    } else {
+        open3d::visualization::DrawGeometries({line_set}, "Rectangles Visualization");
+    }
 }
 
 
@@ -451,49 +392,28 @@ const std::shared_ptr<open3d::geometry::PointCloud>& original_pc)
 void GeometryProcessor::visualizeRectangleEdgesWithLabels(const std::vector<Rectangle>& rectangles) {
 
     auto line_set = std::make_shared<open3d::geometry::LineSet>();
-
     auto point_cloud = std::make_shared<open3d::geometry::PointCloud>();
 
-
-
     std::vector<Eigen::Vector3d> points;
-
     std::vector<Eigen::Vector2i> lines;
-
     std::vector<Eigen::Vector3d> colors; // Colors for points
 
 
-
     std::vector<Eigen::Vector3d> color_map = {
-
         {0.0, 0.0, 1.0}, // Blue for P1
-
         {1.0, 0.0, 0.0}, // Red for P2
-
         {0.0, 1.0, 0.0}, // Green for P3
-
         {1.0, 1.0, 0.0}  // Yellow for P4
-
     };
-
 
 
     int point_index = 0;
 
-
-
     for (const auto& rect : rectangles) {
-
         auto corners = rect.getSortedCorners();
-
-
-
         for (size_t i = 0; i < corners.size(); ++i) {
-
             points.push_back(corners[i]);
-
             colors.push_back(color_map[i]); // Assign color based on index
-
         }
 
 
@@ -501,17 +421,11 @@ void GeometryProcessor::visualizeRectangleEdgesWithLabels(const std::vector<Rect
         // Create edges (ensuring a closed loop)
 
         lines.push_back(Eigen::Vector2i(point_index, point_index + 1));
-
         lines.push_back(Eigen::Vector2i(point_index + 1, point_index + 2));
-
         lines.push_back(Eigen::Vector2i(point_index + 2, point_index + 3));
-
         lines.push_back(Eigen::Vector2i(point_index + 3, point_index)); 
 
-
-
         point_index += 4;
-
     }
 
 
@@ -519,21 +433,16 @@ void GeometryProcessor::visualizeRectangleEdgesWithLabels(const std::vector<Rect
     // Assign points and colors to the point cloud
 
     point_cloud->points_ = points;
-
     point_cloud->colors_ = colors; // Apply color to each point
 
 
 
     // Assign points and edges to the LineSet
-
     line_set->points_ = points;
-
     line_set->lines_ = lines;
 
 
-
     // Show visualization
-
     open3d::visualization::DrawGeometries({line_set, point_cloud}, "Rectangle Corners with Color-coded Order", 800, 600);
 
 }
@@ -542,70 +451,12 @@ void GeometryProcessor::visualizeRectangleEdgesWithLabels(const std::vector<Rect
 
 
 
-///////////////////////////////////////////////////////////////////////
-// std::vector<Eigen::Matrix4d> GeometryProcessor::getPlanesFromBoundingBoxes(
-
-//     const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes) {
-
-    
-
-//     std::vector<Eigen::Matrix4d> planes;
-
-
-
-//     for (const auto& box : bounding_boxes) {
-
-//         // Step 1: Extract the origin and rotation from the bounding box
-
-//         Eigen::Vector3d origin = box.center_;
-
-//         Eigen::Matrix3d rotation = box.R_;
-
-
-
-//         // Step 2: Define the plane's transformation matrix
-
-//         Eigen::Matrix4d plane = Eigen::Matrix4d::Identity();
-
-//         plane.block<3, 3>(0, 0) = rotation;
-
-//         plane.block<3, 1>(0, 3) = origin;
-
-
-
-//         // Step 3: Ensure the plane is not flipped
-
-//         // We will ensure the normal points upward by checking the Z-axis vector
-
-//         Eigen::Vector3d normal = rotation.col(2);  // Extract the normal vector (Z direction)
-
-//         if (normal.z() < 0) {
-
-//             // If the normal is flipped, flip it back by inverting the rotation matrix
-
-//             plane.block<3, 3>(0, 0) = -rotation;
-
-//         }
-
-
-
-//         planes.push_back(plane);
-
-//     }
-
-
-
-//     return planes;
-
-// }
-
-
 
 
 
 ////////////////////////
 std::vector<Eigen::Matrix4d> GeometryProcessor::getPlanesFromBoundingBoxes(
-    const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes) {
+    const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes, bool debug) {
 
     std::vector<Eigen::Matrix4d> planes;
     Eigen::Vector3d global_up(0, 0, 1); // Define a consistent upward direction
@@ -623,11 +474,13 @@ std::vector<Eigen::Matrix4d> GeometryProcessor::getPlanesFromBoundingBoxes(
         Eigen::Vector3d normal = rotation.col(2);  // Third principal axis (Z direction)
 
         // Debug output before correction
+         if (debug) {
         std::cout << "Bounding Box " << i << " original axes:\n";
         std::cout << "X-axis: " << x_axis.transpose() << "\n";
         std::cout << "Y-axis: " << y_axis.transpose() << "\n";
         std::cout << "Z-axis (normal): " << normal.transpose() << "\n";
         std::cout << "Origin: " << origin.transpose() << "\n";
+         }
 
         // Step 1: Check and correct normal direction
         if (fabs(normal.z()) < fabs(normal.x()) || fabs(normal.z()) < fabs(normal.y())) {
@@ -647,10 +500,12 @@ std::vector<Eigen::Matrix4d> GeometryProcessor::getPlanesFromBoundingBoxes(
         }
 
         // Debug output after correction
+         if (debug) {
         std::cout << "Bounding Box " << i << " corrected axes:\n";
         std::cout << "X-axis: " << x_axis.transpose() << "\n";
         std::cout << "Y-axis: " << y_axis.transpose() << "\n";
         std::cout << "Z-axis (normal): " << normal.transpose() << "\n\n";
+         }
 
         // Step 3: Construct the transformation matrix
         Eigen::Matrix4d plane = Eigen::Matrix4d::Identity();
@@ -669,44 +524,27 @@ std::vector<Eigen::Matrix4d> GeometryProcessor::getPlanesFromBoundingBoxes(
 }
 
 ///////////////////////////////////////////////////////////////////
-//
 
 void GeometryProcessor::visualizePlanesOnBoundingBoxes(
-
     const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes,
-
     const std::vector<Eigen::Matrix4d>& planes,
     const std::shared_ptr<open3d::geometry::PointCloud>& point_cloud) {
 
-
-
     // Initialize Open3D Visualizer
-
     open3d::visualization::Visualizer vis;
-
     vis.CreateVisualizerWindow("Bounding Boxes and Planes", 800, 600);
-
-
 
     // Add Point Cloud to Visualizer
     if (point_cloud) {
         vis.AddGeometry(point_cloud);
     }
-
     // Visualize Bounding Boxes
-
     for (const auto& box : bounding_boxes) {
-
         // Create Open3D OrientedBoundingBox object
-
         auto open3d_box = std::make_shared<open3d::geometry::OrientedBoundingBox>(box);
-
         open3d_box->color_ = Eigen::Vector3d(0, 0, 1);  // Blue color for the bounding box
 
-
-
         // Add the bounding box to the visualizer
-
         vis.AddGeometry(open3d_box);
 
     }
@@ -717,28 +555,17 @@ void GeometryProcessor::visualizePlanesOnBoundingBoxes(
 
     auto line_set = std::make_shared<open3d::geometry::LineSet>();
 
-
-
     for (const auto& plane : planes) {
-
         // Step 1: Extract the origin and the axes (vectors from the transformation matrix)
-
         Eigen::Vector3d origin = plane.block<3,1>(0,3);
-
         Eigen::Vector3d x_axis = plane.block<3,1>(0,0);
-
         Eigen::Vector3d y_axis = plane.block<3,1>(0,1);
-
         Eigen::Vector3d z_axis = plane.block<3,1>(0,2);
-
-
 
         // Step 2: Define the axis endpoints for visualization (length = 0.1 for visibility)
 
         Eigen::Vector3d x_end = origin + 0.1 * x_axis;
-
         Eigen::Vector3d y_end = origin + 0.1 * y_axis;
-
         Eigen::Vector3d z_end = origin + 0.1 * z_axis;
 
 
@@ -746,23 +573,16 @@ void GeometryProcessor::visualizePlanesOnBoundingBoxes(
         // Step 3: Add points for the origin and the axis endpoints
 
         int start_idx = line_set->points_.size();
-
         line_set->points_.push_back(origin);
-
         line_set->points_.push_back(x_end);
-
         line_set->points_.push_back(y_end);
-
         line_set->points_.push_back(z_end);
 
 
 
         // Step 4: Add lines for the X, Y, and Z axes (red, green, blue)
-
         line_set->lines_.push_back({start_idx, start_idx + 1});  // X-axis (red)
-
         line_set->lines_.push_back({start_idx, start_idx + 2});  // Y-axis (green)
-
         line_set->lines_.push_back({start_idx, start_idx + 3});  // Z-axis (blue)
 
 
@@ -770,9 +590,7 @@ void GeometryProcessor::visualizePlanesOnBoundingBoxes(
         // Step 5: Color the axes accordingly
 
         line_set->colors_.push_back(Eigen::Vector3d(1, 0, 0)); // Red for X-axis
-
         line_set->colors_.push_back(Eigen::Vector3d(0, 1, 0)); // Green for Y-axis
-
         line_set->colors_.push_back(Eigen::Vector3d(0, 0, 1)); // Blue for Z-axis
 
     }
@@ -788,7 +606,6 @@ void GeometryProcessor::visualizePlanesOnBoundingBoxes(
     // Step 6: Start the visualizer
 
     vis.Run();
-
     vis.DestroyVisualizerWindow();
 
 }
@@ -796,7 +613,69 @@ void GeometryProcessor::visualizePlanesOnBoundingBoxes(
 
 
 
+//////////////////////////////////////////
+// 19. Function to create n random rectangles
+std::vector<Rectangle> GeometryProcessor::createRandomRectangles(int n) {
+    std::vector<Rectangle> rectangles;
+    
+    // Use a Mersenne Twister engine seeded with current time
+    std::mt19937 gen(static_cast<unsigned int>(
+        std::chrono::system_clock::now().time_since_epoch().count()));
+    
+    // Uniform distributions for width, rotation angle, and translation in x and y.
+    std::uniform_real_distribution<double> width_dist(0.08, 0.20);   // widths between 8cm and 20cm
+    std::uniform_real_distribution<double> theta_dist(0.0, 2 * M_PI);  // rotation angle between 0 and 2π
+    std::uniform_real_distribution<double> trans_dist(-1.0, 1.0);      // random translation in a 2m x 2m area
 
+    double fixed_length = 0.15; // 15 cm in meters
+
+    for (int i = 0; i < n; i++) {
+        double width = width_dist(gen);
+        double theta = theta_dist(gen);
+        double tx = trans_dist(gen);
+        double ty = trans_dist(gen);
+        
+        // Determine which edge is shorter.
+        // We'll align the X-axis with the shorter edge and Y-axis with the longer edge.
+        double short_edge = std::min(width, fixed_length);
+        double long_edge  = std::max(width, fixed_length);
+        
+        // Compute half-lengths for convenience.
+        double half_short = short_edge / 2.0;
+        double half_long  = long_edge / 2.0;
+        
+        // Create local rectangle corners in a coordinate system where:
+        // - The X-axis corresponds to the short edge.
+        // - The Y-axis corresponds to the long edge.
+        // Corners are defined in clockwise order.
+        std::array<Eigen::Vector3d, 4> local_corners = {
+            Eigen::Vector3d(-half_short,  half_long, 0), // Top-left
+            Eigen::Vector3d( half_short,  half_long, 0), // Top-right
+            Eigen::Vector3d( half_short, -half_long, 0), // Bottom-right
+            Eigen::Vector3d(-half_short, -half_long, 0)  // Bottom-left
+        };
+        
+        // Apply a random rotation about the Z-axis.
+        Eigen::Matrix3d R = Eigen::AngleAxisd(theta, Eigen::Vector3d::UnitZ()).toRotationMatrix();
+        std::array<Eigen::Vector3d, 4> rotated_corners;
+        for (size_t j = 0; j < 4; j++) {
+            rotated_corners[j] = R * local_corners[j];
+        }
+        
+        // Apply a random translation on the XY-plane.
+        Eigen::Vector3d translation(tx, ty, 0);
+        for (size_t j = 0; j < 4; j++) {
+            rotated_corners[j] += translation;
+        }
+        
+        // Create a Rectangle object using the rotated corners.
+        // (Assuming the Rectangle constructor sorts the corners internally or expects them in a certain order)
+        Rectangle rect(rotated_corners);
+        rectangles.push_back(rect);
+    }
+    
+    return rectangles;
+}
 
 
 

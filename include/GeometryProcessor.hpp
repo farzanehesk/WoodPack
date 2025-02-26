@@ -97,63 +97,59 @@ public:
     const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes);
 
 
-    // // 8. Method to generate a list of random rectangles
-    // std::vector <Rectangle> generateRandomRectangles (int count);
-
-
-    // // 9. Method to print rectangles
-    // void printRectangles(const std::vector<Rectangle>& rectangles);
-
 
     // 10. Method to Extract upper rectangles of bounding boxes
     std::vector <Rectangle> extractUpperRectangles(const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes);
 
-    // 11. Method to visualize rectangles on the original point cloud
-    void visualizeRectanglesAndOriginalPc(
-    const std::vector<Rectangle>& rectangles,
-    const std::shared_ptr<open3d::geometry::PointCloud>& original_pc);
+    // 11. Method to visualize rectangles; if original_pc is provided, visualize it along with rectangle edges.
+    void visualizeRectangles(
+        const std::vector<Rectangle>& rectangles,
+        const std::shared_ptr<open3d::geometry::PointCloud>& original_pc = nullptr);
 
 
-    // 
+    // 12
     Eigen::Vector3d projectToPlane (
         const Eigen::Vector3d& point, const Eigen::Vector3d& normal, 
         const Eigen::Vector3d& point_on_plane);
 
 
-    //
-    Eigen::Vector3d projectPointOntoPlane(const Eigen::Vector3d& point,
+    //13
+    Eigen::Vector3d projectPointOntoPlane(  const Eigen::Vector3d& point,
                                             const Eigen::Vector3d& normal,
                                             const Eigen::Vector3d& point_on_plane);
 
 
-    ///
+    ///14
     Eigen::Vector3d projectPointOntoXYPlane (const Eigen::Vector3d& point);
 
-    ///
+    ///15
     Eigen::Vector3d projectToXYPlane(const Eigen::Vector3d& point);
 
 
-    /// Method to visualize rectangle corner points
+    /// 16. Method to visualize rectangle corner points
     void visualizeRectangleEdgesWithLabels(const std::vector<Rectangle>& rectangles);
 
 
-    /// Method to obtain bounding box 3D planes and visualize them
+    /// 17. Method to obtain bounding box 3D planes and visualize them
     std::vector<Eigen::Matrix4d> getPlanesFromBoundingBoxes(
-    const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes);
+    const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes , bool debug);
 
 
-    //// METHOD TO VISUALIZE PLANES
+    ////18.  METHOD TO VISUALIZE PLANES
     void visualizePlanesOnBoundingBoxes(
-    const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes,
-    const std::vector<Eigen::Matrix4d>& planes,
-    const std::shared_ptr<open3d::geometry::PointCloud>& point_cloud);
+        const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes,
+        const std::vector<Eigen::Matrix4d>& planes,
+        const std::shared_ptr<open3d::geometry::PointCloud>& point_cloud);
     
 
+    // 19.  /// Creates n random rectangles placed randomly on a horizontal surface.
+            /// Each rectangle has a fixed length of 0.15m and a random width between 0.08m and 0.20m.
+            /// Returns a vector of Rectangle objects.
+    std::vector<Rectangle> createRandomRectangles(int n);
 
 
-
-
-
+    // 20 . /// Visualizes only the rectangle edges 
+    void visualizeRectangles(const std::vector<Rectangle>& rectangles);
 
 
 

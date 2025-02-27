@@ -90,7 +90,22 @@ int main() {
 
 
     
-    // crete a virtual first row of shingles with random width 
+
+    // --- Create and visualize random rectangles ---
+    auto random_rectangles = geom_processor.createRandomRectangles(10);  // Create 10 random rectangles
+    geom_processor.visualizeRectangles(random_rectangles, original_pc);
+
+
+    // Create bounding boxes from rectangles
+
+    auto random_bbox = geom_processor.createBoundingBoxFromRectangle(random_rectangles, 0.01);
+
+
+    // Create the first row of shingles
+    auto first_row_of_shingles = geom_processor.arrangeShingleRow(random_bbox , 0.003);
+    geom_processor.visualize_bounding_boxes(first_row_of_shingles);
+    
+   
 
 
     // // find the next best element for the second row, from the available shingles

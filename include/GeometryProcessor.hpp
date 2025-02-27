@@ -142,14 +142,40 @@ public:
         const std::shared_ptr<open3d::geometry::PointCloud>& point_cloud);
     
 
-    // 19.  /// Creates n random rectangles placed randomly on a horizontal surface.
+
+    // 19. Convert Rectangles to Open3D Bounding Boxes
+std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundingBoxFromRectangle(
+    const std::vector<Rectangle>& rects, double height);
+
+
+
+    // 20.  /// Creates n random rectangles placed randomly on a horizontal surface.
             /// Each rectangle has a fixed length of 0.15m and a random width between 0.08m and 0.20m.
             /// Returns a vector of Rectangle objects.
     std::vector<Rectangle> createRandomRectangles(int n);
 
+    //
 
-    // 20 . /// Visualizes only the rectangle edges 
-    void visualizeRectangles(const std::vector<Rectangle>& rectangles);
+    //
+    // 22.transform_bounding_box
+    void transform_bounding_box(std::shared_ptr<open3d::geometry::OrientedBoundingBox>& bb,
+                                const Eigen::Vector3d& translation,
+                                const Eigen::Vector3d& rotation_axis,
+                                double rotation_angle,
+                                const Eigen::Vector3d& scale_center,
+                                double scale_factor);
+
+    // 
+    // 23. arrangeShingleRow
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arrangeShingleRow(
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& bounding_boxes,
+    double gap);
+
+    //
+    //24
+    void visualize_bounding_boxes(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& bounding_boxes);
+
 
 
 

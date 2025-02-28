@@ -102,14 +102,14 @@ int main() {
 
 
     // Create the first row of shingles
-    auto first_row_of_shingles = geom_processor.arrangeShingleRow(random_bbox , 0.003);
+    auto first_row_of_shingles = geom_processor.arrangeFirstShingleRow(random_bbox , 0.003 , 1);
     geom_processor.visualize_bounding_boxes(first_row_of_shingles);
     
    
 
 
     // // find the next best element for the second row, from the available shingles
-
+    
 
 
 

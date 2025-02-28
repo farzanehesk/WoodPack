@@ -779,34 +779,92 @@ void GeometryProcessor::transform_bounding_box(std::shared_ptr<open3d::geometry:
 // }
 
 
+// std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProcessor::arrangeShingleRow(
+//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& bounding_boxes,
+//     double gap) {
+
+//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arranged_bboxes;
+//     Eigen::Vector3d current_position(0, 0, 0);  // Starting at the origin
+
+//     for (auto& bbox : bounding_boxes) {
+//         // Apply rotation transformation (without rotating the extent)
+//         transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 1, 0), 0, Eigen::Vector3d(0, 0, 0), 1);
+
+//         // Calculate extent after transformation
+//         auto axis_aligned_bbox = bbox->GetAxisAlignedBoundingBox();
+//         Eigen::Vector3d extent = axis_aligned_bbox.GetExtent();  // Width, Height, Depth (aligned with axes)
+
+//         // Debug: Print the transformed bounding box details
+//         std::cout << "Bounding Box Center: " << bbox->GetCenter().transpose() << std::endl;
+//         std::cout << "Bounding Box Extent: " << axis_aligned_bbox.GetExtent().transpose() << std::endl;
+
+//         // Update the position for the next bounding box
+//         Eigen::Vector3d translation = current_position - bbox->GetCenter();
+//         transform_bounding_box(bbox, translation, Eigen::Vector3d(0, 1, 0), 0, Eigen::Vector3d(0, 0, 0), 1);
+
+//         // Add the bounding box to the result list
+//         arranged_bboxes.push_back(bbox);
+
+//         // Update current_position for the next bounding box (move right along the X-axis)
+//         current_position += Eigen::Vector3d(extent.x() + gap, 0, 0);  // Use extent.x() for width
+//     }
+
+//     return arranged_bboxes;
+// }
+
+
+
+
+
+///////////////////////////////////
 std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProcessor::arrangeShingleRow(
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& bounding_boxes,
     double gap) {
 
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arranged_bboxes;
-    Eigen::Vector3d current_position(0, 0, 0);  // Starting at the origin
+    Eigen::Vector3d current_position(0, 0, 0);  // Start at the origin
+
+    double previous_half_width = 0;  // Keeps track of half the previous box's width
 
     for (auto& bbox : bounding_boxes) {
-        // Apply rotation transformation (without rotating the extent)
-        transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 1, 0), 0, Eigen::Vector3d(0, 0, 0), 1);
+        // Compute the bounding box's extent
+        Eigen::Vector3d extent = bbox->extent_;
 
-        // Calculate extent after transformation
-        auto axis_aligned_bbox = bbox->GetAxisAlignedBoundingBox();
-        Eigen::Vector3d extent = axis_aligned_bbox.GetExtent();  // Width, Height, Depth (aligned with axes)
+        // Identify the longest axis (we want it to be aligned with X)
+        int longest_axis = 0;
+        if (extent.y() > extent.x() && extent.y() > extent.z()) {
+            longest_axis = 1;  // Y-axis is the longest
+        } else if (extent.z() > extent.x()) {
+            longest_axis = 2;  // Z-axis is the longest
+        }
 
-        // Debug: Print the transformed bounding box details
-        std::cout << "Bounding Box Center: " << bbox->GetCenter().transpose() << std::endl;
-        std::cout << "Bounding Box Extent: " << axis_aligned_bbox.GetExtent().transpose() << std::endl;
+        // Rotate if the longest edge is not already along the X-axis
+        if (longest_axis == 1) {
+            transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 0, 1), M_PI_2, bbox->GetCenter(), 1);
+        } else if (longest_axis == 2) {
+            transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 1, 0), M_PI_2, bbox->GetCenter(), 1);
+        }
 
-        // Update the position for the next bounding box
+        // Get the new extent after rotation
+        extent = bbox->extent_;
+        double current_half_width = extent.x() / 2.0;  // Half of the width after rotation
+
+        // Correct placement: shift by previous half-width + current half-width + gap
+        current_position.x() += previous_half_width + gap + current_half_width;
+
+        // Translate the bounding box to align it along X-axis
         Eigen::Vector3d translation = current_position - bbox->GetCenter();
         transform_bounding_box(bbox, translation, Eigen::Vector3d(0, 1, 0), 0, Eigen::Vector3d(0, 0, 0), 1);
 
-        // Add the bounding box to the result list
+        // Debug: Print bounding box info after transformation
+        std::cout << "Bounding Box Center: " << bbox->GetCenter().transpose() << std::endl;
+        std::cout << "Bounding Box Extent: " << bbox->extent_.transpose() << std::endl;
+
+        // Add the bounding box to the list
         arranged_bboxes.push_back(bbox);
 
-        // Update current_position for the next bounding box (move right along the X-axis)
-        current_position += Eigen::Vector3d(extent.x() + gap, 0, 0);  // Use extent.x() for width
+        // Update the previous half-width for the next iteration
+        previous_half_width = current_half_width;
     }
 
     return arranged_bboxes;

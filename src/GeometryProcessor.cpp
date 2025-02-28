@@ -753,64 +753,13 @@ void GeometryProcessor::transform_bounding_box(std::shared_ptr<open3d::geometry:
 
 ////////////////////////////////////////////////
 // 23. arrangeShingleRow
-// std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProcessor::arrangeFirstShingleRow(
-//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& bounding_boxes,
-//     double gap) {
-
-//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arranged_bboxes;
-//     Eigen::Vector3d current_position(0, 0, 0);  // Start at the origin
-
-//     double previous_half_width = 0;  // Keeps track of half the previous box's width
-
-//     for (auto& bbox : bounding_boxes) {
-//         // Compute the bounding box's extent
-//         Eigen::Vector3d extent = bbox->extent_;
-
-//         // Identify the longest axis (we want it to be aligned with X)
-//         int longest_axis = 0;
-//         if (extent.y() > extent.x() && extent.y() > extent.z()) {
-//             longest_axis = 1;  // Y-axis is the longest
-//         } else if (extent.z() > extent.x()) {
-//             longest_axis = 2;  // Z-axis is the longest
-//         }
-
-//         // Rotate if the longest edge is not already along the X-axis
-//         if (longest_axis == 1) {
-//             transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 0, 1), M_PI_2, bbox->GetCenter(), 1);
-//         } else if (longest_axis == 2) {
-//             transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 1, 0), M_PI_2, bbox->GetCenter(), 1);
-//         }
-
-//         // Get the new extent after rotation
-//         extent = bbox->extent_;
-//         double current_half_width = extent.x() / 2.0;  // Half of the width after rotation
-
-//         // Correct placement: shift by previous half-width + current half-width + gap
-//         current_position.x() += previous_half_width + gap + current_half_width;
-
-//         // Translate the bounding box to align it along X-axis
-//         Eigen::Vector3d translation = current_position - bbox->GetCenter();
-//         transform_bounding_box(bbox, translation, Eigen::Vector3d(0, 1, 0), 0, Eigen::Vector3d(0, 0, 0), 1);
-
-//         // Debug: Print bounding box info after transformation
-//         std::cout << "Bounding Box Center: " << bbox->GetCenter().transpose() << std::endl;
-//         std::cout << "Bounding Box Extent: " << bbox->extent_.transpose() << std::endl;
-
-//         // Add the bounding box to the list
-//         arranged_bboxes.push_back(bbox);
-
-//         // Update the previous half-width for the next iteration
-//         previous_half_width = current_half_width;
-//     }
-
-//     return arranged_bboxes;
-// }
 
 
 std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProcessor::arrangeFirstShingleRow(
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& bounding_boxes,
     double gap,
-    double max_length) {
+    double max_length,
+    double rotation_angle) {  // Rotation for the entire row
 
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arranged_bboxes;
     Eigen::Vector3d current_position(0, 0, 0);  // Start at the origin
@@ -833,11 +782,11 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
             longest_axis = 2;  // Z-axis is the longest
         }
 
-        // Rotate if the longest edge is not already along the X-axis
+        // Rotate if the longest edge is not already aligned with the X-axis
         if (longest_axis == 1) {
-            transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 0, 1), M_PI_2, bbox->GetCenter(), 1);
+            transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 0, 1), M_PI_2, bbox->GetCenter(), true);
         } else if (longest_axis == 2) {
-            transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 1, 0), M_PI_2, bbox->GetCenter(), 1);
+            transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 1, 0), M_PI_2, bbox->GetCenter(), true);
         }
 
         // Get the new extent after rotation
@@ -857,14 +806,10 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
 
         // Translate the bounding box to align it along X-axis
         Eigen::Vector3d translation = current_position - bbox->GetCenter();
-        transform_bounding_box(bbox, translation, Eigen::Vector3d(0, 1, 0), 0, Eigen::Vector3d(0, 0, 0), 1);
+        transform_bounding_box(bbox, translation, Eigen::Vector3d(0, 1, 0), 0, Eigen::Vector3d(0, 0, 0), true);
 
         // Store the rightmost edge position (center + half width in X direction)
         last_box_right_edge = bbox->GetCenter() + Eigen::Vector3d(current_half_width, 0, 0);
-
-        // Debug: Print bounding box info after transformation
-        std::cout << "Bounding Box Center: " << bbox->GetCenter().transpose() << std::endl;
-        std::cout << "Bounding Box Extent: " << bbox->extent_.transpose() << std::endl;
 
         // Add the bounding box to the list
         arranged_bboxes.push_back(bbox);
@@ -879,25 +824,23 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
         }
     }
 
+    // **Convert degrees to radians** (rotation_angle is in degrees)
+    double rotation_radians = rotation_angle * M_PI / 180.0;  // Convert to radians
+
+    // **Apply the correct rotation to the entire row** (rotate each box around its center)
+    Eigen::Vector3d rotation_center(0, 0, 0);  // Rotation center at the origin (can be adjusted if needed)
+
+    // Apply a 10-degree rotation around the Y-axis to make the longer edge align with the global X-axis
+    for (auto& bbox : arranged_bboxes) {
+        // Rotate the bounding box around its center
+        transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(1, 0, 0), rotation_radians, bbox->GetCenter(), true);
+    }
+
     // Debug print: Total length of the row from (0,0,0) to rightmost edge
     std::cout << "Total row length: " << last_box_right_edge.x() << " meters" << std::endl;
 
     return arranged_bboxes;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ///////////////////////////////////////////////////////
 void GeometryProcessor::visualize_bounding_boxes(

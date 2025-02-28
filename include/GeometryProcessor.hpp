@@ -169,7 +169,7 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
     // 23. arrangeShingleRow
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arrangeFirstShingleRow(
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& bounding_boxes,
-    double gap , double max_row_length);
+    double gap , double max_row_length , double rotation_angle);
 
     //
     //24

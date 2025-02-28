@@ -58,27 +58,27 @@ int main() {
 
     // instantiate geometryprocessor
     GeometryProcessor geom_processor;
-    auto bounding_boxes = geom_processor.computeOrientedBoundingBoxes(clusters);
+    auto shingles_bbx = geom_processor.computeOrientedBoundingBoxes(clusters);
 
     // 
     //geom_processor.visualizeBoundingBoxes(clusters, bounding_boxes);
-    geom_processor.visualizeBoundingBoxesAndOriginalPc(original_pc , bounding_boxes);
+    geom_processor.visualizeBoundingBoxesAndOriginalPc(original_pc , shingles_bbx);
 
 
     // get a vector of width of all shingles
 
     // Extract widths of bounding boxes
-    auto dimensions = geom_processor.getDimensionsOfBoundingBoxes(bounding_boxes);
+    auto dimensions = geom_processor.getDimensionsOfBoundingBoxes(shingles_bbx);
 
 
 
-    auto upper_rectangles = geom_processor.extractUpperRectangles(bounding_boxes);
+    auto upper_rectangles = geom_processor.extractUpperRectangles(shingles_bbx);
     geom_processor.visualizeRectangles(upper_rectangles , original_pc);
     
     geom_processor.visualizeRectangleEdgesWithLabels(upper_rectangles);
 
-    auto planes = geom_processor.getPlanesFromBoundingBoxes(bounding_boxes, false);
-    geom_processor.visualizePlanesOnBoundingBoxes(bounding_boxes, planes,original_pc );
+    auto planes = geom_processor.getPlanesFromBoundingBoxes(shingles_bbx, false);
+    geom_processor.visualizePlanesOnBoundingBoxes(shingles_bbx, planes,original_pc );
 
     // // Print dimensions
     for (size_t i = 0; i < dimensions.size(); ++i) {
@@ -95,20 +95,26 @@ int main() {
     auto random_rectangles = geom_processor.createRandomRectangles(10);  // Create 10 random rectangles
     geom_processor.visualizeRectangles(random_rectangles, original_pc);
 
-
     // Create bounding boxes from rectangles
-
     auto random_bbox = geom_processor.createBoundingBoxFromRectangle(random_rectangles, 0.01);
 
+    // Create the first row of shingles with generated random boxes
 
-    // Create the first row of shingles
-    auto first_row_of_shingles = geom_processor.arrangeFirstShingleRow(random_bbox , 0.003 , 1);
+    double gap = 0.003;       // 3mm gap
+    double max_length = 1.0;  // Ensure row is at least 1m long
+    double rotation_angle = 10;  // 10 degrees in radians
+
+    auto first_row_of_shingles = geom_processor.arrangeFirstShingleRow(random_bbox , gap , max_length ,rotation_angle );
     geom_processor.visualize_bounding_boxes(first_row_of_shingles);
     
+
+    // place the first shingles_bbx on top of the first shingle row, with a specified vertical overlap
+
+
+
    
+    // find the next best element for the second row, from the available shingles
 
-
-    // // find the next best element for the second row, from the available shingles
     
 
 

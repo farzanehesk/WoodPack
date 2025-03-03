@@ -102,7 +102,8 @@ int main() {
 
     double gap = 0.003;       // 3mm gap
     double max_length = 1.0;  // Ensure row is at least 1m long
-    double rotation_angle = 10;  // 10 degrees in radians
+    double rotation_angle = 15; 
+    // 10 degrees in radians
 
     auto first_row_of_shingles = geom_processor.arrangeFirstShingleRow(random_bbox , gap , max_length ,rotation_angle );
     geom_processor.visualize_bounding_boxes(first_row_of_shingles);

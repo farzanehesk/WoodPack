@@ -774,18 +774,21 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
         // Compute the bounding box's extent
         Eigen::Vector3d extent = bbox->extent_;
 
-        // Identify the longest axis (we want it to be aligned with X)
-        int longest_axis = 0;
+
+        // Identify the longest axis (we want the shorter edge to be aligned with X)
+        int longest_axis = 0;  // Assume X is longest by default
         if (extent.y() > extent.x() && extent.y() > extent.z()) {
             longest_axis = 1;  // Y-axis is the longest
-        } else if (extent.z() > extent.x()) {
+        } else if (extent.z() > extent.x() && extent.z() > extent.y()) {
             longest_axis = 2;  // Z-axis is the longest
         }
 
-        // Rotate if the longest edge is not already aligned with the X-axis
+        // Rotate if the longest edge is not already perpendicular to X
         if (longest_axis == 1) {
+            // If Y is longest, rotate 90 degrees around Z to align shorter edge with X
             transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 0, 1), M_PI_2, bbox->GetCenter(), true);
         } else if (longest_axis == 2) {
+            // If Z is longest, rotate 90 degrees around Y to align shorter edge with X
             transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 1, 0), M_PI_2, bbox->GetCenter(), true);
         }
 
@@ -827,17 +830,43 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
     // **Convert degrees to radians** (rotation_angle is in degrees)
     double rotation_radians = rotation_angle * M_PI / 180.0;  // Convert to radians
 
+    // Debug print: Rotation angle in both degrees and radians
+    std::cout << "Applying rotation: " << rotation_angle << " degrees (" 
+          << rotation_radians << " radians)" << std::endl;
+
     // **Apply the correct rotation to the entire row** (rotate each box around its center)
     Eigen::Vector3d rotation_center(0, 0, 0);  // Rotation center at the origin (can be adjusted if needed)
 
-    // Apply a 10-degree rotation around the Y-axis to make the longer edge align with the global X-axis
+    // Apply a x-degree rotation around the Y-axis to make the longer edge align with the global X-axis
     for (auto& bbox : arranged_bboxes) {
         // Rotate the bounding box around its center
         transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(1, 0, 0), rotation_radians, bbox->GetCenter(), true);
+
     }
 
     // Debug print: Total length of the row from (0,0,0) to rightmost edge
     std::cout << "Total row length: " << last_box_right_edge.x() << " meters" << std::endl;
+
+for (auto& bbox : arranged_bboxes) {
+    Eigen::Matrix3d rotation_matrix = bbox->R_;  // Get the rotation matrix
+
+    // Extract rotation angles (Euler angles)
+    double angle_x = std::atan2(rotation_matrix(2, 1), rotation_matrix(2, 2));  // Rotation around X
+    double angle_y = std::atan2(-rotation_matrix(2, 0),
+                                std::sqrt(rotation_matrix(2, 1) * rotation_matrix(2, 1) + 
+                                          rotation_matrix(2, 2) * rotation_matrix(2, 2)));  // Rotation around Y
+    double angle_z = std::atan2(rotation_matrix(1, 0), rotation_matrix(0, 0));  // Rotation around Z
+
+    // Convert to degrees
+    double angle_x_degrees = angle_x * 180.0 / M_PI;
+    double angle_y_degrees = angle_y * 180.0 / M_PI;
+    double angle_z_degrees = angle_z * 180.0 / M_PI;
+
+    std::cout << "Bounding Box Rotation Angles:" << std::endl;
+    std::cout << "  Around X: " << angle_x << " radians (" << angle_x_degrees << " degrees)" << std::endl;
+    std::cout << "  Around Y: " << angle_y << " radians (" << angle_y_degrees << " degrees)" << std::endl;
+    std::cout << "  Around Z: " << angle_z << " radians (" << angle_z_degrees << " degrees)" << std::endl;
+}
 
     return arranged_bboxes;
 }
@@ -849,17 +878,31 @@ void GeometryProcessor::visualize_bounding_boxes(
     open3d::visualization::Visualizer visualizer;
     visualizer.CreateVisualizerWindow("Bounding Boxes Visualization");
 
-    // Create a point cloud for visualization (optional, if you want to show point clouds)
-    auto point_cloud = std::make_shared<open3d::geometry::PointCloud>();
-    // Add points to the point cloud if needed (e.g., scan points or other geometry)
+    // Create global coordinate axes using lines
+    auto axis_lines = std::make_shared<open3d::geometry::LineSet>();
+    axis_lines->points_ = {
+        Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(1, 0, 0),  // X-axis (Red)
+        Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 1, 0),  // Y-axis (Green)
+        Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 0, 1)   // Z-axis (Blue)
+    };
+    axis_lines->lines_ = {
+        Eigen::Vector2i(0, 1),  // X-axis
+        Eigen::Vector2i(2, 3),  // Y-axis
+        Eigen::Vector2i(4, 5)   // Z-axis
+    };
+    axis_lines->colors_ = {
+        Eigen::Vector3d(1, 0, 0),  // Red for X-axis
+        Eigen::Vector3d(0, 1, 0),  // Green for Y-axis
+        Eigen::Vector3d(0, 0, 1)   // Blue for Z-axis
+    };
+
+    // Add the global axes to the visualizer
+    visualizer.AddGeometry(axis_lines);
 
     // Visualize bounding boxes
     for (const auto& bbox : bounding_boxes) {
         visualizer.AddGeometry(bbox);
     }
-
-    // Optionally, you can add the point cloud to the visualizer as well
-    visualizer.AddGeometry(point_cloud);
 
     // Start the visualizer
     visualizer.Run();

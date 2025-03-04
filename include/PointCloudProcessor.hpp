@@ -114,6 +114,8 @@ class PointCloudPerception : public virtual PointCloudProcessor , public PointCl
         PointCloudPerception();
         ~PointCloudPerception();
 
+
+
         // 1. Method to refine point clouds
         bool refinePointCloud();
 

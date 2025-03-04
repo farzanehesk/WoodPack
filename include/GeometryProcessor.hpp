@@ -59,6 +59,12 @@ class GeometryProcessor
 {
 
 public:
+
+    // function parameters
+    // double gap_;       // 3mm gap
+    // double max_length_;  // Ensure row is at least 1m long
+    // double rotation_angle_; 
+
     // Constructor and Destructor
     GeometryProcessor();
     ~GeometryProcessor();
@@ -67,6 +73,12 @@ public:
     std::vector<open3d::geometry::OrientedBoundingBox> computeOrientedBoundingBoxes(
         const std::vector<PC_o3d_ptr>& clusters);
     
+
+    //
+    std::vector<open3d::geometry::OrientedBoundingBox> computeMinimalOrientedBoundingBoxes(
+    const std::vector<PC_o3d_ptr>& clusters);
+
+
     // 2. Method to visualize clusters with bb
     void visualizeBoundingBoxes (
         const std::vector<PC_o3d_ptr>& clusters, 
@@ -176,7 +188,9 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
     void visualize_bounding_boxes(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& bounding_boxes);
 
-
+    // 
+    void VisualizeBoundingBoxesAxis(
+    const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes);
 
 
 

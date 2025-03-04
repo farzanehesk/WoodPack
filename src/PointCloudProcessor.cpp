@@ -136,35 +136,149 @@ void PointCloudProcessor::loadParameters(const std::string& config_file_name = "
 
 
 // 6. Method to load a point cloud from a file within the 'data' directory
+// bool PointCloudProcessor::loadPointCloud(const std::string& filename)
+// {
+//     if (!pc_ptr_) {
+//         pc_ptr_ = std::make_shared<open3d::geometry::PointCloud>();
+//     }
+//     std::string filepath="data/"+filename ;
+//     if (open3d::io::ReadPointCloud(filepath , *pc_ptr_))
+//     {
+//         std::cout << "Successfully loaded point cloud from " <<filepath <<'\n';
+        
+//         // Visualize the loaded point cloud
+//         if (!pc_ptr_->IsEmpty()) {
+//             std::cout << "Visualizing the loaded point cloud...\n";
+//             open3d::visualization::DrawGeometries({pc_ptr_}, "Loaded Point Cloud", 800, 600);
+//         } 
+//         else {
+//             std::cerr << "Loaded point cloud is empty.\n";
+//         }
+
+//         return true;
+
+//     }
+//     else
+//     {
+//         std::cerr << "Failed to load point cloud from " << filepath << '\n';
+//         return false;
+//     }
+
+// }
+
+// bool PointCloudProcessor::loadPointCloud(const std::string& filename)
+// {
+//     if (!pc_ptr_) {
+//         pc_ptr_ = std::make_shared<open3d::geometry::PointCloud>();
+//     }
+//     std::string filepath = "data/" + filename;
+    
+//     if (open3d::io::ReadPointCloud(filepath, *pc_ptr_))
+//     {
+//         std::cout << "Successfully loaded point cloud from " << filepath << '\n';
+
+//         // Check the scale of the point cloud
+//         if (!pc_ptr_->IsEmpty()) {
+//             // Get the extent (bounding box size) of the point cloud
+//             auto bbox = pc_ptr_->GetAxisAlignedBoundingBox();
+//             Eigen::Vector3d min = bbox.min_bound_; // Access the min_bound_ point
+//             Eigen::Vector3d max = bbox.max_bound_; // Access the max_bound_ point
+
+//             Eigen::Vector3d extent = max - min;  // Calculate the extent
+            
+//             std::cout << "Point cloud extent: " << extent.transpose() << std::endl;
+
+//             // If the extent is in millimeters or centimeters, scale to meters
+//             double scale_factor = 1.0;
+//             if (extent.x() > 1000 || extent.y() > 1000 || extent.z() > 1000) {
+//                 // Likely in millimeters, scale to meters
+//                 scale_factor = 0.001;
+//                 std::cout << "Point cloud scale is in millimeters. Scaling to meters." << std::endl;
+//             } 
+//             else if (extent.x() > 100 || extent.y() > 100 || extent.z() > 100) {
+//                 // Likely in centimeters, scale to meters
+//                 scale_factor = 0.01;
+//                 std::cout << "Point cloud scale is in centimeters. Scaling to meters." << std::endl;
+//             }
+
+//             // Scale the points by the determined factor
+//             for (auto& point : pc_ptr_->points_) {
+//                 point *= scale_factor;
+//             }
+
+//             // Visualize the scaled point cloud
+//             std::cout << "Visualizing the scaled point cloud...\n";
+//             open3d::visualization::DrawGeometries({pc_ptr_}, "Loaded Point Cloud (Scaled)", 800, 600);
+//         }
+//         else {
+//             std::cerr << "Loaded point cloud is empty.\n";
+//         }
+
+//         return true;
+//     }
+//     else {
+//         std::cerr << "Failed to load point cloud from " << filepath << '\n';
+//         return false;
+//     }
+// }
+
+
+
 bool PointCloudProcessor::loadPointCloud(const std::string& filename)
 {
     if (!pc_ptr_) {
         pc_ptr_ = std::make_shared<open3d::geometry::PointCloud>();
     }
-    std::string filepath="data/"+filename ;
-    if (open3d::io::ReadPointCloud(filepath , *pc_ptr_))
+    std::string filepath = "data/" + filename;
+    
+    if (open3d::io::ReadPointCloud(filepath, *pc_ptr_))
     {
-        std::cout << "Successfully loaded point cloud from " <<filepath <<'\n';
-        
-        // Visualize the loaded point cloud
+        std::cout << "Successfully loaded point cloud from " << filepath << '\n';
+
+        // Check the scale of the point cloud
         if (!pc_ptr_->IsEmpty()) {
-            std::cout << "Visualizing the loaded point cloud...\n";
-            open3d::visualization::DrawGeometries({pc_ptr_}, "Loaded Point Cloud", 800, 600);
-        } 
+            auto bbox = pc_ptr_->GetAxisAlignedBoundingBox();
+            Eigen::Vector3d min = bbox.min_bound_;
+            Eigen::Vector3d max = bbox.max_bound_;
+            Eigen::Vector3d extent = max - min;
+            
+            std::cout << "Point cloud extent: " << extent.transpose() << std::endl;
+
+            // If the extent is in millimeters or centimeters, scale to meters
+            double scale_factor = 1.0;
+            if (extent.x() > 1000 || extent.y() > 1000 || extent.z() > 1000) {
+                scale_factor = 0.001; // Convert mm to meters
+                std::cout << "Point cloud scale is in millimeters. Scaling to meters." << std::endl;
+            } 
+            else if (extent.x() > 100 || extent.y() > 100 || extent.z() > 100) {
+                scale_factor = 0.01; // Convert cm to meters
+                std::cout << "Point cloud scale is in centimeters. Scaling to meters." << std::endl;
+            }
+
+            // Scale and Flip the Point Cloud
+            for (auto& point : pc_ptr_->points_) {
+                point *= scale_factor;  // Scale first
+                point.z() = -point.z(); // Flip Z-axis
+            }
+
+            std::cout << "Flipping point cloud along the Z-axis...\n";
+
+            // Visualize the flipped point cloud
+            std::cout << "Visualizing the flipped and scaled point cloud...\n";
+            open3d::visualization::DrawGeometries({pc_ptr_}, "Flipped Point Cloud", 800, 600);
+        }
         else {
             std::cerr << "Loaded point cloud is empty.\n";
         }
 
         return true;
-
     }
-    else
-    {
+    else {
         std::cerr << "Failed to load point cloud from " << filepath << '\n';
         return false;
     }
-
 }
+
 
 
 ///////////////////////////////////////////////////////////
@@ -253,6 +367,8 @@ PointCloudPerception::~PointCloudPerception() {
 }
 
 
+
+
 // 1.refinePointCloud
 bool PointCloudPerception::refinePointCloud()
 {
@@ -271,10 +387,16 @@ bool PointCloudPerception::refinePointCloud()
         auto downsampled_pc_ptr = pc->VoxelDownSample(voxel_size_);
         logPointCloudSize("downsampled", downsampled_pc_ptr);
 
+        // Print the bounding box and extent
+        auto bbox = downsampled_pc_ptr->GetAxisAlignedBoundingBox();
+        auto extent = bbox.GetExtent();  // Get the dimensions of the bounding box (x, y, z)
+        std::cout << "Point cloud extent: " << extent.transpose() << std::endl;
+
         // Outlier removal
         auto outlier_removed_pc_ptr = downsampled_pc_ptr->RemoveStatisticalOutliers (nb_neighbors_ , std_ratio_);
         auto inlier_indices = std::get<1>(outlier_removed_pc_ptr);// Extract inlier indices
         auto inlier_pc_ptr = downsampled_pc_ptr->SelectByIndex(inlier_indices);
+        
 
         logPointCloudSize("filtered" , inlier_pc_ptr);
         log("Point cloud preprocessing completed.");
@@ -326,6 +448,8 @@ void PointCloudPerception::segmentAndRemovePlane() {  // Make sure this matches
 
 
 
+
+///////////////////////////////////////////////
 // 3. Method to perform Euclidean Clustering
 // void PointCloudPerception::EuclideanClustering() {
 //     if (!checkPointCloud()) {

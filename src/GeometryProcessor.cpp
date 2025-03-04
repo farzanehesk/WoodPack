@@ -93,7 +93,29 @@ return bounding_boxes;
 }
 
 
+////////////////////////////////////////
+std::vector<open3d::geometry::OrientedBoundingBox> GeometryProcessor::computeMinimalOrientedBoundingBoxes(
+    const std::vector<PC_o3d_ptr>& clusters)
+{
+    std::vector<open3d::geometry::OrientedBoundingBox> bounding_boxes;
 
+    // Iterate over each cluster (point cloud)
+    for (const auto& cluster : clusters)
+    {
+        if (cluster->IsEmpty())
+        {
+            continue;  // Skip empty clusters
+        }
+
+        // Compute the minimal oriented bounding box for the cluster
+        open3d::geometry::OrientedBoundingBox obb = cluster->GetMinimalOrientedBoundingBox();
+
+        // Add the computed OBB to the result list
+        bounding_boxes.push_back(obb);
+    }
+
+    return bounding_boxes;
+}
 
 
 
@@ -500,6 +522,8 @@ std::vector<Eigen::Matrix4d> GeometryProcessor::getPlanesFromBoundingBoxes(
             std::swap(x_axis, y_axis);
         }
 
+
+
         // Debug output after correction
          if (debug) {
         std::cout << "Bounding Box " << i << " corrected axes:\n";
@@ -523,6 +547,11 @@ std::vector<Eigen::Matrix4d> GeometryProcessor::getPlanesFromBoundingBoxes(
 
     return planes;
 }
+
+
+
+
+
 
 ///////////////////////////////////////////////////////////////////
 // 18.  METHOD TO VISUALIZE PLANES
@@ -562,13 +591,11 @@ void GeometryProcessor::visualizePlanesOnBoundingBoxes(
         Eigen::Vector3d z_axis = plane.block<3,1>(0,2);
 
         // Step 2: Define the axis endpoints for visualization (length = 0.1 for visibility)
-
         Eigen::Vector3d x_end = origin + 0.1 * x_axis;
         Eigen::Vector3d y_end = origin + 0.1 * y_axis;
         Eigen::Vector3d z_end = origin + 0.1 * z_axis;
 
         // Step 3: Add points for the origin and the axis endpoints
-
         int start_idx = line_set->points_.size();
         line_set->points_.push_back(origin);
         line_set->points_.push_back(x_end);
@@ -585,7 +612,6 @@ void GeometryProcessor::visualizePlanesOnBoundingBoxes(
         line_set->colors_.push_back(Eigen::Vector3d(1, 0, 0)); // Red for X-axis
         line_set->colors_.push_back(Eigen::Vector3d(0, 1, 0)); // Green for Y-axis
         line_set->colors_.push_back(Eigen::Vector3d(0, 0, 1)); // Blue for Z-axis
-
     }
 
 
@@ -870,6 +896,101 @@ for (auto& bbox : arranged_bboxes) {
 
     return arranged_bboxes;
 }
+
+
+
+///////////////////////////////////////////////////
+// Function to visualize bounding boxes with axis indicators
+
+
+void GeometryProcessor::VisualizeBoundingBoxesAxis(
+    const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes) {
+
+    std::vector<std::shared_ptr<open3d::geometry::Geometry>> geometries;
+
+    for (const auto& box : bounding_boxes) {
+        // Copy bounding box
+        auto bbox = std::make_shared<open3d::geometry::OrientedBoundingBox>(box);
+        bbox->color_ = Eigen::Vector3d(0, 0, 1);  // Blue color for bounding box
+
+        // Extract bounding box rotation matrix
+        Eigen::Matrix3d rotation = bbox->R_;
+
+        // Ensure consistent Z-axis direction
+        Eigen::Vector3d z_axis = rotation.col(2).normalized(); // Normal vector
+
+        if (z_axis.z() < 0) {
+            z_axis = -z_axis;  // Flip if pointing down
+        }
+
+        // Recompute x and y to maintain orthonormal basis
+        Eigen::Vector3d x_axis = rotation.col(0).normalized();
+        Eigen::Vector3d y_axis = z_axis.cross(x_axis).normalized(); // Ensure right-handed system
+        x_axis = y_axis.cross(z_axis).normalized(); // Recompute x_axis for consistency
+
+        // Update rotation matrix
+        rotation.col(0) = x_axis;
+        rotation.col(1) = y_axis;
+        rotation.col(2) = z_axis;
+        bbox->R_ = rotation;
+
+        geometries.push_back(bbox);
+
+        // Define axis length for visualization
+        double axis_length = 0.1;
+
+        // Create a LineSet to represent the axes
+        auto line_set = std::make_shared<open3d::geometry::LineSet>();
+
+        // Add points for the origin and axis endpoints
+        Eigen::Vector3d origin = bbox->center_;
+        int start_idx = line_set->points_.size();
+        line_set->points_.push_back(origin);
+        line_set->points_.push_back(origin + axis_length * x_axis); // X-axis
+        line_set->points_.push_back(origin + axis_length * y_axis); // Y-axis
+        line_set->points_.push_back(origin + axis_length * z_axis); // Z-axis
+
+        // Define lines to represent the X, Y, and Z axes
+        line_set->lines_.push_back({start_idx, start_idx + 1});
+        line_set->lines_.push_back({start_idx, start_idx + 2});
+        line_set->lines_.push_back({start_idx, start_idx + 3});
+
+        // Color the axes
+        line_set->colors_.push_back(Eigen::Vector3d(1, 0, 0)); // Red for X-axis
+        line_set->colors_.push_back(Eigen::Vector3d(0, 1, 0)); // Green for Y-axis
+        line_set->colors_.push_back(Eigen::Vector3d(0, 0, 1)); // Blue for Z-axis
+
+        geometries.push_back(line_set);
+    }
+
+    // Convert to const pointers for DrawGeometries
+    std::vector<std::shared_ptr<const open3d::geometry::Geometry>> const_geometries;
+    for (const auto& geom : geometries) {
+        const_geometries.push_back(std::static_pointer_cast<const open3d::geometry::Geometry>(geom));
+    }
+
+    // Visualize bounding boxes and axes
+    open3d::visualization::DrawGeometries(const_geometries, "Bounding Boxes with Consistent Normals");
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ///////////////////////////////////////////////////////
 void GeometryProcessor::visualize_bounding_boxes(

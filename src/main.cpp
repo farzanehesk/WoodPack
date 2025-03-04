@@ -23,23 +23,23 @@ int main() {
     std::cout << "Voxel size after loading: " << perception.voxel_size_ << std::endl;
 
     // Load the point cloud 
-    if (!perception.loadPointCloud("1694762329.600894788.pcd")) {
+    if (!perception.loadPointCloud("br4.ply")) {
         std::cerr << "Failed to load point cloud'\n";
         return -1;
     }
 
-
+    perception.logOriginalPointCloud();
 
     // Refine point cloud
-    // std::cout << "Refining the point cloud...\n";
-    // if (perception.refinePointCloud()) 
-    // {
-    //     std::cout << "Point cloud refinement completed.\n";
-    // } 
-    // else 
-    // {
-    //     std::cerr << "Point cloud refinement failed.\n";
-    // }
+    std::cout << "Refining the point cloud...\n";
+    if (perception.refinePointCloud()) 
+    {
+        std::cout << "Point cloud refinement completed.\n";
+    } 
+    else 
+    {
+        std::cerr << "Point cloud refinement failed.\n";
+    }
 
 
     // store the original point cloud
@@ -58,14 +58,14 @@ int main() {
 
     // instantiate geometryprocessor
     GeometryProcessor geom_processor;
-    auto shingles_bbx = geom_processor.computeOrientedBoundingBoxes(clusters);
+    //auto shingles_bbx = geom_processor.computeOrientedBoundingBoxes(clusters);
+     auto shingles_bbx = geom_processor.computeMinimalOrientedBoundingBoxes(clusters);
+    geom_processor.VisualizeBoundingBoxesAxis(shingles_bbx);
 
-    // 
+
     //geom_processor.visualizeBoundingBoxes(clusters, bounding_boxes);
     geom_processor.visualizeBoundingBoxesAndOriginalPc(original_pc , shingles_bbx);
 
-
-    // get a vector of width of all shingles
 
     // Extract widths of bounding boxes
     auto dimensions = geom_processor.getDimensionsOfBoundingBoxes(shingles_bbx);
@@ -74,11 +74,11 @@ int main() {
 
     auto upper_rectangles = geom_processor.extractUpperRectangles(shingles_bbx);
     geom_processor.visualizeRectangles(upper_rectangles , original_pc);
-    
     geom_processor.visualizeRectangleEdgesWithLabels(upper_rectangles);
 
-    auto planes = geom_processor.getPlanesFromBoundingBoxes(shingles_bbx, false);
+    auto planes = geom_processor.getPlanesFromBoundingBoxes(shingles_bbx, true);
     geom_processor.visualizePlanesOnBoundingBoxes(shingles_bbx, planes,original_pc );
+    
 
     // // Print dimensions
     for (size_t i = 0; i < dimensions.size(); ++i) {
@@ -96,7 +96,7 @@ int main() {
     geom_processor.visualizeRectangles(random_rectangles, original_pc);
 
     // Create bounding boxes from rectangles
-    auto random_bbox = geom_processor.createBoundingBoxFromRectangle(random_rectangles, 0.01);
+    auto random_bbox = geom_processor.createBoundingBoxFromRectangle(random_rectangles, 0.002);
 
     // Create the first row of shingles with generated random boxes
 

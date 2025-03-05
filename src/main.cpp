@@ -9,8 +9,7 @@
 
 int main() {
     
-
-    // Create shared point cloud
+    // Create shared point cloud (this will be updated later)
     std::shared_ptr<open3d::geometry::PointCloud> pc = std::make_shared<open3d::geometry::PointCloud>();
 
     // Create PointCloudPerception (which includes Processor + Visualizer)
@@ -22,32 +21,30 @@ int main() {
 
     std::cout << "Voxel size after loading: " << perception.voxel_size_ << std::endl;
 
-    // Load the point cloud 
-    if (!perception.loadPointCloud("br4.ply")) {
-        std::cerr << "Failed to load point cloud'\n";
+    // Load the point clouds from the "data/scans" folder (without merging yet)
+    std::string folder = "data/scans";  // specify the folder path
+    auto all_point_clouds = perception.loadPointClouds(folder);
+
+    if (all_point_clouds.empty()) {
+        std::cerr << "Failed to load point clouds.\n";
         return -1;
     }
 
+    std::cout << "Successfully loaded " << all_point_clouds.size() << " point clouds from folder: " << folder << std::endl;
+
+    // Now process the point clouds (refine, segment, and merge them)
+    perception.processPointClouds(all_point_clouds);
+
+
+
+    //
     perception.logOriginalPointCloud();
-
-    // Refine point cloud
-    std::cout << "Refining the point cloud...\n";
-    if (perception.refinePointCloud()) 
-    {
-        std::cout << "Point cloud refinement completed.\n";
-    } 
-    else 
-    {
-        std::cerr << "Point cloud refinement failed.\n";
-    }
-
+    
 
     // store the original point cloud
     auto original_pc = std::make_shared<open3d::geometry::PointCloud>(*perception.getPointCloud());
 
-    // segment the plane
-    perception.segmentAndRemovePlane();
-    
+
     // cluster the elements
     perception.EuclideanClustering();
 
@@ -58,8 +55,8 @@ int main() {
 
     // instantiate geometryprocessor
     GeometryProcessor geom_processor;
-    //auto shingles_bbx = geom_processor.computeOrientedBoundingBoxes(clusters);
-     auto shingles_bbx = geom_processor.computeMinimalOrientedBoundingBoxes(clusters);
+    auto shingles_bbx = geom_processor.computeOrientedBoundingBoxes(clusters);
+    //auto shingles_bbx = geom_processor.computeMinimalOrientedBoundingBoxes(clusters);
     geom_processor.VisualizeBoundingBoxesAxis(shingles_bbx);
 
 
@@ -72,9 +69,9 @@ int main() {
 
 
 
-    auto upper_rectangles = geom_processor.extractUpperRectangles(shingles_bbx);
-    geom_processor.visualizeRectangles(upper_rectangles , original_pc);
-    geom_processor.visualizeRectangleEdgesWithLabels(upper_rectangles);
+    // auto upper_rectangles = geom_processor.extractUpperRectangles(shingles_bbx);
+    // geom_processor.visualizeRectangles(upper_rectangles , original_pc);
+    // geom_processor.visualizeRectangleEdgesWithLabels(upper_rectangles);
 
     auto planes = geom_processor.getPlanesFromBoundingBoxes(shingles_bbx, true);
     geom_processor.visualizePlanesOnBoundingBoxes(shingles_bbx, planes,original_pc );
@@ -88,9 +85,7 @@ int main() {
                 << "Length = " << dimensions[i][2] << std::endl;
     }
 
-
     
-
     // --- Create and visualize random rectangles ---
     auto random_rectangles = geom_processor.createRandomRectangles(10);  // Create 10 random rectangles
     geom_processor.visualizeRectangles(random_rectangles, original_pc);

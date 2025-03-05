@@ -37,85 +37,271 @@
 
 // 1. Method to compute oriented bounding boxes for a vector of point clouds 
 // Implementing PCA-based Oriented Bounding Box (OBB) computation for better alignment with object orientation
+// std::vector<open3d::geometry::OrientedBoundingBox> GeometryProcessor::computeOrientedBoundingBoxes(
+//     const std::vector<PC_o3d_ptr>& clusters) 
+// {
+//  std::vector<open3d::geometry::OrientedBoundingBox> bounding_boxes; 
+//  bounding_boxes.reserve(clusters.size()); 
+
+// for (const auto& cluster : clusters)
+//     { if (!cluster->points_.empty()) 
+//     {
+//         // Convert Open3D point cloud to Eigen matrix
+//         Eigen::MatrixXd data(cluster->points_.size(),3);
+//         for (size_t i = 0; i < cluster->points_.size(); ++i) { data.row(i) = cluster->points_[i].transpose(); } 
+
+
+//         // Step 1: Compute Mean (Centroid) 
+//         Eigen::Vector3d mean = data.colwise().mean(); 
+
+//         // Step 2: Compute Covariance Matrix 
+//         Eigen::MatrixXd centered = data.rowwise() - mean.transpose(); 
+//         Eigen::Matrix3d covariance = (centered.adjoint() * centered) / double(cluster->points_.size()); 
+
+//         // Step 3: Perform PCA (Eigen Decomposition)
+//         Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigen_solver(covariance); 
+//         Eigen::Matrix3d eigenvectors = eigen_solver.eigenvectors(); // Columns are principal axes 
+
+//         // Step 4: Ensure right-handed coordinate system 
+//         if(eigenvectors.determinant() < 0) 
+//         {
+//             eigenvectors.col(0) = -eigenvectors.col(0);
+//         } 
+
+//         // Step 5: Transform points to PCA-aligned space 
+//         std::vector<Eigen::Vector3d> transformed_points; 
+//         transformed_points.reserve(cluster->points_.size()); 
+//         for (const auto& point : cluster->points_){ transformed_points.push_back(eigenvectors.transpose() * (point - mean)); }
+
+//         // Step 6: Compute min/max bounds in PCA-aligned space 
+//         Eigen::Vector3d min_bound = transformed_points.front(); 
+//         Eigen::Vector3d max_bound = transformed_points.front();
+//         for (const auto& p : transformed_points) { 
+//         min_bound = min_bound.cwiseMin(p); 
+//         max_bound = max_bound.cwiseMax(p); } 
+
+//         // Step 7: Create OBB with PCA rotation 
+//         auto obb = open3d::geometry::OrientedBoundingBox(); 
+//         obb.center_ = mean; obb.extent_ = (
+//         max_bound - min_bound).cwiseAbs(); 
+//         obb.R_ = eigenvectors;  // Assign PCA rotation matrix 
+//         bounding_boxes.push_back(obb);
+
+//     }
+//     } 
+// return bounding_boxes; 
+// }
+
 std::vector<open3d::geometry::OrientedBoundingBox> GeometryProcessor::computeOrientedBoundingBoxes(
     const std::vector<PC_o3d_ptr>& clusters) 
 {
- std::vector<open3d::geometry::OrientedBoundingBox> bounding_boxes; 
- bounding_boxes.reserve(clusters.size()); 
-
-for (const auto& cluster : clusters)
-    { if (!cluster->points_.empty()) 
-    {
-        // Convert Open3D point cloud to Eigen matrix
-        Eigen::MatrixXd data(cluster->points_.size(),3);
-        for (size_t i = 0; i < cluster->points_.size(); ++i) { data.row(i) = cluster->points_[i].transpose(); } 
-
-
-        // Step 1: Compute Mean (Centroid) 
-        Eigen::Vector3d mean = data.colwise().mean(); 
-
-        // Step 2: Compute Covariance Matrix 
-        Eigen::MatrixXd centered = data.rowwise() - mean.transpose(); 
-        Eigen::Matrix3d covariance = (centered.adjoint() * centered) / double(cluster->points_.size()); 
-
-        // Step 3: Perform PCA (Eigen Decomposition)
-        Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigen_solver(covariance); 
-        Eigen::Matrix3d eigenvectors = eigen_solver.eigenvectors(); // Columns are principal axes 
-
-        // Step 4: Ensure right-handed coordinate system 
-        if(eigenvectors.determinant() < 0) 
-        {
-            eigenvectors.col(0) = -eigenvectors.col(0);
-        } 
-
-        // Step 5: Transform points to PCA-aligned space 
-        std::vector<Eigen::Vector3d> transformed_points; 
-        transformed_points.reserve(cluster->points_.size()); 
-        for (const auto& point : cluster->points_){ transformed_points.push_back(eigenvectors.transpose() * (point - mean)); }
-
-        // Step 6: Compute min/max bounds in PCA-aligned space 
-        Eigen::Vector3d min_bound = transformed_points.front(); 
-        Eigen::Vector3d max_bound = transformed_points.front();
-        for (const auto& p : transformed_points) { 
-        min_bound = min_bound.cwiseMin(p); 
-        max_bound = max_bound.cwiseMax(p); } 
-
-        // Step 7: Create OBB with PCA rotation 
-        auto obb = open3d::geometry::OrientedBoundingBox(); 
-        obb.center_ = mean; obb.extent_ = (
-        max_bound - min_bound).cwiseAbs(); 
-        obb.R_ = eigenvectors;  // Assign PCA rotation matrix 
-        bounding_boxes.push_back(obb);
-
-    }
-    } 
-return bounding_boxes; 
-}
-
-
-////////////////////////////////////////
-std::vector<open3d::geometry::OrientedBoundingBox> GeometryProcessor::computeMinimalOrientedBoundingBoxes(
-    const std::vector<PC_o3d_ptr>& clusters)
-{
     std::vector<open3d::geometry::OrientedBoundingBox> bounding_boxes;
+    bounding_boxes.reserve(clusters.size());
 
-    // Iterate over each cluster (point cloud)
-    for (const auto& cluster : clusters)
-    {
-        if (cluster->IsEmpty())
-        {
-            continue;  // Skip empty clusters
+    for (const auto& cluster : clusters) {
+        if (cluster->points_.empty()) continue;
+
+        // Convert Open3D point cloud to Eigen matrix
+        Eigen::MatrixXd data(cluster->points_.size(), 3);
+        for (size_t i = 0; i < cluster->points_.size(); ++i) {
+            data.row(i) = cluster->points_[i].transpose();
         }
 
-        // Compute the minimal oriented bounding box for the cluster
-        open3d::geometry::OrientedBoundingBox obb = cluster->GetMinimalOrientedBoundingBox();
+        // Compute centroid
+        Eigen::Vector3d centroid = data.colwise().mean();
+        Eigen::MatrixXd centered = data.rowwise() - centroid.transpose();
 
-        // Add the computed OBB to the result list
+        // Compute covariance matrix
+        Eigen::Matrix3d covariance = (centered.transpose() * centered) / double(cluster->points_.size());
+
+        // Eigen decomposition (PCA)
+        Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigen_solver(covariance);
+        Eigen::Matrix3d eigenvectors = eigen_solver.eigenvectors(); // Principal axes
+
+        // Ensure right-handed coordinate system
+        if (eigenvectors.determinant() < 0) {
+            eigenvectors.col(0) = -eigenvectors.col(0);
+        }
+
+        // Ensure correct alignment of X, Y, Z axes
+        Eigen::Vector3d x_axis = eigenvectors.col(0);
+        Eigen::Vector3d y_axis = eigenvectors.col(1);
+        Eigen::Vector3d z_axis = eigenvectors.col(2);
+
+        // Fix: Ensure Z-axis always points upward
+        Eigen::Vector3d global_up(0, 0, 1);
+        if (z_axis.dot(global_up) < 0) {
+            z_axis = -z_axis;
+            x_axis = -x_axis;
+        }
+
+        // Project points onto PCA space
+        std::vector<Eigen::Vector3d> transformed_points;
+        transformed_points.reserve(cluster->points_.size());
+        for (const auto& point : cluster->points_) {
+            transformed_points.push_back(eigenvectors.transpose() * (point - centroid));
+        }
+
+        // Compute min/max bounds in PCA-aligned space
+        Eigen::Vector3d min_bound = transformed_points.front();
+        Eigen::Vector3d max_bound = transformed_points.front();
+        for (const auto& p : transformed_points) {
+            min_bound = min_bound.cwiseMin(p);
+            max_bound = max_bound.cwiseMax(p);
+        }
+
+        // Get extents and reorder axes (Ensure X is the shortest, Y is the longest)
+        Eigen::Vector3d extents = (max_bound - min_bound).cwiseAbs();
+        std::array<std::pair<double, int>, 3> sorted_axes = {
+            std::make_pair(extents.x(), 0),
+            std::make_pair(extents.y(), 1),
+            std::make_pair(extents.z(), 2)
+        };
+
+        std::sort(sorted_axes.begin(), sorted_axes.end());
+
+        Eigen::Matrix3d corrected_R;
+        corrected_R.col(0) = eigenvectors.col(sorted_axes[0].second);  // X (shortest)
+        corrected_R.col(1) = eigenvectors.col(sorted_axes[1].second);  // Y (longest)
+        corrected_R.col(2) = eigenvectors.col(sorted_axes[2].second);  // Z (always up)
+
+        // Create final Oriented Bounding Box (OBB)
+        auto obb = open3d::geometry::OrientedBoundingBox();
+        obb.center_ = centroid;
+        obb.extent_ = Eigen::Vector3d(sorted_axes[0].first, sorted_axes[1].first, sorted_axes[2].first);
+        obb.R_ = corrected_R;
+
         bounding_boxes.push_back(obb);
     }
-
     return bounding_boxes;
 }
+
+////////////////////////////////////////
+// computeMinimalOrientedBoundingBoxes
+std::vector<open3d::geometry::OrientedBoundingBox> GeometryProcessor::computeMinimalOrientedBoundingBoxes(
+    const std::vector<PC_o3d_ptr>& clusters) {
+
+    std::vector<open3d::geometry::OrientedBoundingBox> oriented_bboxes;
+
+    for (const auto& cluster : clusters) {
+        open3d::geometry::OrientedBoundingBox bbox = cluster->GetOrientedBoundingBox();
+
+        // Get the lengths of the bounding box axes (the diagonal vectors of the bounding box)
+        Eigen::Vector3d x_axis = bbox.R_.col(0);
+        Eigen::Vector3d y_axis = bbox.R_.col(1);
+        Eigen::Vector3d z_axis = bbox.R_.col(2);
+
+        // Compute the lengths of each axis
+        double x_len = x_axis.norm();
+        double y_len = y_axis.norm();
+        double z_len = z_axis.norm();
+
+        // Check if the shorter axis is not aligned with the X axis
+        if (x_len > y_len) {
+            // Swap X and Y if Y is the shorter axis
+            std::swap(x_axis, y_axis);
+        }
+        else if (x_len > z_len) {
+            // Swap X and Z if Z is the shorter axis
+            std::swap(x_axis, z_axis);
+        }
+
+        // Set the rotation matrix to align the shorter axis with the X-axis
+        bbox.R_ = Eigen::Matrix3d::Identity();  // Reset rotation
+        bbox.R_.col(0) = x_axis.normalized();
+        bbox.R_.col(1) = y_axis.normalized();
+        bbox.R_.col(2) = z_axis.normalized();
+
+        // Store the corrected oriented bounding box
+        oriented_bboxes.push_back(bbox);
+    }
+
+    return oriented_bboxes;
+}
+
+
+
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////
+// Function to visualize bounding boxes with axis indicators
+void GeometryProcessor::VisualizeBoundingBoxesAxis(
+    const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes) {
+
+    std::vector<std::shared_ptr<open3d::geometry::Geometry>> geometries;
+
+    for (const auto& box : bounding_boxes) {
+        // Copy bounding box
+        auto bbox = std::make_shared<open3d::geometry::OrientedBoundingBox>(box);
+        bbox->color_ = Eigen::Vector3d(0, 0, 1);  // Blue color for bounding box
+
+        geometries.push_back(bbox);
+
+        // Extract bounding box rotation matrix
+        Eigen::Matrix3d rotation = bbox->R_;
+
+        // Define axis length for visualization
+        double axis_length = 0.1;
+
+        // Create a LineSet to represent the axes
+        auto line_set = std::make_shared<open3d::geometry::LineSet>();
+
+        // Add points for the origin and axis endpoints
+        Eigen::Vector3d origin = bbox->center_;
+        int start_idx = line_set->points_.size();
+        line_set->points_.push_back(origin);
+        line_set->points_.push_back(origin + axis_length * rotation.col(0)); // X-axis
+        line_set->points_.push_back(origin + axis_length * rotation.col(1)); // Y-axis
+        line_set->points_.push_back(origin + axis_length * rotation.col(2)); // Z-axis
+
+        // Define lines to represent the X, Y, and Z axes
+        line_set->lines_.push_back({start_idx, start_idx + 1});
+        line_set->lines_.push_back({start_idx, start_idx + 2});
+        line_set->lines_.push_back({start_idx, start_idx + 3});
+
+        // Color the axes
+        line_set->colors_.push_back(Eigen::Vector3d(1, 0, 0)); // Red for X-axis
+        line_set->colors_.push_back(Eigen::Vector3d(0, 1, 0)); // Green for Y-axis
+        line_set->colors_.push_back(Eigen::Vector3d(0, 0, 1)); // Blue for Z-axis
+
+        geometries.push_back(line_set);
+    }
+
+    // Convert to const pointers for DrawGeometries
+    std::vector<std::shared_ptr<const open3d::geometry::Geometry>> const_geometries;
+    for (const auto& geom : geometries) {
+        const_geometries.push_back(std::static_pointer_cast<const open3d::geometry::Geometry>(geom));
+    }
+
+    // Visualize bounding boxes and axes
+    open3d::visualization::DrawGeometries(const_geometries, "Bounding Boxes with Axes");
+}
+
+
+
+
+//////////////////////////////////////////////////////////////////////////
+// std::vector<open3d::geometry::OrientedBoundingBox> GeometryProcessor::computeMinimalOrientedBoundingBoxes(
+//     const std::vector<PC_o3d_ptr>& clusters)
+// {
+//     std::vector<open3d::geometry::OrientedBoundingBox> bounding_boxes;
+
+//     // Iterate over each cluster (point cloud)
+//     for (const auto& cluster : clusters)
+//     {
+//         if (cluster->IsEmpty())
+//         {
+//             continue;  // Skip empty clusters
+//         }
+
+//         // Compute the minimal oriented bounding box for the cluster
+//         open3d::geometry::OrientedBoundingBox obb = cluster->GetMinimalOrientedBoundingBox();
+
+//         // Add the computed OBB to the result list
+//         bounding_boxes.push_back(obb);
+//     }
+
+//     return bounding_boxes;
+// }
 
 
 
@@ -899,79 +1085,6 @@ for (auto& bbox : arranged_bboxes) {
 
 
 
-///////////////////////////////////////////////////
-// Function to visualize bounding boxes with axis indicators
-
-
-void GeometryProcessor::VisualizeBoundingBoxesAxis(
-    const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes) {
-
-    std::vector<std::shared_ptr<open3d::geometry::Geometry>> geometries;
-
-    for (const auto& box : bounding_boxes) {
-        // Copy bounding box
-        auto bbox = std::make_shared<open3d::geometry::OrientedBoundingBox>(box);
-        bbox->color_ = Eigen::Vector3d(0, 0, 1);  // Blue color for bounding box
-
-        // Extract bounding box rotation matrix
-        Eigen::Matrix3d rotation = bbox->R_;
-
-        // Ensure consistent Z-axis direction
-        Eigen::Vector3d z_axis = rotation.col(2).normalized(); // Normal vector
-
-        if (z_axis.z() < 0) {
-            z_axis = -z_axis;  // Flip if pointing down
-        }
-
-        // Recompute x and y to maintain orthonormal basis
-        Eigen::Vector3d x_axis = rotation.col(0).normalized();
-        Eigen::Vector3d y_axis = z_axis.cross(x_axis).normalized(); // Ensure right-handed system
-        x_axis = y_axis.cross(z_axis).normalized(); // Recompute x_axis for consistency
-
-        // Update rotation matrix
-        rotation.col(0) = x_axis;
-        rotation.col(1) = y_axis;
-        rotation.col(2) = z_axis;
-        bbox->R_ = rotation;
-
-        geometries.push_back(bbox);
-
-        // Define axis length for visualization
-        double axis_length = 0.1;
-
-        // Create a LineSet to represent the axes
-        auto line_set = std::make_shared<open3d::geometry::LineSet>();
-
-        // Add points for the origin and axis endpoints
-        Eigen::Vector3d origin = bbox->center_;
-        int start_idx = line_set->points_.size();
-        line_set->points_.push_back(origin);
-        line_set->points_.push_back(origin + axis_length * x_axis); // X-axis
-        line_set->points_.push_back(origin + axis_length * y_axis); // Y-axis
-        line_set->points_.push_back(origin + axis_length * z_axis); // Z-axis
-
-        // Define lines to represent the X, Y, and Z axes
-        line_set->lines_.push_back({start_idx, start_idx + 1});
-        line_set->lines_.push_back({start_idx, start_idx + 2});
-        line_set->lines_.push_back({start_idx, start_idx + 3});
-
-        // Color the axes
-        line_set->colors_.push_back(Eigen::Vector3d(1, 0, 0)); // Red for X-axis
-        line_set->colors_.push_back(Eigen::Vector3d(0, 1, 0)); // Green for Y-axis
-        line_set->colors_.push_back(Eigen::Vector3d(0, 0, 1)); // Blue for Z-axis
-
-        geometries.push_back(line_set);
-    }
-
-    // Convert to const pointers for DrawGeometries
-    std::vector<std::shared_ptr<const open3d::geometry::Geometry>> const_geometries;
-    for (const auto& geom : geometries) {
-        const_geometries.push_back(std::static_pointer_cast<const open3d::geometry::Geometry>(geom));
-    }
-
-    // Visualize bounding boxes and axes
-    open3d::visualization::DrawGeometries(const_geometries, "Bounding Boxes with Consistent Normals");
-}
 
 
 

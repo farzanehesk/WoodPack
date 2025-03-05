@@ -6,7 +6,7 @@ voxel_size=0.0025
 nb_neighbors=20
 std_ratio=2.0
 ransac_n=3
-num_iterations=1000
+num_iterations=8000
 cluster_tolerance=0.02
-min_cluster_size=150
+min_cluster_size=200
 

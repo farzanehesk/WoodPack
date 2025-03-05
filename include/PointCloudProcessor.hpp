@@ -66,6 +66,10 @@ class PointCloudProcessor
         // 3. Method to log the original point cloud size
         void logOriginalPointCloud() const;
 
+
+        // 
+        
+       
         // 4. Method to log the point cloud size
         void logPointCloudSize(const std::string& stage, const std::shared_ptr<open3d::geometry::PointCloud>& cloud) const;
 
@@ -75,8 +79,8 @@ class PointCloudProcessor
         // 6. Method to load a point cloud from a file within the 'data' directory
         bool loadPointCloud (const std::string& filename);
 
-
-
+        // 7. ImportAndMergeScans
+        std::vector<std::shared_ptr<open3d::geometry::PointCloud>> loadPointClouds(const std::string& folder);
 
 
 
@@ -124,6 +128,10 @@ class PointCloudPerception : public virtual PointCloudProcessor , public PointCl
 
         // 3. Method to perform Euclidean Clustering
         void EuclideanClustering();
+
+
+        // 4.
+        void processPointClouds(const std::vector<std::shared_ptr<open3d::geometry::PointCloud>>& all_point_clouds);
 
 
 };

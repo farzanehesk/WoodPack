@@ -817,9 +817,8 @@ void GeometryProcessor::visualizePlanesOnBoundingBoxes(
 
 //////////////////////////////////////////
 // 20. Function to create n random rectangles
-std::vector<Rectangle> GeometryProcessor::createRandomRectangles(int n) {
+std::vector<Rectangle> GeometryProcessor::createRandomRectangles(int n, double fixed_length) {
     std::vector<Rectangle> rectangles;
-    double fixed_length = 0.15; // 15 cm
     double min_width = 0.08;    // 8 cm
     double max_width = 0.20;    // 20 cm
     double surface_width = 2.0; // Example surface width (adjust as needed)
@@ -1084,7 +1083,45 @@ for (auto& bbox : arranged_bboxes) {
 }
 
 
+/////////////////////////////////////////////////////////////////////
+std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProcessor::arrangeSecondShingleRow(
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row_candidates,
+    double gap,
+    double min_stagger,
+    double rotation_angle) {
+    
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arranged_bboxes;
+    double previous_right_edge = 0.0;
+    double rotation_radians = rotation_angle * M_PI / 180.0;
+    
+    for (auto& first_row_bbox : first_row) {
+        Eigen::Vector3d first_center = first_row_bbox->GetCenter();
+        Eigen::Vector3d first_extent = first_row_bbox->extent_;
+        double first_width = first_extent.x();
+        double first_left_edge = first_center.x() - (first_width / 2.0);
+        double first_right_edge = first_center.x() + (first_width / 2.0);
 
+        for (auto& second_row_bbox : second_row_candidates) {
+            Eigen::Vector3d second_extent = second_row_bbox->extent_;
+            double second_width = second_extent.x();
+
+            double new_left_edge = first_left_edge + min_stagger;
+            double new_right_edge = new_left_edge + second_width;
+
+            if (new_left_edge >= previous_right_edge + gap && new_right_edge <= first_right_edge - min_stagger) {
+                Eigen::Vector3d new_position(new_left_edge + (second_width / 2.0), first_center.y() + gap, first_center.z());
+                Eigen::Vector3d translation = new_position - second_row_bbox->GetCenter();
+                transform_bounding_box(second_row_bbox, translation, Eigen::Vector3d(0, 1, 0), 0, Eigen::Vector3d(0, 0, 0), true);
+                transform_bounding_box(second_row_bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(1, 0, 0), rotation_radians, second_row_bbox->GetCenter(), true);
+                arranged_bboxes.push_back(second_row_bbox);
+                previous_right_edge = new_right_edge;
+                break;
+            }
+        }
+    }
+    return arranged_bboxes;
+}
 
 
 

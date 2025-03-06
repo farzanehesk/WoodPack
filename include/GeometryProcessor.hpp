@@ -164,7 +164,7 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
     // 20.  /// Creates n random rectangles placed randomly on a horizontal surface.
             /// Each rectangle has a fixed length of 0.15m and a random width between 0.08m and 0.20m.
             /// Returns a vector of Rectangle objects.
-    std::vector<Rectangle> createRandomRectangles(int n);
+    std::vector<Rectangle> createRandomRectangles(int n, double fixed_length);
 
     //
 
@@ -191,6 +191,16 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
     // 
     void VisualizeBoundingBoxesAxis(
     const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes);
+
+
+    ///
+    // second row arrangement
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arrangeSecondShingleRow(
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row_candidates,
+    double gap,
+    double min_stagger,
+    double rotation_angle);
 
 
 

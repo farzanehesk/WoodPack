@@ -126,12 +126,11 @@ class PointCloudPerception : public virtual PointCloudProcessor , public PointCl
         // 2. Method to segmentAndRemovePlane
         void segmentAndRemovePlane(); 
 
-        // 3. Method to perform Euclidean Clustering
-        void EuclideanClustering();
-
-
-        // 4.
+        // 3. Method to process all loaded pointclouds (refine > segment > merge)
         void processPointClouds(const std::vector<std::shared_ptr<open3d::geometry::PointCloud>>& all_point_clouds);
+
+        // 4. Method to perform Euclidean Clustering
+        void EuclideanClustering(bool debug);
 
 
 };

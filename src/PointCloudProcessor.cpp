@@ -281,88 +281,6 @@ bool PointCloudProcessor::loadPointCloud(const std::string& filename)
 }
 
 /////////////////////////////////////////////////////////
-// bool PointCloudProcessor::loadAndMergePointClouds(const std::string& folder)
-// {
-//     std::vector<std::shared_ptr<open3d::geometry::PointCloud>> all_point_clouds;
-//     Eigen::Vector3d translation_offset(0.0, 0.0, 0.0);  // To keep track of translation
-
-//     // Iterate over all PLY files in the specified folder
-//     for (const auto& entry : std::filesystem::directory_iterator(folder)) {
-//         if (entry.is_regular_file() && entry.path().extension() == ".ply") {
-//             std::string filename = entry.path().filename().string();
-//             std::cout << "Loading point cloud from " << filename << "...\n";
-
-//             auto pc = std::make_shared<open3d::geometry::PointCloud>();
-//             if (open3d::io::ReadPointCloud(entry.path().string(), *pc)) {
-//                 std::cout << "Successfully loaded point cloud from " << filename << '\n';
-
-//                 // Check the scale of the point cloud
-//                 if (!pc->IsEmpty()) {
-//                     auto bbox = pc->GetAxisAlignedBoundingBox();
-//                     Eigen::Vector3d min = bbox.min_bound_;
-//                     Eigen::Vector3d max = bbox.max_bound_;
-//                     Eigen::Vector3d extent = max - min;
-
-//                     std::cout << "Point cloud extent: " << extent.transpose() << std::endl;
-
-//                     // Scale the point cloud
-//                     double scale_factor = 1.0;
-//                     if (extent.x() > 1000 || extent.y() > 1000 || extent.z() > 1000) {
-//                         scale_factor = 0.001; // Convert mm to meters
-//                         std::cout << "Point cloud scale is in millimeters. Scaling to meters." << std::endl;
-//                     } 
-//                     else if (extent.x() > 100 || extent.y() > 100 || extent.z() > 100) {
-//                         scale_factor = 0.01; // Convert cm to meters
-//                         std::cout << "Point cloud scale is in centimeters. Scaling to meters." << std::endl;
-//                     }
-
-//                     // Apply scaling and flip the Z-axis
-//                     for (auto& point : pc->points_) {
-//                         point *= scale_factor;  // Scale first
-//                         point.z() = -point.z(); // Flip Z-axis
-//                     }
-
-//                     std::cout << "Flipping point cloud along the Z-axis...\n";
-
-//                     // Translate the point cloud based on the current offset
-//                     for (auto& point : pc->points_) {
-//                         point += translation_offset;
-//                     }
-
-//                     // Update the translation offset for the next point cloud (along X-axis)
-//                     translation_offset.x() += extent.x() * scale_factor; // Move next cloud along X-axis
-
-//                     all_point_clouds.push_back(pc);
-//                 } else {
-//                     std::cerr << "Loaded point cloud is empty.\n";
-//                 }
-//             } else {
-//                 std::cerr << "Failed to load point cloud from " << filename << '\n';
-//             }
-//         }
-//     }
-
-//     // Merge all point clouds into a single one
-//     if (!all_point_clouds.empty()) {
-//         auto merged_pc = std::make_shared<open3d::geometry::PointCloud>();
-//         for (const auto& pc : all_point_clouds) {
-//             *merged_pc += *pc;  // Merge each point cloud
-//         }
-
-//         std::cout << "Successfully merged " << all_point_clouds.size() << " point clouds.\n";
-
-//         // Set the merged point cloud in the PointCloudPerception object
-//         setPointCloud(merged_pc);  // Make sure to call setPointCloud here to update perception
-
-//         // Visualize the merged point cloud
-//         open3d::visualization::DrawGeometries({merged_pc}, "Merged Point Cloud", 800, 600);
-//         return true;
-//     } else {
-//         std::cerr << "No point clouds loaded from folder.\n";
-//         return false;
-//     }
-// }
-
 
 std::vector<std::shared_ptr<open3d::geometry::PointCloud>> PointCloudProcessor::loadPointClouds(const std::string& folder)
 {
@@ -517,7 +435,7 @@ PointCloudPerception::~PointCloudPerception() {
 
 
 
-
+/////////////////////////////////////////////////////////////
 // 1.refinePointCloud
 bool PointCloudPerception::refinePointCloud()
 {
@@ -565,6 +483,8 @@ bool PointCloudPerception::refinePointCloud()
     }
 }
 
+
+/////////////////////////////////////////////////////////////////////
 // 2. segmentAndRemovePlane
 void PointCloudPerception::segmentAndRemovePlane() {  // Make sure this matches
     if (!checkPointCloud()) {
@@ -597,50 +517,8 @@ void PointCloudPerception::segmentAndRemovePlane() {  // Make sure this matches
 
 
 
-
-///////////////////////////////////////////////
-// 3. Method to perform Euclidean Clustering
-// void PointCloudPerception::EuclideanClustering() {
-//     if (!checkPointCloud()) {
-//         return;
-//     }
-
-//     auto pc = getPointCloud();
-//     log("Starting Euclidean Clustering...");
-
-//     // Ensure the point cloud is not empty
-//     if (pc->points_.empty()) {
-//         log("Point cloud is empty, cannot perform clustering.");
-//         return;
-//     }
-
-//     // Perform clustering
-//     std::vector<int> labels = pc->ClusterDBSCAN(cluster_tolerance_, min_cluster_size_, false);
-
-//     // Determine number of clusters
-//     int num_clusters = *std::max_element(labels.begin(), labels.end()) + 1;
-//     log("Number of clusters found: " + std::to_string(num_clusters));
-
-//     // Create colored point clouds for visualization
-//     std::vector<Eigen::Vector3d> cluster_colors;
-//     for (int i = 0; i < num_clusters; ++i) {
-//         cluster_colors.push_back(Eigen::Vector3d::Random().cwiseAbs()); // Random colors for clusters
-//     }
-
-//     for (size_t i = 0; i < labels.size(); ++i) {
-//         if (labels[i] >= 0) {
-//             pc->colors_[i] = cluster_colors[labels[i]];
-//         } else {
-//             pc->colors_[i] = Eigen::Vector3d(0.5, 0.5, 0.5); // Gray for unclustered points
-//         }
-//     }
-
-//     // Visualize clustered point cloud
-//     open3d::visualization::DrawGeometries({pc}, "Euclidean Clustering Result");
-// }
-
 ////////////////////////////////////////////////////////////////////////////
-
+ // 3. Method to process all loaded pointclouds (refine > segment > merge)
 void PointCloudPerception::processPointClouds(const std::vector<std::shared_ptr<open3d::geometry::PointCloud>>& all_point_clouds) {
     std::vector<std::shared_ptr<open3d::geometry::PointCloud>> non_plane_point_clouds;
 
@@ -675,14 +553,9 @@ void PointCloudPerception::processPointClouds(const std::vector<std::shared_ptr<
 
 
 
-
-
-
-
-/////////////////////////////////////////////////////////////////////////////////
-
-
-void PointCloudPerception::EuclideanClustering() {
+////////////////////////////////////////////////////////////////////
+// 4. Method to perform Euclidean Clustering
+void PointCloudPerception::EuclideanClustering(bool debug) {
     if (!checkPointCloud()) {
         return;
     }
@@ -728,9 +601,12 @@ void PointCloudPerception::EuclideanClustering() {
     visualizerClusters(cluster_clouds);
 
     // Optional: Visualize all clusters separately
-    for (size_t i = 0; i < cluster_clouds.size(); ++i) {
-        std::cout << "Cluster " << i << " has " << cluster_clouds[i]->points_.size() << " points." << std::endl;
-        open3d::visualization::DrawGeometries({cluster_clouds[i]}, "Cluster " + std::to_string(i));
+    if (debug)
+    {
+        for (size_t i = 0; i < cluster_clouds.size(); ++i) {
+            std::cout << "Cluster " << i << " has " << cluster_clouds[i]->points_.size() << " points." << std::endl;
+            open3d::visualization::DrawGeometries({cluster_clouds[i]}, "Cluster " + std::to_string(i));
+        }
     }
 }
 

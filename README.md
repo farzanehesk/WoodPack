@@ -80,7 +80,7 @@ automatically, pass the --accept flag to the installer script.
 
 
 
-### Collecting Log Files
+### Collecting Log Files From Phoxi Camera
 
 1. Download the utility from 
     
@@ -101,3 +101,39 @@ automatically, pass the --accept flag to the installer script.
 6. Check the generated log file in the same folder:
 
         ls -l log.txt
+
+***
+### Photoneo Firmware Update
+1. Download the Firmware Updater
+
+		https://www.photoneo.com/downloads/firmware/ 
+
+2. Navigate to the Firmware Updater
+
+		cd /home/farzaneh/external_Libs/PhoXiControl/
+
+3. Make the Firmware Updater Executable
+
+		chmod +x pho-device-updater-1.2.39
+
+4. Run the Firmware Update Command
+
+		sudo ./pho-device-updater-1.2.39 firmware-update DVG-074
+		or
+		sudo ./pho-device-updater-1.2.39 firmware-update fe80::4ab0:2dff:fe55:edbe%enx606d3cfbccbf
+
+
+5. Enter the Device ID (if prompted)
+
+		DVG-074
+		or
+		fe80::4ab0:2dff:fe55:edbe%enx606d3cfbccbf
+
+6. Verify the Firmware Update
+
+
+		PhoXiControl
+
+
+
+

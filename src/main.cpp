@@ -34,10 +34,6 @@ int main() {
 
     // Now process the point clouds (refine, segment, and merge them)
     perception.processPointClouds(all_point_clouds);
-
-
-
-    //
     perception.logOriginalPointCloud();
     
 
@@ -46,7 +42,7 @@ int main() {
 
 
     // cluster the elements
-    perception.EuclideanClustering();
+    perception.EuclideanClustering(false);
 
 
     // retrieve the clustered pointclouds
@@ -67,16 +63,6 @@ int main() {
     // Extract widths of bounding boxes
     auto dimensions = geom_processor.getDimensionsOfBoundingBoxes(shingles_bbx);
 
-
-
-    // auto upper_rectangles = geom_processor.extractUpperRectangles(shingles_bbx);
-    // geom_processor.visualizeRectangles(upper_rectangles , original_pc);
-    // geom_processor.visualizeRectangleEdgesWithLabels(upper_rectangles);
-
-    auto planes = geom_processor.getPlanesFromBoundingBoxes(shingles_bbx, true);
-    geom_processor.visualizePlanesOnBoundingBoxes(shingles_bbx, planes,original_pc );
-    
-
     // // Print dimensions
     for (size_t i = 0; i < dimensions.size(); ++i) {
         std::cout << "Dimensions of bounding box " << i << ": "
@@ -85,13 +71,22 @@ int main() {
                 << "Length = " << dimensions[i][2] << std::endl;
     }
 
+
+    // auto upper_rectangles = geom_processor.extractUpperRectangles(shingles_bbx);
+    // geom_processor.visualizeRectangles(upper_rectangles , original_pc);
+    // geom_processor.visualizeRectangleEdgesWithLabels(upper_rectangles);
+    // auto planes = geom_processor.getPlanesFromBoundingBoxes(shingles_bbx, true);
+    // geom_processor.visualizePlanesOnBoundingBoxes(shingles_bbx, planes,original_pc );
     
-    // --- Create and visualize random rectangles ---
-    auto random_rectangles = geom_processor.createRandomRectangles(10);  // Create 10 random rectangles
-    geom_processor.visualizeRectangles(random_rectangles, original_pc);
+
+
+    ///////////////////////////////////////////////////////////
+    // First Row
+    auto rect_first_row = geom_processor.createRandomRectangles(10 , 0.25);  // Create 10 random rectangles
+    geom_processor.visualizeRectangles(rect_first_row, original_pc);
 
     // Create bounding boxes from rectangles
-    auto random_bbox = geom_processor.createBoundingBoxFromRectangle(random_rectangles, 0.002);
+    auto bbx_first_row = geom_processor.createBoundingBoxFromRectangle(rect_first_row, 0.002);
 
     // Create the first row of shingles with generated random boxes
 
@@ -100,13 +95,37 @@ int main() {
     double rotation_angle = 15; 
     // 10 degrees in radians
 
-    auto first_row_of_shingles = geom_processor.arrangeFirstShingleRow(random_bbox , gap , max_length ,rotation_angle );
+    auto first_row_of_shingles = geom_processor.arrangeFirstShingleRow(bbx_first_row , gap , max_length ,rotation_angle );
     geom_processor.visualize_bounding_boxes(first_row_of_shingles);
     
 
+    ///////////////////////////////////////////////////////////
+    // Second Row
+    auto rect_second_row = geom_processor.createRandomRectangles(10 , 0.35 );  // Create 10 random rectangles
+    auto bbx_second_row = geom_processor.createBoundingBoxFromRectangle(rect_second_row, 0.002);
+     auto second_row_of_shingles = geom_processor.arrangeSecondShingleRow(
+        first_row_of_shingles,
+        bbx_second_row,
+        0.003,
+        0.03,
+        15
+     );
+     geom_processor.visualize_bounding_boxes(second_row_of_shingles);
+
+
     // place the first shingles_bbx on top of the first shingle row, with a specified vertical overlap
+    // 1. list of shingle_bbx 
+    // 2. list of first_row_shingles
+    // 3. transform shingle_bbx 
+    // 4. crop a region around it to find shingles below it , 
+    // 5. do intersection and based on approximity, find the shingles previously arranged in those positions
+    // 4. calculate its right-edge distance with the upmost right-edge of shingle in the row below
+    // 5. search in the list of shingle_bbx  to find the next best object based on width to fullfill criteria to have 3 cm stagger
+    // repeat the loop
 
 
+
+    // 
 
    
     // find the next best element for the second row, from the available shingles

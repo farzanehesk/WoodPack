@@ -14,7 +14,13 @@ using PC_o3d_ptr = std::shared_ptr<open3d::geometry::PointCloud>;
 
 
 
+// class Edge
+// {
 
+
+
+
+// };
 
 
 
@@ -32,11 +38,16 @@ Eigen::Vector3d getNormal() const;
 std::array <Eigen::Vector3d , 4> getSortedCorners() const ;
 //std::vector<Eigen::Vector3d> getEdges() const; 
 std::array <std::pair <Eigen::Vector3d ,Eigen::Vector3d > , 4>  getEdges() const; 
+std::pair<Eigen::Vector3d, Eigen::Vector3d> getRightEdge() const ;
+std::vector<std::pair<Eigen::Vector3d, Eigen::Vector3d>> getTopEdges(const std::vector<Rectangle>& rectangles) ;
 
 // utility function
 //void sortCornersClockwise();
 static std::array <Eigen::Vector3d , 4> sortCornersClockwise(const std::array<Eigen::Vector3d , 4>& corners);
 void visualizeEdges() const ;
+void visualizeEdge(const Eigen::Vector3d& start, const Eigen::Vector3d& end) const ;
+
+
 
 private: 
 
@@ -111,7 +122,9 @@ public:
 
 
     // 10. Method to Extract upper rectangles of bounding boxes
-    std::vector <Rectangle> extractUpperRectangles(const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes);
+    // std::vector <Rectangle> extractUpperRectangles(
+    //     // const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes
+    //      const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& bounding_boxes);
 
     // 11. Method to visualize rectangles; if original_pc is provided, visualize it along with rectangle edges.
     void visualizeRectangles(
@@ -193,7 +206,54 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
     const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes);
 
 
+
+
     ///
+    Eigen::Vector2d projectToXYPlane(
+        const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& bbox);
+
+    ///
+    std::shared_ptr<open3d::geometry::OrientedBoundingBox> selectRandomCandidate(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& candidates) ;
+
+
+    ///
+    // double calculateRightEdgeDistanceFromCandidate(
+    // const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate_shingle,
+    // const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& intersecting_shingle);
+
+    //
+
+
+    //
+    double calculateTotalWidth(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row);
+
+    //
+    std::vector<double> calculateRightEdgeDistancesFromCandidate(
+    const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate_shingle,
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row);
+
+    //
+    // bool lineSegmentIntersection(const Eigen::Vector3d& p1, const Eigen::Vector3d& p2,
+    //                               const Eigen::Vector3d& q1, const Eigen::Vector3d& q2) ;
+
+
+    // //
+    // std::shared_ptr<open3d::geometry::OrientedBoundingBox> findIntersectingShingle(
+    // const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate_bbox,
+    // const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row_bboxes) ;
+
+    ///
+    std::shared_ptr<open3d::geometry::OrientedBoundingBox> findNextBestShingle(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& candidates,
+    double min_stagger,
+    double max_gap);
+
+
+
+        ///
     // second row arrangement
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arrangeSecondShingleRow(
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
@@ -202,6 +262,10 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
     double min_stagger,
     double rotation_angle);
 
+
+
+
+    
 
 
 };

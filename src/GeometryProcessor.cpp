@@ -505,65 +505,65 @@ Eigen::Vector3d GeometryProcessor::projectToXYPlane(const Eigen::Vector3d& point
 ///////////////////////////////
 ///10.  Method to extract upper rectangles of bounding boxes
 //this works
-std::vector<Rectangle> GeometryProcessor::extractUpperRectangles(
+// std::vector<Rectangle> GeometryProcessor::extractUpperRectangles(
 
-    const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes) {
-    std::vector<Rectangle> upper_rectangles;
-    for (const auto& box : bounding_boxes) {
-        // Step 1: Get all 8 corners of the bounding box
-        std::vector<Eigen::Vector3d> corners = box.GetBoxPoints();
-        // Step 2: Get the normal vector of the bounding box
-        Eigen::Vector3d normal = box.R_.col(2); // Z-axis of the bounding box
+//     const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes) {
+//     std::vector<Rectangle> upper_rectangles;
+//     for (const auto& box : bounding_boxes) {
+//         // Step 1: Get all 8 corners of the bounding box
+//         std::vector<Eigen::Vector3d> corners = box.GetBoxPoints();
+//         // Step 2: Get the normal vector of the bounding box
+//         Eigen::Vector3d normal = box.R_.col(2); // Z-axis of the bounding box
 
-        // Step 3: Define faces of the bounding box
-        std::vector<std::array<Eigen::Vector3d, 4>> faces
-        {
-            {corners[0], corners[1], corners[2], corners[3]} ,
-            {corners[0], corners[1], corners[5], corners[4]},
-            {corners[0], corners[1], corners[5], corners[4]},
-            {corners[2], corners[3], corners[7], corners[6]},
-            {corners[0], corners[3], corners[7], corners[4]},
-            {corners[1], corners[2], corners[6], corners[5]}
+//         // Step 3: Define faces of the bounding box
+//         std::vector<std::array<Eigen::Vector3d, 4>> faces
+//         {
+//             {corners[0], corners[1], corners[2], corners[3]} ,
+//             {corners[0], corners[1], corners[5], corners[4]},
+//             {corners[0], corners[1], corners[5], corners[4]},
+//             {corners[2], corners[3], corners[7], corners[6]},
+//             {corners[0], corners[3], corners[7], corners[4]},
+//             {corners[1], corners[2], corners[6], corners[5]}
 
-        };
+//         };
 
         
-        // Step 4: Find the largest face that is closest to horizontal
+//         // Step 4: Find the largest face that is closest to horizontal
 
-        double max_area = 0;
-        std::array<Eigen::Vector3d, 4> upper_face;
-        for (const auto& face : faces) {
-            Eigen::Vector3d edge1 = face[1] - face[0];
-            Eigen::Vector3d edge2 = face[2] - face[0];
-            double area = edge1.cross(edge2).norm(); // Compute area
-            Eigen::Vector3d face_normal = edge1.cross(edge2).normalized();
-            // Ensure the face is roughly horizontal and has the largest area
-            if (std::abs(face_normal.z()) > 0.9 && area > max_area) {
-                max_area = area;
-                upper_face = face;
-            }
-        }
+//         double max_area = 0;
+//         std::array<Eigen::Vector3d, 4> upper_face;
+//         for (const auto& face : faces) {
+//             Eigen::Vector3d edge1 = face[1] - face[0];
+//             Eigen::Vector3d edge2 = face[2] - face[0];
+//             double area = edge1.cross(edge2).norm(); // Compute area
+//             Eigen::Vector3d face_normal = edge1.cross(edge2).normalized();
+//             // Ensure the face is roughly horizontal and has the largest area
+//             if (std::abs(face_normal.z()) > 0.9 && area > max_area) {
+//                 max_area = area;
+//                 upper_face = face;
+//             }
+//         }
 
-        // Step 5: Ensure a valid upper face was found
+//         // Step 5: Ensure a valid upper face was found
 
-        if (max_area == 0) {
-            std::cerr << "Warning: No valid upper face found for a bounding box!" << std::endl;
-            continue;
+//         if (max_area == 0) {
+//             std::cerr << "Warning: No valid upper face found for a bounding box!" << std::endl;
+//             continue;
 
-        }
+//         }
 
 
 
-        // Step 6: Sort the corners in a consistent order
-        std::array<Eigen::Vector3d, 4> sorted_corners = Rectangle::sortCornersClockwise(upper_face);
+//         // Step 6: Sort the corners in a consistent order
+//         std::array<Eigen::Vector3d, 4> sorted_corners = Rectangle::sortCornersClockwise(upper_face);
 
-        // Step 7: Create the rectangle and store it
-        upper_rectangles.emplace_back(sorted_corners);
+//         // Step 7: Create the rectangle and store it
+//         upper_rectangles.emplace_back(sorted_corners);
 
-    }
+//     }
 
-    return upper_rectangles;
-}
+//     return upper_rectangles;
+// }
 
 
 
@@ -1082,59 +1082,259 @@ for (auto& bbox : arranged_bboxes) {
     return arranged_bboxes;
 }
 
+/////////////////////////////////////////////////////////////////////
+//
+Eigen::Vector2d GeometryProcessor::projectToXYPlane(
+    const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& bbox) {
+    // Get the position and rotation matrix of the bounding box
+    Eigen::Vector3d position = bbox->GetCenter();
+    Eigen::Matrix3d rotation_matrix = bbox->R_;  // Rotation matrix of the bounding box
+    
+    // Project the center of the bounding box to the XY plane
+    Eigen::Vector3d projected_center = rotation_matrix * position;
+    return Eigen::Vector2d(projected_center.x(), projected_center.y());
+}
+
 
 /////////////////////////////////////////////////////////////////////
-std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProcessor::arrangeSecondShingleRow(
-    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
-    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row_candidates,
-    double gap,
+//
+std::shared_ptr<open3d::geometry::OrientedBoundingBox> GeometryProcessor::selectRandomCandidate(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& candidates) {
+    if (candidates.empty()) {
+        return nullptr;
+    }
+    // Select a random index between 0 and candidates.size() - 1
+    int random_index = rand() % candidates.size();
+    return candidates[random_index];
+}
+
+/////////////////////////////////////////////////////////////////////
+
+
+
+
+/////////////////////////////////////////////////////////////////////
+// 
+// double GeometryProcessor::calculateRightEdgeDistanceFromCandidate(
+//     const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate_shingle,
+//     const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& intersecting_shingle) {
+
+//     // Right edge of the intersecting shingle (first row)
+//     Eigen::Vector3d right_edge_intersecting = intersecting_shingle->GetCenter() + Eigen::Vector3d(intersecting_shingle->extent_.x() / 2.0, 0, 0);
+
+//     // Right edge of the candidate shingle (second row)
+//     Eigen::Vector3d right_edge_candidate = candidate_shingle->GetCenter() + Eigen::Vector3d(candidate_shingle->extent_.x() / 2.0, 0, 0);
+
+//     // Horizontal distance between the right edge of the candidate and the intersecting box in the first row
+//     double d1 = right_edge_intersecting.x() - right_edge_candidate.x();
+
+
+//     return d1;
+// }
+
+/////////////////////////////////////////////////////////////////////
+//
+// bool GeometryProcessor::lineSegmentIntersection(const Eigen::Vector3d& p1, const Eigen::Vector3d& p2,
+//                             const Eigen::Vector3d& q1, const Eigen::Vector3d& q2) {
+//     Eigen::Vector3d p = p2 - p1;
+//     Eigen::Vector3d q = q2 - q1;
+//     Eigen::Vector3d r = q1 - p1;
+
+//     double crossProduct = p.cross(q).norm();
+//     if (crossProduct == 0) return false; // Lines are parallel
+
+//     // Use the cross-product to check for intersection (2D check, assuming it's in the XY plane)
+//     double t = r.cross(q).norm() / crossProduct;
+//     double u = r.cross(p).norm() / crossProduct;
+
+//     return (t >= 0 && t <= 1) && (u >= 0 && u <= 1);
+// }
+
+// /////////////////////////////////////////////////////////////////////
+// //
+// std::shared_ptr<open3d::geometry::OrientedBoundingBox> GeometryProcessor::findIntersectingShingle(
+//     const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate_bbox,
+//     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row_bboxes) {
+    
+//     // Extract rectangles from bounding boxes in the first row and the candidate box
+//     std::vector<Rectangle> first_row_rectangles = extractUpperRectangles(first_row_bboxes);
+//     std::vector<Rectangle> candidate_rectangles = extractUpperRectangles({candidate_bbox});
+    
+//     // Get right edge of the candidate
+//     auto candidate_right_edge = candidate_rectangles[0].getRightEdge();
+    
+//     // Iterate through the first row to find intersections
+//     for (size_t i = 0; i < first_row_rectangles.size(); ++i) {
+//         auto top_edges = first_row_rectangles[i].getTopEdges({first_row_rectangles[i]});
+        
+//         for (const auto& top_edge : top_edges) {
+//             if (lineSegmentIntersection(candidate_right_edge.first, candidate_right_edge.second, top_edge.first, top_edge.second)) {
+//                 // Return the intersecting bounding box from the first row
+//                 return first_row_bboxes[i];
+//             }
+//         }
+//     }
+    
+//     // If no intersection is found, return nullptr (no intersecting shingle)
+//     return nullptr;
+// }
+
+
+////////////////////////////////////////////////////////////////////
+std::vector<double> GeometryProcessor::calculateRightEdgeDistancesFromCandidate(
+    const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate_shingle,
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row) {
+
+    // Right edge of the candidate shingle (second row)
+    Eigen::Vector3d right_edge_candidate = candidate_shingle->GetCenter() + 
+                                           Eigen::Vector3d(candidate_shingle->extent_.x() / 2.0, 0, 0);
+
+    std::cout << "Right edge of candidate: " << right_edge_candidate.x() << std::endl;
+
+    std::vector<double> distances;
+
+    for (const auto& bbox : first_row) {
+        // Right edge of the current bounding box in the first row
+        Eigen::Vector3d right_edge_box = bbox->GetCenter() + 
+                                         Eigen::Vector3d(bbox->extent_.x() / 2.0, 0, 0);
+
+        if (right_edge_box.x() > right_edge_candidate.x()) {
+            double distance = right_edge_box.x() - right_edge_candidate.x();
+            distances.push_back(distance);
+            std::cout << "Right edge of first row box: " << right_edge_box.x() 
+                      << " | Distance: " << distance << std::endl;
+        }
+    }
+
+    return distances;
+}
+
+////////////////////////////////////////////////////////////////////
+
+
+
+
+/////////////////////////////////////////////////////////////////////
+//
+// std::shared_ptr<open3d::geometry::OrientedBoundingBox> GeometryProcessor::findNextBestShingle(
+//     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
+//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& candidates,
+//     double min_stagger,
+//     double max_width) {
+
+//     // Store placed shingles in the second row
+//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> second_row;
+    
+//     // Project the first row boxes to the XY plane
+//     std::vector<Eigen::Vector2d> first_row_proj;
+//     for (auto& bbox : first_row) {
+//         Eigen::Vector2d proj = projectToXYPlane(bbox);
+//         first_row_proj.push_back(proj);
+//     }
+
+//     // Randomly select the first candidate for second row
+//     auto first_candidate = selectRandomCandidate(candidates);
+//     second_row.push_back(first_candidate);
+    
+//     // Get the projected position of the first candidate in the second row
+//     Eigen::Vector2d candidate_proj = projectToXYPlane(first_candidate);
+    
+//     // Loop through remaining candidates for second row
+//     for (size_t i = 1; i < candidates.size(); ++i) {
+//         auto candidate = candidates[i];
+//         Eigen::Vector2d candidate_proj = projectToXYPlane(candidate);
+
+//         // Find intersecting shingles below the candidate
+//         std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> intersecting_bboxes = findIntersectingShingles(first_row_proj, candidate_proj);
+
+//         // Calculate d1 and d2 based on the intersecting boxes
+//         double d1 = calculateRightEdgeDistance(intersecting_bboxes);
+//         double d2 = calculateLeftEdgeDistance(intersecting_bboxes);
+        
+//         // Select candidate if it fits the width condition
+//         double candidate_width = candidate->extent_.x();
+//         if (d1 + 3.0 / 100.0 < candidate_width && candidate_width < d2 - 3.0 / 100.0) {
+//             second_row.push_back(candidate);
+//         }
+
+//         // Check if the total width of the second row exceeds max_width
+//         double total_width = calculateTotalWidth(second_row);
+//         if (total_width >= max_width) {
+//             break; // Stop if width exceeds max_length
+//         }
+//     }
+
+//     return second_row;
+// }
+
+
+
+///////////////////////////////////////////////
+std::shared_ptr<open3d::geometry::OrientedBoundingBox> GeometryProcessor::findNextBestShingle(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& candidates,
     double min_stagger,
-    double rotation_angle) {
+    double max_gap) 
+{
+    // Store placed shingles in the second row
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> second_row;
+
+    // Randomly select the first candidate
+    auto first_candidate = selectRandomCandidate(candidates);
+    second_row.push_back(first_candidate);
     
-    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arranged_bboxes;
-    double previous_right_edge = 0.0;
-    double rotation_radians = rotation_angle * M_PI / 180.0;
-    
-    for (auto& first_row_bbox : first_row) {
-        Eigen::Vector3d first_center = first_row_bbox->GetCenter();
-        Eigen::Vector3d first_extent = first_row_bbox->extent_;
-        double first_width = first_extent.x();
-        double first_left_edge = first_center.x() - (first_width / 2.0);
-        double first_right_edge = first_center.x() + (first_width / 2.0);
+    // Calculate right edge distances from first candidate
+    std::vector<double> distances = calculateRightEdgeDistancesFromCandidate(first_candidate, first_row);
 
-        for (auto& second_row_bbox : second_row_candidates) {
-            Eigen::Vector3d second_extent = second_row_bbox->extent_;
-            double second_width = second_extent.x();
+    // Sort distances in ascending order
+    std::sort(distances.begin(), distances.end());
 
-            double new_left_edge = first_left_edge + min_stagger;
-            double new_right_edge = new_left_edge + second_width;
+    // Convert shared_ptr vector to OrientedBoundingBox vector
+    std::vector<open3d::geometry::OrientedBoundingBox> candidate_boxes;
+    for (const auto& candidate : candidates) {
+        candidate_boxes.push_back(*candidate);
+    }
 
-            if (new_left_edge >= previous_right_edge + gap && new_right_edge <= first_right_edge - min_stagger) {
-                Eigen::Vector3d new_position(new_left_edge + (second_width / 2.0), first_center.y() + gap, first_center.z());
-                Eigen::Vector3d translation = new_position - second_row_bbox->GetCenter();
-                transform_bounding_box(second_row_bbox, translation, Eigen::Vector3d(0, 1, 0), 0, Eigen::Vector3d(0, 0, 0), true);
-                transform_bounding_box(second_row_bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(1, 0, 0), rotation_radians, second_row_bbox->GetCenter(), true);
-                arranged_bboxes.push_back(second_row_bbox);
-                previous_right_edge = new_right_edge;
-                break;
+    // Get the max width of available candidates
+    std::vector<double> candidate_widths = getWidthsOfBoundingBoxes(candidate_boxes);
+    double max_candidate_width = *std::max_element(candidate_widths.begin(), candidate_widths.end());
+
+    // Filter distances larger than max candidate width
+    distances.erase(std::remove_if(distances.begin(), distances.end(),
+                                   [max_candidate_width](double d) { return d > max_candidate_width; }),
+                    distances.end());
+
+    // Iterate over distances to find the best shingle
+    for (size_t i = 0; i < distances.size(); ++i) {
+        double d1 = distances[i];
+
+        // First condition: Check for a shingle width < (d1 - min_stagger)
+        for (const auto& candidate : candidates) {
+            double candidate_width = candidate->extent_.x();
+            if (candidate_width < (d1 - min_stagger)) {
+                return candidate;
+            }
+        }
+
+        // If no match, check the next condition
+        if (i + 1 < distances.size()) {
+            double d2 = distances[i + 1];
+
+            for (const auto& candidate : candidates) {
+                double candidate_width = candidate->extent_.x();
+                if ((d1 + min_stagger + max_gap) < candidate_width && candidate_width < (d2 - 3)) {
+                    return candidate;
+                }
             }
         }
     }
-    return arranged_bboxes;
+
+    return nullptr; // No valid shingle found
 }
 
 
 
-
-
-
-
-
-
-
-
-
-
+/////////////////////////////////////////////
 
 
 
@@ -1280,9 +1480,44 @@ void Rectangle::visualizeEdges() const {
 
 }
 
+/////////////////////
+// Helper function to visualize an edge (right edge in this case)
+void Rectangle::visualizeEdge(const Eigen::Vector3d& start, const Eigen::Vector3d& end) const {
+    // Visualization logic goes here (e.g., using Open3D or other visualization tools)
+    std::cout << "Visualizing edge from: " << start.transpose() << " to " << end.transpose() << std::endl;
+}
 
+/////////////////////
+// Function to get and visualize the right edge of the rectangle
+std::pair<Eigen::Vector3d, Eigen::Vector3d> Rectangle::getRightEdge() const {
+    // Right edge is between the upper-right and lower-right corners
+    Eigen::Vector3d right_edge_start = corners_[1];  // Upper-right corner
+    Eigen::Vector3d right_edge_end = corners_[5];    // Lower-right corner
+    
+    // Visualize the right edge (you can implement this in your visualizer code)
+    visualizeEdge(right_edge_start, right_edge_end);
+    
+    return std::make_pair(right_edge_start, right_edge_end);
+}
 
-
+///////////////////////////
+// Function to get and visualize the top edges of a list of rectangles
+std::vector<std::pair<Eigen::Vector3d, Eigen::Vector3d>> Rectangle::getTopEdges(const std::vector<Rectangle>& rectangles) {
+    std::vector<std::pair<Eigen::Vector3d, Eigen::Vector3d>> top_edges;
+    
+    for (const auto& rectangle : rectangles) {
+        // Top edge is between the upper-left and upper-right corners
+        Eigen::Vector3d top_edge_start = rectangle.corners_[0];  // Upper-left corner
+        Eigen::Vector3d top_edge_end = rectangle.corners_[1];    // Upper-right corner
+        
+        // Visualize the top edge
+        rectangle.visualizeEdge(top_edge_start, top_edge_end);
+        
+        top_edges.push_back(std::make_pair(top_edge_start, top_edge_end));
+    }
+    
+    return top_edges;
+}
 
 
 

@@ -114,19 +114,15 @@ automatically, pass the --accept flag to the installer script.
 
 3. Make the Firmware Updater Executable
 
-		chmod +x pho-device-updater-1.2.39
+		chmod +x pho-device-updater-1.13.3
 
 4. Run the Firmware Update Command
 
-		sudo ./pho-device-updater-1.2.39 firmware-update DVG-074
-		or
-		sudo ./pho-device-updater-1.2.39 firmware-update fe80::4ab0:2dff:fe55:edbe%enx606d3cfbccbf
+		sudo ./pho-device-updater-1.13.3 firmware-update fe80::4ab0:2dff:fe55:edbe%enx606d3cfbccbf
 
 
 5. Enter the Device ID (if prompted)
 
-		DVG-074
-		or
 		fe80::4ab0:2dff:fe55:edbe%enx606d3cfbccbf
 
 6. Verify the Firmware Update

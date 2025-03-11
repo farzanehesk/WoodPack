@@ -1390,8 +1390,9 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
 
 
 ///////////////////////////////////////////
-Eigen::Vector3d GeometryProcessor::updateRightEdge(const Eigen::Vector3d& current_right_edge,
-                                                   const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate) {
+Eigen::Vector3d GeometryProcessor::updateRightEdge(
+    const Eigen::Vector3d& current_right_edge,
+    const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate) {
     // Update the right edge based on the candidate's position and width
     Eigen::Vector3d new_right_edge = current_right_edge;
     new_right_edge.x() += candidate->extent_.x();  // Move the right edge by the candidate's width
@@ -1403,254 +1404,261 @@ Eigen::Vector3d GeometryProcessor::updateRightEdge(const Eigen::Vector3d& curren
 
 ///////////////////
 
-// std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProcessor::arrangeSecondShingleRow(
+// std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> 
+// GeometryProcessor::arrangeSecondShingleRow(
 //     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
 //     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row,
-//     double gap,
+//     double gap,              // e.g., 0.003 for 3 mm
 //     double max_length,
-//     double rotation_angle) {  
-
+//     double rotation_angle)    // in degrees
+// {
 //     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arranged_bboxes;
-
-//     // **Start position: Align with the left edge of the first row**
-//     Eigen::Vector3d first_box_center = first_row[0]->GetCenter();
-//     double first_box_half_width = first_row[0]->extent_.x() / 2.0;
-//     Eigen::Vector3d current_position = first_box_center - Eigen::Vector3d(first_box_half_width, 0, 0); 
-
-//     // **Elevate second row on top of first row**
-//     double first_row_thickness = first_row[0]->extent_.z();
-//     current_position.z() += first_row_thickness;  // Adjust for thickness
-
-//     double previous_half_width = 0;
-//     double total_length = 0;
-
-//     Eigen::Vector3d last_box_right_edge = current_position; 
-//     bool min_length_reached = false;
-
-//     for (auto& bbox : second_row) {
+    
+//     // --- Determine horizontal starting position from the first row ---
+//     // Use the left edge of the first box in the first row.
+//     double start_x = first_row[0]->GetCenter().x() - (first_row[0]->extent_.x() / 2.0);
+    
+//     // --- Determine the baseline (bottom edge) in Y from the first row ---
+//     // Here, the "bottom edge" is taken as the minimal Y of the first row.
+//     double first_row_bottom_y = first_row[0]->GetCenter().y() - (first_row[0]->extent_.y() / 2.0);
+    
+//     // --- Determine the Z level so that the second row sits on top of the first row ---
+//     // For example, we can set the bottom face of the second row equal to the top face of the first row.
+//     double first_row_top_z = first_row[0]->GetCenter().z() + (first_row[0]->extent_.z() / 2.0);
+    
+//     // --- Arrange each second-row box horizontally ---
+//     double last_right_edge = start_x; // Initially, no box is placed so the last right edge is the start.
+    
+//     for (size_t i = 0; i < second_row.size(); ++i) {
+//         auto& bbox = second_row[i];
+        
+//         // Optionally: rotate the box if needed (this example applies similar logic as before)
 //         Eigen::Vector3d extent = bbox->extent_;
-
-//         // **Determine longest axis and rotate accordingly**
-//         int longest_axis = (extent.y() > extent.x() && extent.y() > extent.z()) ? 1 : 
+//         int longest_axis = (extent.y() > extent.x() && extent.y() > extent.z()) ? 1 :
 //                            (extent.z() > extent.x() && extent.z() > extent.y()) ? 2 : 0;
-
 //         if (longest_axis == 1) {
-//             transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 0, 1), M_PI_2, bbox->GetCenter(), true);
+//             transform_bounding_box(bbox, Eigen::Vector3d(0,0,0), Eigen::Vector3d(0,0,1), M_PI_2, bbox->GetCenter(), true);
 //         } else if (longest_axis == 2) {
-//             transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 1, 0), M_PI_2, bbox->GetCenter(), true);
+//             transform_bounding_box(bbox, Eigen::Vector3d(0,0,0), Eigen::Vector3d(0,1,0), M_PI_2, bbox->GetCenter(), true);
 //         }
-
+//         // Refresh extent after potential rotation.
 //         extent = bbox->extent_;
-//         double current_half_width = extent.x() / 2.0;
-
-//         double new_total_length = total_length + previous_half_width + gap + current_half_width;
-
-//         if (min_length_reached && new_total_length > max_length) {
+//         double half_width = extent.x() / 2.0;
+        
+//         // --- Determine desired center in X ---
+//         double desired_center_x;
+//         if (i == 0) {
+//             // For the first box: its center x is start_x + half its width.
+//             desired_center_x = start_x + half_width;
+//         } else {
+//             // For subsequent boxes: center = previous right edge + gap + half_width.
+//             desired_center_x = last_right_edge + gap + half_width;
+//         }
+        
+//         // --- Determine desired center in Y ---
+//         // To align the bottom edges: desired center y = first_row_bottom_y + half of the box's y-extent.
+//         double desired_center_y = first_row_bottom_y + (extent.y() / 2.0);
+        
+//         // --- Determine desired center in Z ---
+//         // Place the box so its bottom face is at the first row's top.
+//         // That is, desired center z = first_row_top_z + (this box's thickness / 2).
+//         double desired_center_z = first_row_top_z + (extent.z() / 2.0);
+        
+//         // Build the desired center point.
+//         Eigen::Vector3d desired_center(desired_center_x, desired_center_y, desired_center_z);
+        
+//         // Compute translation needed.
+//         Eigen::Vector3d translation = desired_center - bbox->GetCenter();
+//         // Apply translation. (We assume transform_bounding_box does an in-place transformation.)
+//         transform_bounding_box(bbox, translation, Eigen::Vector3d(0,1,0), 0, Eigen::Vector3d(0,0,0), true);
+        
+//         // Update last_right_edge for the next box.
+//         last_right_edge = desired_center_x + half_width;
+        
+//         arranged_bboxes.push_back(bbox);
+        
+//         // Check if the total horizontal span exceeds max_length.
+//         if (last_right_edge - start_x > max_length) {
 //             break;
 //         }
-
-//         current_position.x() += previous_half_width + gap + current_half_width;
-
-//         // **Place box at the correct height (on top of the first row)**
-//         Eigen::Vector3d translation = current_position - bbox->GetCenter();
-//         transform_bounding_box(bbox, translation, Eigen::Vector3d(0, 1, 0), 0, Eigen::Vector3d(0, 0, 0), true);
-
-//         last_box_right_edge = bbox->GetCenter() + Eigen::Vector3d(current_half_width, 0, 0);
-//         arranged_bboxes.push_back(bbox);
-
-//         previous_half_width = current_half_width;
-//         total_length = new_total_length;
-
-//         if (total_length >= max_length) {
-//             min_length_reached = true;
-//         }
 //     }
-
-//     // **Rotate entire row if needed**
+    
+//     // --- Optionally, rotate the entire row by rotation_angle (around each box's center) ---
 //     double rotation_radians = rotation_angle * M_PI / 180.0;
-//     Eigen::Vector3d rotation_center(0, 0, 0);  
-
 //     for (auto& bbox : arranged_bboxes) {
-//         transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(1, 0, 0), rotation_radians, bbox->GetCenter(), true);
+//         transform_bounding_box(bbox, Eigen::Vector3d(0,0,0), Eigen::Vector3d(1,0,0), 
+//                                 rotation_radians, bbox->GetCenter(), true);
 //     }
-
-//     std::cout << "Total row length: " << last_box_right_edge.x() << " meters" << std::endl;
-
+    
+//     std::cout << "Total row length: " << last_right_edge - start_x << " meters" << std::endl;
+    
 //     return arranged_bboxes;
 // }
 
-// std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProcessor::arrangeSecondShingleRow(
+// std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> 
+// GeometryProcessor::arrangeSecondShingleRow(
 //     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
 //     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row,
-//     double gap,
+//     double gap,              // e.g., 0.003 for 3 mm gap
 //     double max_length,
-//     double rotation_angle) {  
-
+//     double rotation_angle)    // in degrees
+// {
 //     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arranged_bboxes;
-
-//     // **Start position: Align with the left edge of the first row**
-//     Eigen::Vector3d first_box_center = first_row[0]->GetCenter();
-//     double first_box_half_width = first_row[0]->extent_.x() / 2.0;
-//     Eigen::Vector3d current_position = first_box_center - Eigen::Vector3d(first_box_half_width, 0, 0); 
-
-//     // **Elevate second row on top of first row**
-//     double first_row_thickness = first_row[0]->extent_.z();
-//     current_position.z() += first_row_thickness;  // Adjust for thickness
-
-//     // **Determine the bottom edge of the first row**
-//     double first_row_bottom_edge = first_row[0]->GetCenter().y() - (first_row[0]->extent_.y() / 2.0);
-
-//     double previous_half_width = 0;
-//     double total_length = 0;
-
-//     Eigen::Vector3d last_box_right_edge = current_position; 
-//     bool min_length_reached = false;
-
-//     for (auto& bbox : second_row) {
+    
+//     // --- Determine horizontal starting position from first row ---
+//     // Left edge of the first box in the first row.
+//     double start_x = first_row[0]->GetCenter().x() - (first_row[0]->extent_.x() / 2.0);
+    
+//     // --- Determine the baseline for Y alignment from first row ---
+//     // Using the bottom edge (along y) of the first row.
+//     double first_row_bottom_y = first_row[0]->GetCenter().y() - (first_row[0]->extent_.y() / 2.0);
+    
+//     // --- Determine the top face (Z) of the first row ---
+//     double first_row_top_z = first_row[0]->GetCenter().z() + (first_row[0]->extent_.z() / 2.0);
+    
+//     double last_right_edge = start_x;
+    
+//     for (size_t i = 0; i < second_row.size(); ++i) {
+//         auto& bbox = second_row[i];
+        
+//         // Optionally, rotate the box based on its longest axis.
 //         Eigen::Vector3d extent = bbox->extent_;
-
-//         // **Determine longest axis and rotate accordingly**
-//         int longest_axis = (extent.y() > extent.x() && extent.y() > extent.z()) ? 1 : 
+//         int longest_axis = (extent.y() > extent.x() && extent.y() > extent.z()) ? 1 :
 //                            (extent.z() > extent.x() && extent.z() > extent.y()) ? 2 : 0;
-
 //         if (longest_axis == 1) {
-//             transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 0, 1), M_PI_2, bbox->GetCenter(), true);
+//             transform_bounding_box(bbox, Eigen::Vector3d(0,0,0),
+//                                    Eigen::Vector3d(0,0,1), M_PI_2, bbox->GetCenter(), true);
 //         } else if (longest_axis == 2) {
-//             transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 1, 0), M_PI_2, bbox->GetCenter(), true);
+//             transform_bounding_box(bbox, Eigen::Vector3d(0,0,0),
+//                                    Eigen::Vector3d(0,1,0), M_PI_2, bbox->GetCenter(), true);
 //         }
-
 //         extent = bbox->extent_;
-//         double current_half_width = extent.x() / 2.0;
-
-//         double new_total_length = total_length + previous_half_width + gap + current_half_width;
-
-//         if (min_length_reached && new_total_length > max_length) {
-//             break;
-//         }
-
-//         current_position.x() += previous_half_width + gap + current_half_width;
-
-//         // **Align the second row to the bottom edge of the first row**
-//         double second_row_bottom_edge = bbox->GetCenter().y() - (bbox->extent_.y() / 2.0);
-//         double shift_y = first_row_bottom_edge - second_row_bottom_edge; // Compute required shift
-
-//         // Align the second row boxes vertically to the bottom edge of the first row
-//         Eigen::Vector3d translation(0, shift_y, first_row_thickness); // Align along y and elevate
-//         transform_bounding_box(bbox, translation, Eigen::Vector3d(0, 1, 0), 0, Eigen::Vector3d(0, 0, 0), true);
-
-//         last_box_right_edge = bbox->GetCenter() + Eigen::Vector3d(current_half_width, 0, 0);
+//         double half_width = extent.x() / 2.0;
+        
+//         // --- Determine desired center in X ---
+//         double desired_center_x = (i == 0) ? (start_x + half_width)
+//                                            : (last_right_edge + gap + half_width);
+        
+//         // --- Determine desired center in Y ---
+//         // Align bottom edges: desired center y = first_row_bottom_y + (this box's y-extent / 2)
+//         double desired_center_y = first_row_bottom_y + (extent.y() / 2.0);
+        
+//         // --- Determine desired center in Z ---
+//         // We want the second row's bottom face (center z - extent.z()/2)
+//         // to align exactly with the first row's top face.
+//         // Thus: desired_center_z - (extent.z()/2) = first_row_top_z,
+//         // or desired_center_z = first_row_top_z + (extent.z()/2).
+//         double desired_center_z = first_row_top_z + (extent.z() / 2.0);
+        
+//         Eigen::Vector3d desired_center(desired_center_x, desired_center_y, desired_center_z);
+//         Eigen::Vector3d translation = desired_center - bbox->GetCenter();
+//         transform_bounding_box(bbox, translation, Eigen::Vector3d(0,1,0), 0, Eigen::Vector3d(0,0,0), true);
+        
+//         last_right_edge = desired_center_x + half_width;
 //         arranged_bboxes.push_back(bbox);
-
-//         previous_half_width = current_half_width;
-//         total_length = new_total_length;
-
-//         if (total_length >= max_length) {
-//             min_length_reached = true;
-//         }
+        
+//         if (last_right_edge - start_x > max_length)
+//             break;
 //     }
-
-//     // **Rotate entire row if needed**
+    
+//     // --- Optionally, rotate the entire row by rotation_angle (around each box's center) ---
 //     double rotation_radians = rotation_angle * M_PI / 180.0;
-//     Eigen::Vector3d rotation_center(0, 0, 0);  
-
 //     for (auto& bbox : arranged_bboxes) {
-//         transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(1, 0, 0), rotation_radians, bbox->GetCenter(), true);
+//         transform_bounding_box(bbox, Eigen::Vector3d(0,0,0),
+//                                Eigen::Vector3d(1,0,0), rotation_radians, bbox->GetCenter(), true);
 //     }
-
-//     std::cout << "Total row length: " << last_box_right_edge.x() << " meters" << std::endl;
-
+    
+//     std::cout << "Total row length: " << last_right_edge - start_x << " meters" << std::endl;
 //     return arranged_bboxes;
 // }
+
 std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> 
 GeometryProcessor::arrangeSecondShingleRow(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row,
-    double gap,              // e.g., 0.003 for 3 mm
+    double gap,              // e.g., 0.003 for 3 mm gap
     double max_length,
     double rotation_angle)    // in degrees
 {
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arranged_bboxes;
     
-    // --- Determine horizontal starting position from the first row ---
-    // Use the left edge of the first box in the first row.
+    // --- Determine horizontal starting position from first row ---
     double start_x = first_row[0]->GetCenter().x() - (first_row[0]->extent_.x() / 2.0);
     
-    // --- Determine the baseline (bottom edge) in Y from the first row ---
-    // Here, the "bottom edge" is taken as the minimal Y of the first row.
+    // --- Determine the baseline for Y alignment from first row ---
     double first_row_bottom_y = first_row[0]->GetCenter().y() - (first_row[0]->extent_.y() / 2.0);
     
-    // --- Determine the Z level so that the second row sits on top of the first row ---
-    // For example, we can set the bottom face of the second row equal to the top face of the first row.
+    // --- Determine the top face (Z) of the first row ---
     double first_row_top_z = first_row[0]->GetCenter().z() + (first_row[0]->extent_.z() / 2.0);
     
-    // --- Arrange each second-row box horizontally ---
-    double last_right_edge = start_x; // Initially, no box is placed so the last right edge is the start.
+    std::cout << "[DEBUG] First row top face Z: " << first_row_top_z << std::endl;
+    
+    double last_right_edge = start_x;
     
     for (size_t i = 0; i < second_row.size(); ++i) {
         auto& bbox = second_row[i];
         
-        // Optionally: rotate the box if needed (this example applies similar logic as before)
+        // Optionally, rotate the box based on its longest axis.
         Eigen::Vector3d extent = bbox->extent_;
         int longest_axis = (extent.y() > extent.x() && extent.y() > extent.z()) ? 1 :
                            (extent.z() > extent.x() && extent.z() > extent.y()) ? 2 : 0;
         if (longest_axis == 1) {
-            transform_bounding_box(bbox, Eigen::Vector3d(0,0,0), Eigen::Vector3d(0,0,1), M_PI_2, bbox->GetCenter(), true);
+            transform_bounding_box(bbox, Eigen::Vector3d(0,0,0),
+                                   Eigen::Vector3d(0,0,1), M_PI_2, bbox->GetCenter(), true);
         } else if (longest_axis == 2) {
-            transform_bounding_box(bbox, Eigen::Vector3d(0,0,0), Eigen::Vector3d(0,1,0), M_PI_2, bbox->GetCenter(), true);
+            transform_bounding_box(bbox, Eigen::Vector3d(0,0,0),
+                                   Eigen::Vector3d(0,1,0), M_PI_2, bbox->GetCenter(), true);
         }
-        // Refresh extent after potential rotation.
         extent = bbox->extent_;
         double half_width = extent.x() / 2.0;
+        double half_thickness = extent.z() / 2.0;
         
         // --- Determine desired center in X ---
-        double desired_center_x;
-        if (i == 0) {
-            // For the first box: its center x is start_x + half its width.
-            desired_center_x = start_x + half_width;
-        } else {
-            // For subsequent boxes: center = previous right edge + gap + half_width.
-            desired_center_x = last_right_edge + gap + half_width;
-        }
+        double desired_center_x = (i == 0) ? (start_x + half_width)
+                                           : (last_right_edge + gap + half_width);
         
         // --- Determine desired center in Y ---
-        // To align the bottom edges: desired center y = first_row_bottom_y + half of the box's y-extent.
         double desired_center_y = first_row_bottom_y + (extent.y() / 2.0);
         
         // --- Determine desired center in Z ---
-        // Place the box so its bottom face is at the first row's top.
-        // That is, desired center z = first_row_top_z + (this box's thickness / 2).
-        double desired_center_z = first_row_top_z + (extent.z() / 2.0);
+        // To place the second row on top of the first row:
+        //   second row bottom = second row center.z - (half_thickness)
+        // We want that to equal the first row top: first_row_top_z.
+        // Therefore, second row center.z = first_row_top_z + half_thickness.
+        double desired_center_z = first_row_top_z + half_thickness;
         
-        // Build the desired center point.
+        std::cout << "[DEBUG] Box " << i << " computed desired center: (" 
+                  << desired_center_x << ", " << desired_center_y << ", " << desired_center_z << ")" << std::endl;
+        
         Eigen::Vector3d desired_center(desired_center_x, desired_center_y, desired_center_z);
-        
-        // Compute translation needed.
         Eigen::Vector3d translation = desired_center - bbox->GetCenter();
-        // Apply translation. (We assume transform_bounding_box does an in-place transformation.)
-        transform_bounding_box(bbox, translation, Eigen::Vector3d(0,1,0), 0, Eigen::Vector3d(0,0,0), true);
         
-        // Update last_right_edge for the next box.
+        std::cout << "[DEBUG] Box " << i << " translation: " << translation.transpose() << std::endl;
+        
+        transform_bounding_box(bbox, translation, Eigen::Vector3d(0,1,0), 
+                                0, Eigen::Vector3d(0,0,0), true);
+        
+        std::cout << "[DEBUG] Box " << i << " new center: " << bbox->GetCenter().transpose() << std::endl;
+        
         last_right_edge = desired_center_x + half_width;
-        
         arranged_bboxes.push_back(bbox);
         
-        // Check if the total horizontal span exceeds max_length.
-        if (last_right_edge - start_x > max_length) {
+        if (last_right_edge - start_x > max_length)
             break;
-        }
     }
     
     // --- Optionally, rotate the entire row by rotation_angle (around each box's center) ---
     double rotation_radians = rotation_angle * M_PI / 180.0;
     for (auto& bbox : arranged_bboxes) {
-        transform_bounding_box(bbox, Eigen::Vector3d(0,0,0), Eigen::Vector3d(1,0,0), 
-                                rotation_radians, bbox->GetCenter(), true);
+        transform_bounding_box(bbox, Eigen::Vector3d(0,0,0),
+                               Eigen::Vector3d(1,0,0), rotation_radians, bbox->GetCenter(), true);
     }
     
-    std::cout << "Total row length: " << last_right_edge - start_x << " meters" << std::endl;
-    
+    std::cout << "[DEBUG] Total row length: " << last_right_edge - start_x << " meters" << std::endl;
     return arranged_bboxes;
 }
+
+
 
 ///////////////////////////////////////////////////////
 void GeometryProcessor::visualize_bounding_boxes(

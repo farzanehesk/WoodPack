@@ -282,14 +282,6 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
     double rotation_angle);
 
 
-    ///
-    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arrangeSecondRow(
-    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
-    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& candidates,
-    double min_stagger,
-    double max_gap
-    );
-
     //
     void visualizeShingleRows(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,

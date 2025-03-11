@@ -112,6 +112,8 @@ int main() {
     auto bbx_second_row = geom_processor.createBoundingBoxFromRectangle(rect_second_row, 0.002);
     //geom_processor.visualize_bounding_boxes(bbx_second_row);
 
+
+
     auto second_row_sorted = geom_processor.findNextBestShingles(first_row_of_shingles ,bbx_second_row , 0.03 , gap ,max_length  );
     
      auto second_row_of_shingles = geom_processor.arrangeSecondShingleRow(

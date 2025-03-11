@@ -209,8 +209,15 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
 
 
     ///
-    Eigen::Vector2d projectToXYPlane(
-        const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& bbox);
+    // Eigen::Vector2d projectToXYPlane(
+    //     const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& bbox);
+
+    //
+    // std::shared_ptr<open3d::geometry::OrientedBoundingBox> projectToXYPlane(
+    // const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& bbox);
+
+    //
+    void alignBoxToXYPlane(const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& bbox) ;
 
     ///
     std::shared_ptr<open3d::geometry::OrientedBoundingBox> selectRandomCandidate(
@@ -244,25 +251,49 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
     // const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate_bbox,
     // const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row_bboxes) ;
 
+
     ///
-    std::shared_ptr<open3d::geometry::OrientedBoundingBox> findNextBestShingle(
+    void alignCandidateToFirstBox(
+    std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate,
+    const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& first_box);
+
+    ///
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> findNextBestShingles(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& candidates,
     double min_stagger,
-    double max_gap);
+    double max_gap,
+    double max_length);
+
+    //
+    Eigen::Vector3d updateRightEdge(
+        const Eigen::Vector3d& current_right_edge,
+        const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate);
 
 
 
-        ///
+    ///
     // second row arrangement
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arrangeSecondShingleRow(
-    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
-    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row_candidates,
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row,
     double gap,
-    double min_stagger,
+    double max_length,
     double rotation_angle);
 
 
+    ///
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arrangeSecondRow(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& candidates,
+    double min_stagger,
+    double max_gap
+    );
+
+    //
+    void visualizeShingleRows(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row) ;
 
 
     

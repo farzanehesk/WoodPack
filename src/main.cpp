@@ -101,16 +101,28 @@ int main() {
 
     ///////////////////////////////////////////////////////////
     // Second Row
-    auto rect_second_row = geom_processor.createRandomRectangles(10 , 0.35 );  // Create 10 random rectangles
+    //     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> first_row_aligned;
+    // for (auto& bbox : first_row_of_shingles) {
+    //     geom_processor.alignBoxToXYPlane(bbox); // This aligns the bounding box to the XY plane
+    //     first_row_aligned.push_back(bbox);
+    // }
+    // geom_processor.visualize_bounding_boxes(first_row_aligned);
+
+    auto rect_second_row = geom_processor.createRandomRectangles(20 , 0.35 );  // Create 10 random rectangles
     auto bbx_second_row = geom_processor.createBoundingBoxFromRectangle(rect_second_row, 0.002);
+    //geom_processor.visualize_bounding_boxes(bbx_second_row);
+
+    auto second_row_sorted = geom_processor.findNextBestShingles(first_row_of_shingles ,bbx_second_row , 0.03 , gap ,max_length  );
+    
      auto second_row_of_shingles = geom_processor.arrangeSecondShingleRow(
         first_row_of_shingles,
-        bbx_second_row,
+        second_row_sorted,
         0.003,
-        0.03,
-        15
+        max_length,
+        rotation_angle
      );
-     geom_processor.visualize_bounding_boxes(second_row_of_shingles);
+     
+     geom_processor.visualizeShingleRows(first_row_of_shingles ,second_row_of_shingles );
 
 
     // place the first shingles_bbx on top of the first shingle row, with a specified vertical overlap

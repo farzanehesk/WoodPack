@@ -1077,7 +1077,14 @@ for (auto& bbox : arranged_bboxes) {
     std::cout << "  Around X: " << angle_x << " radians (" << angle_x_degrees << " degrees)" << std::endl;
     std::cout << "  Around Y: " << angle_y << " radians (" << angle_y_degrees << " degrees)" << std::endl;
     std::cout << "  Around Z: " << angle_z << " radians (" << angle_z_degrees << " degrees)" << std::endl;
+
+    
 }
+
+    // debug
+    Eigen::Vector3d first_row_top_face = arranged_bboxes[0]->GetCenter();
+    first_row_top_face.z() += (arranged_bboxes[0]->extent_.z() / 2.0);
+    std::cout << "[DEBUG] First row top face (final): " << first_row_top_face.transpose() << std::endl;
 
     return arranged_bboxes;
 }
@@ -1572,6 +1579,100 @@ Eigen::Vector3d GeometryProcessor::updateRightEdge(
 //     return arranged_bboxes;
 // }
 
+// std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> 
+// GeometryProcessor::arrangeSecondShingleRow(
+//     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
+//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row,
+//     double gap,              // e.g., 0.003 for 3 mm gap
+//     double max_length,
+//     double rotation_angle)    // in degrees
+// {
+//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arranged_bboxes;
+    
+//     // --- Determine horizontal starting position from first row ---
+//     double start_x = first_row[0]->GetCenter().x() - (first_row[0]->extent_.x() / 2.0);
+    
+//     // // --- Determine the baseline for Y alignment from first row ---
+//     // double first_row_bottom_y = first_row[0]->GetCenter().y() - (first_row[0]->extent_.y() / 2.0);
+
+//         // --- Determine Y alignment ---
+//     // Instead of aligning bottom edges, we align the top edges.
+//     double first_row_top_y = first_row[0]->GetCenter().y() + (first_row[0]->extent_.y() / 2.0);
+    
+//     // --- Determine the top face (Z) of the first row ---
+//     double first_row_top_z = first_row[0]->GetCenter().z() + (first_row[0]->extent_.z() / 2.0);
+    
+//     std::cout << "[DEBUG] First row top face Z: " << first_row_top_z << std::endl;
+    
+//     double last_right_edge = start_x;
+    
+//     for (size_t i = 0; i < second_row.size(); ++i) {
+//         auto& bbox = second_row[i];
+        
+//         // Optionally, rotate the box based on its longest axis.
+//         Eigen::Vector3d extent = bbox->extent_;
+//         int longest_axis = (extent.y() > extent.x() && extent.y() > extent.z()) ? 1 :
+//                            (extent.z() > extent.x() && extent.z() > extent.y()) ? 2 : 0;
+//         if (longest_axis == 1) {
+//             transform_bounding_box(bbox, Eigen::Vector3d(0,0,0),
+//                                    Eigen::Vector3d(0,0,1), M_PI_2, bbox->GetCenter(), true);
+//         } else if (longest_axis == 2) {
+//             transform_bounding_box(bbox, Eigen::Vector3d(0,0,0),
+//                                    Eigen::Vector3d(0,1,0), M_PI_2, bbox->GetCenter(), true);
+//         }
+//         extent = bbox->extent_;
+//         double half_width = extent.x() / 2.0;
+//         double half_thickness = extent.z() / 2.0;
+        
+//         // --- Determine desired center in X ---
+//         double desired_center_x = (i == 0) ? (start_x + half_width)
+//                                            : (last_right_edge + gap + half_width);
+        
+//         // --- Determine desired center in Y ---
+//         // Instead of aligning bottoms, we align tops.
+//         // For the first row, top = first_row_top_y.
+//         // For the second row, desired center y = first_row_top_y - (second_box_length / 2)
+//         double desired_center_y = first_row_top_y - (extent.y() / 2.0);
+        
+//         // --- Determine desired center in Z ---
+//         // To place the second row on top of the first row:
+//         //   second row bottom = second row center.z - (half_thickness)
+//         // We want that to equal the first row top: first_row_top_z.
+//         // Therefore, second row center.z = first_row_top_z + half_thickness.
+//         double desired_center_z = first_row_top_z + half_thickness;
+        
+//         std::cout << "[DEBUG] Box " << i << " computed desired center: (" 
+//                   << desired_center_x << ", " << desired_center_y << ", " << desired_center_z << ")" << std::endl;
+        
+//         Eigen::Vector3d desired_center(desired_center_x, desired_center_y, desired_center_z);
+//         Eigen::Vector3d translation = desired_center - bbox->GetCenter();
+        
+//         std::cout << "[DEBUG] Box " << i << " translation: " << translation.transpose() << std::endl;
+        
+//         transform_bounding_box(bbox, translation, Eigen::Vector3d(0,1,0), 
+//                                 0, Eigen::Vector3d(0,0,0), true);
+        
+//         std::cout << "[DEBUG] Box " << i << " new center: " << bbox->GetCenter().transpose() << std::endl;
+        
+//         last_right_edge = desired_center_x + half_width;
+//         arranged_bboxes.push_back(bbox);
+        
+//         if (last_right_edge - start_x > max_length)
+//             break;
+//     }
+    
+//     // --- Optionally, rotate the entire row by rotation_angle (around each box's center) ---
+//     double rotation_radians = rotation_angle * M_PI / 180.0;
+//     for (auto& bbox : arranged_bboxes) {
+//         transform_bounding_box(bbox, Eigen::Vector3d(0,0,0),
+//                                Eigen::Vector3d(1,0,0), rotation_radians, bbox->GetCenter(), true);
+//     }
+    
+//     std::cout << "[DEBUG] Total row length: " << last_right_edge - start_x << " meters" << std::endl;
+//     return arranged_bboxes;
+// }
+
+
 std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> 
 GeometryProcessor::arrangeSecondShingleRow(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
@@ -1585,13 +1686,14 @@ GeometryProcessor::arrangeSecondShingleRow(
     // --- Determine horizontal starting position from first row ---
     double start_x = first_row[0]->GetCenter().x() - (first_row[0]->extent_.x() / 2.0);
     
-    // --- Determine the baseline for Y alignment from first row ---
-    double first_row_bottom_y = first_row[0]->GetCenter().y() - (first_row[0]->extent_.y() / 2.0);
+    // --- Determine Y alignment (top edge of first row) ---
+    double first_row_top_y = first_row[0]->GetCenter().y() + (first_row[0]->extent_.y() / 2.0);
     
-    // --- Determine the top face (Z) of the first row ---
-    double first_row_top_z = first_row[0]->GetCenter().z() + (first_row[0]->extent_.z() / 2.0);
-    
-    std::cout << "[DEBUG] First row top face Z: " << first_row_top_z << std::endl;
+    // --- Determine Z position for second row ---
+    // Instead of computing first_row_top_z from center + half_thickness,
+    // we force the translation to be exactly the first row's thickness.
+    double desired_z = first_row[0]->GetCenter().z() + first_row[0]->extent_.z();
+    std::cout << "[DEBUG] For Z alignment, using desired Z = " << desired_z << std::endl;
     
     double last_right_edge = start_x;
     
@@ -1618,14 +1720,16 @@ GeometryProcessor::arrangeSecondShingleRow(
                                            : (last_right_edge + gap + half_width);
         
         // --- Determine desired center in Y ---
-        double desired_center_y = first_row_bottom_y + (extent.y() / 2.0);
+        // Align so that the top edge of the second row equals the top edge of the first row.
+        // For a second row box, top edge = center.y + (extent.y()/2)
+        // Set desired_center_y such that: desired_center_y + (extent.y()/2) = first_row_top_y.
+        double desired_center_y = first_row_top_y - (extent.y() / 2.0);
         
         // --- Determine desired center in Z ---
-        // To place the second row on top of the first row:
-        //   second row bottom = second row center.z - (half_thickness)
-        // We want that to equal the first row top: first_row_top_z.
-        // Therefore, second row center.z = first_row_top_z + half_thickness.
-        double desired_center_z = first_row_top_z + half_thickness;
+        // We want the second row’s bottom face (center.z - half_thickness)
+        // to align with the first row's top face.
+        // Using our forced approach, we set:
+        double desired_center_z = desired_z + half_thickness;
         
         std::cout << "[DEBUG] Box " << i << " computed desired center: (" 
                   << desired_center_x << ", " << desired_center_y << ", " << desired_center_z << ")" << std::endl;
@@ -1655,6 +1759,14 @@ GeometryProcessor::arrangeSecondShingleRow(
     }
     
     std::cout << "[DEBUG] Total row length: " << last_right_edge - start_x << " meters" << std::endl;
+    for (size_t i = 0; i < arranged_bboxes.size(); ++i) {
+    Eigen::Vector3d center = arranged_bboxes[i]->GetCenter();
+    double half_thickness = arranged_bboxes[i]->extent_.z() / 2.0;
+    Eigen::Vector3d bottom_face = center;
+    bottom_face.z() -= half_thickness;
+    std::cout << "[DEBUG] Second row box " << i << " bottom face: " << bottom_face.transpose() << std::endl;
+    }
+
     return arranged_bboxes;
 }
 
@@ -1699,6 +1811,57 @@ void GeometryProcessor::visualize_bounding_boxes(
 }
 //////////////////////////////////////////////////
 //
+// void GeometryProcessor::visualizeShingleRows(
+//     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
+//     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row) {
+
+//     // Create a vector to store all geometries for visualization
+//     std::vector<std::shared_ptr<const open3d::geometry::Geometry>> all_geometries;
+
+//     // Define colors for the rows
+//     Eigen::Vector3d first_row_color(0, 0, 1);  // Blue for the first row
+//     Eigen::Vector3d second_row_color(1, 0, 0); // Red for the second row
+
+//     // Convert the first row OrientedBoundingBox objects to Geometry pointers with color
+//     for (const auto& bbox : first_row) {
+//         auto bbox_copy = std::make_shared<open3d::geometry::OrientedBoundingBox>(*bbox); // Create a copy
+//         bbox_copy->color_ = first_row_color; // Set color
+//         all_geometries.push_back(bbox_copy);
+//     }
+
+//     // Convert the second row OrientedBoundingBox objects to Geometry pointers with color
+//     for (const auto& bbox : second_row) {
+//         auto bbox_copy = std::make_shared<open3d::geometry::OrientedBoundingBox>(*bbox); // Create a copy
+//         bbox_copy->color_ = second_row_color; // Set color
+//         all_geometries.push_back(bbox_copy);
+//     }
+
+//     // Create global coordinate axes using lines
+//     auto axis_lines = std::make_shared<open3d::geometry::LineSet>();
+//     axis_lines->points_ = {
+//         Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(1, 0, 0),  // X-axis (Red)
+//         Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 1, 0),  // Y-axis (Green)
+//         Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 0, 1)   // Z-axis (Blue)
+//     };
+//     axis_lines->lines_ = {
+//         Eigen::Vector2i(0, 1),  // X-axis
+//         Eigen::Vector2i(2, 3),  // Y-axis
+//         Eigen::Vector2i(4, 5)   // Z-axis
+//     };
+//     axis_lines->colors_ = {
+//         Eigen::Vector3d(1, 0, 0),  // Red for X-axis
+//         Eigen::Vector3d(0, 1, 0),  // Green for Y-axis
+//         Eigen::Vector3d(0, 0, 1)   // Blue for Z-axis
+//     };
+
+//     // Add the global axes to the geometries list
+//     all_geometries.push_back(axis_lines);
+
+//     // Visualize using Open3D
+//     open3d::visualization::DrawGeometries(all_geometries, "Shingles Visualization", 1600, 900);
+// }
+
+
 void GeometryProcessor::visualizeShingleRows(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row) {
@@ -1707,48 +1870,36 @@ void GeometryProcessor::visualizeShingleRows(
     std::vector<std::shared_ptr<const open3d::geometry::Geometry>> all_geometries;
 
     // Define colors for the rows
-    Eigen::Vector3d first_row_color(0, 0, 1);  // Blue for the first row
-    Eigen::Vector3d second_row_color(1, 0, 0); // Red for the second row
+    Eigen::Vector3d first_row_color(0, 0, 1);  // Blue
+    Eigen::Vector3d second_row_color(1, 0, 0); // Red
 
-    // Convert the first row OrientedBoundingBox objects to Geometry pointers with color
+    // Add first row bounding boxes
     for (const auto& bbox : first_row) {
-        auto bbox_copy = std::make_shared<open3d::geometry::OrientedBoundingBox>(*bbox); // Create a copy
-        bbox_copy->color_ = first_row_color; // Set color
+        auto bbox_copy = std::make_shared<open3d::geometry::OrientedBoundingBox>(*bbox);
+        bbox_copy->color_ = first_row_color;
         all_geometries.push_back(bbox_copy);
     }
 
-    // Convert the second row OrientedBoundingBox objects to Geometry pointers with color
+    // Add second row bounding boxes
     for (const auto& bbox : second_row) {
-        auto bbox_copy = std::make_shared<open3d::geometry::OrientedBoundingBox>(*bbox); // Create a copy
-        bbox_copy->color_ = second_row_color; // Set color
+        auto bbox_copy = std::make_shared<open3d::geometry::OrientedBoundingBox>(*bbox);
+        bbox_copy->color_ = second_row_color;
         all_geometries.push_back(bbox_copy);
     }
 
-    // Create global coordinate axes using lines
-    auto axis_lines = std::make_shared<open3d::geometry::LineSet>();
-    axis_lines->points_ = {
-        Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(1, 0, 0),  // X-axis (Red)
-        Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 1, 0),  // Y-axis (Green)
-        Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 0, 1)   // Z-axis (Blue)
-    };
-    axis_lines->lines_ = {
-        Eigen::Vector2i(0, 1),  // X-axis
-        Eigen::Vector2i(2, 3),  // Y-axis
-        Eigen::Vector2i(4, 5)   // Z-axis
-    };
-    axis_lines->colors_ = {
-        Eigen::Vector3d(1, 0, 0),  // Red for X-axis
-        Eigen::Vector3d(0, 1, 0),  // Green for Y-axis
-        Eigen::Vector3d(0, 0, 1)   // Blue for Z-axis
-    };
+    // Use built-in coordinate frame for axes
+    auto coordinate_frame = open3d::geometry::TriangleMesh::CreateCoordinateFrame(0.05);
+    all_geometries.push_back(coordinate_frame);
 
-    // Add the global axes to the geometries list
-    all_geometries.push_back(axis_lines);
-
-    // Visualize using Open3D
-    open3d::visualization::DrawGeometries(all_geometries, "Shingles Visualization", 1600, 900);
+    // Create an interactive visualizer
+    open3d::visualization::Visualizer visualizer;
+    visualizer.CreateVisualizerWindow("Shingles Visualization", 1600, 900);
+    for (auto& geom : all_geometries) {
+        visualizer.AddGeometry(geom);
+    }
+    visualizer.Run();
+    visualizer.DestroyVisualizerWindow();
 }
-
 
 
 

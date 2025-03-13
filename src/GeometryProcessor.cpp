@@ -1641,8 +1641,56 @@ void GeometryProcessor::visualizeShingleRows(
     visualizer.DestroyVisualizerWindow();
 }
 
+/////////////////////////////////////////////
+namespace fs = std::filesystem;
+
+// Helper: Convert an oriented bounding box to a triangle mesh
+std::shared_ptr<open3d::geometry::TriangleMesh> GeometryProcessor::CreateMeshFromOrientedBoundingBox(
+    const open3d::geometry::OrientedBoundingBox& obb) {
+    // Get the 8 corner points of the bounding box.
+    std::vector<Eigen::Vector3d> points = obb.GetBoxPoints();
+    
+    // Define triangles for the 6 faces.
+    // The assumed order of points is:
+    // 0: (-1,-1,-1), 1: (1,-1,-1), 2: (1,1,-1), 3: (-1,1,-1),
+    // 4: (-1,-1,1),  5: (1,-1,1),  6: (1,1,1),  7: (-1,1,1)
+    // after transformation by the OBB.
+    std::vector<Eigen::Vector3i> triangles = {
+        {0, 1, 2}, {0, 2, 3}, // bottom face
+        {4, 5, 6}, {4, 6, 7}, // top face
+        {0, 1, 5}, {0, 5, 4}, // front face
+        {2, 3, 7}, {2, 7, 6}, // back face
+        {1, 2, 6}, {1, 6, 5}, // right face
+        {3, 0, 4}, {3, 4, 7}  // left face
+    };
+
+    auto mesh = std::make_shared<open3d::geometry::TriangleMesh>();
+    mesh->vertices_ = points;
+    mesh->triangles_ = triangles;
+    mesh->ComputeVertexNormals();
+    return mesh;
+}
 
 
+//////////////////////////////////////////////////////////////////////////////
+// Export function: Exports each bounding box as a PLY file using triangle mesh geometry.
+void GeometryProcessor::exportBoundingBoxes(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& boxes,
+    const std::string& folder,
+    const std::string& prefix )
+{
+    int index = 0;
+    for (const auto& box : boxes) {
+        auto mesh = CreateMeshFromOrientedBoundingBox(*box);
+        std::string filename = folder + "/" + prefix + "box_" + std::to_string(index) + ".ply";
+        if (!open3d::io::WriteTriangleMesh(filename, *mesh)) {
+            std::cerr << "Failed to write bounding box file: " << filename << std::endl;
+        } else {
+            std::cout << "Exported bounding box to " << filename << std::endl;
+        }
+        index++;
+    }
+}
 
 
 ///////////////////////////////////////////////////////////////////////////

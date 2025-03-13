@@ -287,8 +287,15 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row) ;
 
+    //
+    void exportBoundingBoxes(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& boxes,
+    const std::string& folder,
+    const std::string& prefix = "");
 
-    
+    //
+    std::shared_ptr<open3d::geometry::TriangleMesh> CreateMeshFromOrientedBoundingBox(
+    const open3d::geometry::OrientedBoundingBox& obb);
 
 
 };

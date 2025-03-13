@@ -140,9 +140,9 @@ int main() {
 
 
     // 
+    geom_processor.exportBoundingBoxes(first_row_of_shingles ,folder , "first_row_" );
+    geom_processor.exportBoundingBoxes(second_row_of_shingles ,folder , "second_row_" );
 
-   
-    // find the next best element for the second row, from the available shingles
 
     
 

@@ -1460,8 +1460,11 @@ GeometryProcessor::arrangeSecondShingleRow(
         // Align so that the top edge of the second row equals the top edge of the first row.
         // For a second row box, top edge = center.y + (extent.y()/2)
         // Set desired_center_y such that: desired_center_y + (extent.y()/2) = first_row_top_y.
-        double desired_center_y = first_row_top_y - (extent.y() / 2.0);
-        
+        //double desired_center_y = first_row_top_y - (extent.y() / 2.0);
+        double desired_center_y = first_row_top_y + (extent.y() / 2.0) - first_row[0]->extent_.y();
+
+
+
         // --- Determine desired center in Z ---
         // We want the second row’s bottom face (center.z - half_thickness)
         // to align with the first row's top face.

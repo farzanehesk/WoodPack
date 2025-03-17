@@ -307,11 +307,8 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
     std::shared_ptr<open3d::geometry::TriangleMesh> CreateMeshFromOrientedBoundingBox(
     const open3d::geometry::OrientedBoundingBox& obb);
 
-    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> 
-    orientSecondRowFirstBox(
-    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
-    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row);
 
+    ///
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>
     alignAndShiftSecondRowFirstBox(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,

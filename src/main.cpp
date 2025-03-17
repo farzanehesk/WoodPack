@@ -115,31 +115,24 @@ int main() {
 
 
 
-    // auto second_row_sorted = geom_processor.findNextBestShingles(first_row_of_shingles ,bbx_second_row , 0.03 , gap ,max_length  );
-    
-    //  auto second_row_of_shingles = geom_processor.arrangeSecondShingleRow(
-    //     first_row_of_shingles,
-    //     second_row_sorted,
-    //     0.003,
-    //     max_length,
-    //     rotation_angle
-    //  );
-     
-    //geom_processor.visualizeShingleRows(first_row_of_shingles ,second_row_of_shingles );
+//////////////////////////////////////////////////////////////////////
+    auto second_row_sorted = geom_processor.findNextBestShingles(first_row_of_shingles ,bbx_second_row , 0.03 , gap ,max_length  );
 
-
-    // place the first shingles_bbx on top of the first shingle row, with a specified vertical overlap
-    // 1. list of shingle_bbx 
-    // 2. list of first_row_shingles
-    // 3. transform shingle_bbx 
-    // 4. crop a region around it to find shingles below it , 
-    // 5. do intersection and based on approximity, find the shingles previously arranged in those positions
-    // 4. calculate its right-edge distance with the upmost right-edge of shingle in the row below
-    // 5. search in the list of shingle_bbx  to find the next best object based on width to fullfill criteria to have 3 cm stagger
-    // repeat the loop
 
     auto first_box_second_row = geom_processor.alignAndShiftSecondRowFirstBox(first_row_of_shingles ,bbx_second_row , gap , max_length , 0 );
     geom_processor.visualizeShingleRows(first_row_of_shingles ,{first_box_second_row} );
+
+
+     auto second_row_of_shingles = geom_processor.arrangeSecondShingleRow(
+        first_row_of_shingles,
+        second_row_sorted,
+        0.003,
+        max_length,
+        rotation_angle
+     );
+
+    geom_processor.visualizeShingleRows(first_row_of_shingles ,second_row_of_shingles );
+
 
     // 
     //geom_processor.exportBoundingBoxes(first_row_of_shingles ,export_folder , "first_row_" );

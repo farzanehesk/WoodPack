@@ -19,57 +19,58 @@ int main() {
     // Load parameters into PointCloudPerception (which is also a Processor)
     perception.loadParameters("config/config.txt");  
 
-    std::cout << "Voxel size after loading: " << perception.voxel_size_ << std::endl;
+    // std::cout << "Voxel size after loading: " << perception.voxel_size_ << std::endl;
 
     // Load the point clouds from the "data/scans" folder (without merging yet)
     std::string folder = "data/scans";  // specify the folder path
-    auto all_point_clouds = perception.loadPointClouds(folder);
+    std::string export_folder = "data/export";
+    // auto all_point_clouds = perception.loadPointClouds(folder);
 
-    if (all_point_clouds.empty()) {
-        std::cerr << "Failed to load point clouds.\n";
-        return -1;
-    }
+    // if (all_point_clouds.empty()) {
+    //     std::cerr << "Failed to load point clouds.\n";
+    //     return -1;
+    // }
 
-    std::cout << "Successfully loaded " << all_point_clouds.size() << " point clouds from folder: " << folder << std::endl;
+    // std::cout << "Successfully loaded " << all_point_clouds.size() << " point clouds from folder: " << folder << std::endl;
 
-    // Now process the point clouds (refine, segment, and merge them)
-    perception.processPointClouds(all_point_clouds);
-    perception.logOriginalPointCloud();
+    // // Now process the point clouds (refine, segment, and merge them)
+    // perception.processPointClouds(all_point_clouds);
+    // perception.logOriginalPointCloud();
     
 
     // store the original point cloud
     auto original_pc = std::make_shared<open3d::geometry::PointCloud>(*perception.getPointCloud());
 
 
-    // cluster the elements
-    perception.EuclideanClustering(false);
+    // // cluster the elements
+    // perception.EuclideanClustering(false);
 
 
-    // retrieve the clustered pointclouds
-    std::vector <PC_o3d_ptr> clusters = perception.getClusters();
+    // // retrieve the clustered pointclouds
+    // std::vector <PC_o3d_ptr> clusters = perception.getClusters();
 
 
     // instantiate geometryprocessor
     GeometryProcessor geom_processor;
-    auto shingles_bbx = geom_processor.computeOrientedBoundingBoxes(clusters);
-    //auto shingles_bbx = geom_processor.computeMinimalOrientedBoundingBoxes(clusters);
-    geom_processor.VisualizeBoundingBoxesAxis(shingles_bbx);
+    // auto shingles_bbx = geom_processor.computeOrientedBoundingBoxes(clusters);
+    // //auto shingles_bbx = geom_processor.computeMinimalOrientedBoundingBoxes(clusters);
+    // geom_processor.VisualizeBoundingBoxesAxis(shingles_bbx);
 
 
-    //geom_processor.visualizeBoundingBoxes(clusters, bounding_boxes);
-    geom_processor.visualizeBoundingBoxesAndOriginalPc(original_pc , shingles_bbx);
+    // //geom_processor.visualizeBoundingBoxes(clusters, bounding_boxes);
+    // geom_processor.visualizeBoundingBoxesAndOriginalPc(original_pc , shingles_bbx);
 
 
-    // Extract widths of bounding boxes
-    auto dimensions = geom_processor.getDimensionsOfBoundingBoxes(shingles_bbx);
+    // // Extract widths of bounding boxes
+    // auto dimensions = geom_processor.getDimensionsOfBoundingBoxes(shingles_bbx);
 
-    // // Print dimensions
-    for (size_t i = 0; i < dimensions.size(); ++i) {
-        std::cout << "Dimensions of bounding box " << i << ": "
-                << "Heigt = " << dimensions[i][0] << ", "
-                << "Width = " << dimensions[i][1] << ", "
-                << "Length = " << dimensions[i][2] << std::endl;
-    }
+    // // // Print dimensions
+    // for (size_t i = 0; i < dimensions.size(); ++i) {
+    //     std::cout << "Dimensions of bounding box " << i << ": "
+    //             << "Heigt = " << dimensions[i][0] << ", "
+    //             << "Width = " << dimensions[i][1] << ", "
+    //             << "Length = " << dimensions[i][2] << std::endl;
+    // }
 
 
     // auto upper_rectangles = geom_processor.extractUpperRectangles(shingles_bbx);
@@ -114,17 +115,17 @@ int main() {
 
 
 
-    auto second_row_sorted = geom_processor.findNextBestShingles(first_row_of_shingles ,bbx_second_row , 0.03 , gap ,max_length  );
+    // auto second_row_sorted = geom_processor.findNextBestShingles(first_row_of_shingles ,bbx_second_row , 0.03 , gap ,max_length  );
     
-     auto second_row_of_shingles = geom_processor.arrangeSecondShingleRow(
-        first_row_of_shingles,
-        second_row_sorted,
-        0.003,
-        max_length,
-        rotation_angle
-     );
+    //  auto second_row_of_shingles = geom_processor.arrangeSecondShingleRow(
+    //     first_row_of_shingles,
+    //     second_row_sorted,
+    //     0.003,
+    //     max_length,
+    //     rotation_angle
+    //  );
      
-     geom_processor.visualizeShingleRows(first_row_of_shingles ,second_row_of_shingles );
+    //geom_processor.visualizeShingleRows(first_row_of_shingles ,second_row_of_shingles );
 
 
     // place the first shingles_bbx on top of the first shingle row, with a specified vertical overlap
@@ -137,11 +138,12 @@ int main() {
     // 5. search in the list of shingle_bbx  to find the next best object based on width to fullfill criteria to have 3 cm stagger
     // repeat the loop
 
-
+    auto first_box_second_row = geom_processor.alignAndShiftSecondRowFirstBox(first_row_of_shingles ,bbx_second_row , gap , max_length , 0 );
+    geom_processor.visualizeShingleRows(first_row_of_shingles ,{first_box_second_row} );
 
     // 
-    geom_processor.exportBoundingBoxes(first_row_of_shingles ,folder , "first_row_" );
-    geom_processor.exportBoundingBoxes(second_row_of_shingles ,folder , "second_row_" );
+    //geom_processor.exportBoundingBoxes(first_row_of_shingles ,export_folder , "first_row_" );
+    //geom_processor.exportBoundingBoxes(second_row_of_shingles ,export_folder , "second_row_" );
 
 
     

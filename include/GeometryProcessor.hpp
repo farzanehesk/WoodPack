@@ -190,6 +190,16 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
                                 const Eigen::Vector3d& scale_center,
                                 double scale_factor);
 
+
+    //
+    // 23
+    void transform_bounding_box_to_plane(
+    std::shared_ptr<open3d::geometry::OrientedBoundingBox>& bb,
+    const Eigen::Vector3d& target_plane_normal,   // Target plane normal vector
+    const Eigen::Vector3d& target_plane_point,    // A point on the target plane
+    const Eigen::Vector3d& scale_center,          // Scaling center
+    double scale_factor);                          // Scaling factor                            
+
     // 
     // 23. arrangeShingleRow
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arrangeFirstShingleRow(
@@ -296,6 +306,20 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
     //
     std::shared_ptr<open3d::geometry::TriangleMesh> CreateMeshFromOrientedBoundingBox(
     const open3d::geometry::OrientedBoundingBox& obb);
+
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> 
+    orientSecondRowFirstBox(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row);
+
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>
+    alignAndShiftSecondRowFirstBox(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row,
+    double gap,              // gap (if used for later placement)
+    double max_length,       // (if used for later placement)
+    double rotation_angle) ;
+
 
 
 };

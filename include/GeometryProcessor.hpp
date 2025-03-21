@@ -218,14 +218,6 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
 
 
 
-    ///
-    // Eigen::Vector2d projectToXYPlane(
-    //     const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& bbox);
-
-    //
-    // std::shared_ptr<open3d::geometry::OrientedBoundingBox> projectToXYPlane(
-    // const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& bbox);
-
     //
     void alignBoxToXYPlane(const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& bbox) ;
 
@@ -234,10 +226,6 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& candidates) ;
 
 
-    ///
-    // double calculateRightEdgeDistanceFromCandidate(
-    // const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate_shingle,
-    // const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& intersecting_shingle);
 
     //
 
@@ -278,18 +266,8 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
     //
     Eigen::Vector3d updateRightEdge(
         const Eigen::Vector3d& current_right_edge,
-        const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate);
+        const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate , double gap);
 
-
-
-    ///
-    // second row arrangement
-    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arrangeSecondShingleRow(
-    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
-    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row,
-    double gap,
-    double max_length,
-    double rotation_angle);
 
 
     //
@@ -309,13 +287,45 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
 
 
     ///
-    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>
-    alignAndShiftSecondRowFirstBox(
-    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
-    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row,
-    double gap,              // gap (if used for later placement)
-    double max_length,       // (if used for later placement)
+
+
+
+    //
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> 
+    arrangeShingleRow(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& reference_row,
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& target_row,
+    double gap,
+    double max_length,
+    double rotation_angle,
+    double vertical_overlap);
+
+
+    //
+    // std::shared_ptr<open3d::geometry::OrientedBoundingBox> alignAndShiftFirstBox(
+    // const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& reference_row,
+    // std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& target_row,
+    // double gap,
+    // double max_length,
+    // double rotation_angle);
+
+
+    // 
+    std::shared_ptr<open3d::geometry::OrientedBoundingBox> alignAndShiftFirstBox(
+    const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& reference_box,
+    std::shared_ptr<open3d::geometry::OrientedBoundingBox>& target_box,
+    double gap,
+    double max_length,
     double rotation_angle) ;
+
+
+    //
+    std::shared_ptr<open3d::geometry::OrientedBoundingBox> alignAndShiftNextBox(
+    const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& last_selected_shingle,
+    const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate,
+    double gap);
+
+
 
 
 

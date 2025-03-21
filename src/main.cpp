@@ -89,27 +89,21 @@ int main() {
     // Create bounding boxes from rectangles
     auto bbx_first_row = geom_processor.createBoundingBoxFromRectangle(rect_first_row, 0.002);
 
+    /////////////////////////////////////////////////////////////
     // Create the first row of shingles with generated random boxes
-
     double gap = 0.003;       // 3mm gap
     double max_length = 1.0;  // Ensure row is at least 1m long
-    double rotation_angle = 15; 
+    double rotation_angle = 5; 
     // 10 degrees in radians
 
     auto first_row_of_shingles = geom_processor.arrangeFirstShingleRow(bbx_first_row , gap , max_length ,rotation_angle );
     geom_processor.visualize_bounding_boxes(first_row_of_shingles);
     
 
-    ///////////////////////////////////////////////////////////
-    // Second Row
-    //     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> first_row_aligned;
-    // for (auto& bbox : first_row_of_shingles) {
-    //     geom_processor.alignBoxToXYPlane(bbox); // This aligns the bounding box to the XY plane
-    //     first_row_aligned.push_back(bbox);
-    // }
-    // geom_processor.visualize_bounding_boxes(first_row_aligned);
-
+    /////////////////////////////////////////////////////////////
+    // Create the second row of shingles with generated random boxes
     auto rect_second_row = geom_processor.createRandomRectangles(20 , 0.35 );  // Create 10 random rectangles
+    geom_processor.visualizeRectangles(rect_second_row);
     auto bbx_second_row = geom_processor.createBoundingBoxFromRectangle(rect_second_row, 0.002);
     //geom_processor.visualize_bounding_boxes(bbx_second_row);
 
@@ -119,32 +113,32 @@ int main() {
     auto second_row_sorted = geom_processor.findNextBestShingles(first_row_of_shingles ,bbx_second_row , 0.03 , gap ,max_length  );
 
 
-    auto first_box_second_row = geom_processor.alignAndShiftSecondRowFirstBox(first_row_of_shingles ,bbx_second_row , gap , max_length , 0 );
-    geom_processor.visualizeShingleRows(first_row_of_shingles ,{first_box_second_row} );
+    // auto first_box_second_row = geom_processor.alignAndShiftFirstBox(first_row_of_shingles ,bbx_second_row , gap , max_length , 0 );
+    // geom_processor.visualizeShingleRows(first_row_of_shingles ,{first_box_second_row} );
 
 
-     auto second_row_of_shingles = geom_processor.arrangeSecondShingleRow(
+   
+    
+    auto second_row_of_shingles = geom_processor.arrangeShingleRow(
         first_row_of_shingles,
         second_row_sorted,
         0.003,
         max_length,
-        rotation_angle
-     );
+        rotation_angle,
+        0.02);
 
     geom_processor.visualizeShingleRows(first_row_of_shingles ,second_row_of_shingles );
-
-
-    // 
-    //geom_processor.exportBoundingBoxes(first_row_of_shingles ,export_folder , "first_row_" );
-    //geom_processor.exportBoundingBoxes(second_row_of_shingles ,export_folder , "second_row_" );
-
-
     
+    
+// do the visualization in function
 
 
 
-
+    // export
+    geom_processor.exportBoundingBoxes(first_row_of_shingles ,export_folder , "first_row_" );
+    geom_processor.exportBoundingBoxes(second_row_of_shingles ,export_folder , "second_row_" );
 
 
     return 0;
 }
+

@@ -322,8 +322,55 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
     //
     std::shared_ptr<open3d::geometry::OrientedBoundingBox> alignAndShiftNextBox(
     const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& last_selected_shingle,
+    //const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate,
     const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate,
     double gap);
+
+
+    //
+std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> 
+    findNextBestShinglesForMultipleRows(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row, 
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& candidates, 
+    int num_rows, double min_stagger, double max_gap, double max_length)    ;
+
+
+    //
+    std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> 
+    arrangeShingleRows(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& candidates,
+    double gap,
+    double max_length,
+    double rotation_angle) ;
+
+
+    //
+    
+    std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> 
+    arrangeMultipleShingleRows(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& reference_row,
+    const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& sorted_candidate_rows,
+    double gap, double max_length, double rotation_angle, double vertical_overlap);
+
+
+    //
+    void visualizeAllShingleRows(
+    const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& arranged_rows) ;
+
+
+    //
+    std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> arrangeMultipleRows(
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& candidates,
+    double min_stagger,
+    double max_gap,
+    double max_length,
+    int max_rows,
+    double rotation_angle) ;
+    
+
+    //
+    void visualizeShinglePlane(const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& box);
 
 
 

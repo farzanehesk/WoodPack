@@ -1382,8 +1382,40 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
             }
         }
 
+
+        // Step 1: Get reference shingle (last in previous row)
+        Eigen::Matrix3d last_R = last_selected_shingle->R_;  // Keep same rotation
+        Eigen::Vector3d last_center = last_selected_shingle->GetCenter();
+
+        // Step 2: Compute X translation for the next shingle, ensuring a gap
+        double spacing = last_selected_shingle->extent_.x() / 2.0 + max_gap + candidate->extent_.x() / 2.0;
+        Eigen::Vector3d shift_x = spacing * last_R.col(0);  // Ensure translation only along X
+
+        // Step 3: Apply the X translation to the new shingle
+        auto next_shingle = std::make_shared<open3d::geometry::OrientedBoundingBox>(*candidate);
+        next_shingle->R_ = last_R;  // Keep the same rotation as the previous one
+
+        // Ensure that the shingle is translated along the positive X direction.
+        if (shift_x.x() < 0) {
+            shift_x = -shift_x;  // Reverse if the shift goes negative along X
+        }
+
+        next_shingle->Translate(last_center + shift_x - next_shingle->GetCenter());
         //
-        auto next_shingle = alignAndShiftNextBox(last_selected_shingle, candidate, max_gap);
+        // auto next_shingle = alignAndShiftNextBox(last_selected_shingle, candidate, max_gap);
+        // // Extract left bottom corner (assuming the corner at min x and min y is the left bottom)
+        // Eigen::Vector3d left_bottom_corner = next_shingle->GetCenter() - 
+        // Eigen::Vector3d(next_shingle->extent_.x() / 2.0, 
+        //                 next_shingle->extent_.y() / 2.0, 
+        //                 0);
+
+    // // Print the left bottom corner position
+    // std::cout << "[DEBUG] Next shingle left bottom corner: " 
+    //         << left_bottom_corner.transpose() << std::endl;
+
+    // // Print the length of the box (extent in x direction)
+    // std::cout << "[DEBUG] Next shingle length (extent y): " 
+    //         << next_shingle->extent_.y() << std::endl;
 
 
        // visualizeShingleRows(first_row_aligned, {first_shingle, next_shingle});
@@ -1449,9 +1481,64 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
     return second_row;
 }
 
+//////////////////////////////////////////
 
+////////////////////////////////////////////////////
+std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> 
+GeometryProcessor::findNextBestShinglesForMultipleRows(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row, 
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& candidates, 
+    int num_rows, double min_stagger, double max_gap, double max_length) 
+{
+    std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> arranged_rows;
+    
+    // Step 1: Make a copy of first_row to ensure it's not modified
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> first_row_copy;
+    for (const auto& bbox : first_row) {
+        first_row_copy.push_back(std::make_shared<open3d::geometry::OrientedBoundingBox>(*bbox));
+    }
 
+    arranged_rows.push_back(first_row_copy);
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> previous_row = first_row_copy;
 
+    // Step 2: Make a copy of candidates to ensure it's not modified inside the loop
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> current_candidates = candidates;
+
+    std::cout << "Starting row arrangement for " << num_rows << " rows.\n";
+
+    for (int i = 1; i < num_rows; ++i) {
+        std::cout << "Finding best shingles for row " << i + 1 << "...\n";
+        std::cout << "[DEBUG] Number of candidates at the beginning of row " << i + 1 << ": " << current_candidates.size() << std::endl;
+
+        // Step 3: Call findNextBestShingles without modifying original candidates
+        auto next_row = findNextBestShingles(previous_row, current_candidates, min_stagger, max_gap, max_length);
+
+        if (next_row.empty()) {
+            std::cout << "No valid shingles found for row " << i + 1 << ". Stopping arrangement.\n";
+            break;
+        }
+
+        // Step 4: Remove selected shingles from current_candidates AFTER each iteration
+        for (const auto& shingle : next_row) {
+            current_candidates.erase(std::remove_if(current_candidates.begin(), current_candidates.end(),
+                [&shingle](const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate) {
+                    return candidate == shingle;
+                }), current_candidates.end());
+        }
+
+        // Store the next row and update previous_row for the next iteration
+        arranged_rows.push_back(next_row);
+        previous_row = next_row;
+
+        std::cout << "Row " << i + 1 << " completed with " << next_row.size() << " shingles.\n";
+    }
+
+    // Step 5: Update the original candidates list
+    candidates = current_candidates;
+
+    std::cout << "Shingle arrangement completed with " << arranged_rows.size() << " rows.\n";
+    return arranged_rows;
+}
 
 
 
@@ -1502,34 +1589,148 @@ std::shared_ptr<open3d::geometry::OrientedBoundingBox> GeometryProcessor::alignA
 }
 
 /////////////////////////////////////////////////////
+// std::shared_ptr<open3d::geometry::OrientedBoundingBox> GeometryProcessor::alignAndShiftNextBox(
+//     const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& last_selected_shingle,
+//     const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate,
+//     double gap)
+// {
+//     // Step 1: Compute the X direction from the center of the last selected shingle and the reference
+//     Eigen::Vector3d last_center = last_selected_shingle->GetCenter();
+//     Eigen::Vector3d last_extent = last_selected_shingle->extent_;
+//     Eigen::Vector3d last_right_edge = last_center + Eigen::Vector3d(last_extent.x() / 2.0, 0, 0);
+
+//     // Step 2: Compute the candidate's left edge based on its center and extent
+//     Eigen::Vector3d cand_center = candidate->GetCenter();
+//     Eigen::Vector3d cand_extent = candidate->extent_;
+//     Eigen::Vector3d cand_left_edge = cand_center - Eigen::Vector3d(cand_extent.x() / 2.0, 0, 0);
+
+//     // Step 3: Translate the candidate based on the X direction
+//     Eigen::Vector3d translation = last_right_edge + Eigen::Vector3d(gap, 0, 0) - cand_left_edge;
+
+//     // Step 4: Create a transformed copy of the candidate and apply translation
+//     auto transformed_candidate = std::make_shared<open3d::geometry::OrientedBoundingBox>(*candidate);
+//     transformed_candidate->Translate(translation);
+
+//     // Step 5: Ensure the candidate's orientation matches that of the last selected shingle
+//     Eigen::Matrix3d rotation_fix = last_selected_shingle->R_ * candidate->R_.transpose();
+//     transformed_candidate->Rotate(rotation_fix, transformed_candidate->GetCenter());
+
+//     return transformed_candidate;  // Return the transformed candidate with correct position and orientation
+// }
+
+// std::shared_ptr<open3d::geometry::OrientedBoundingBox> GeometryProcessor::alignAndShiftNextBox(
+//     const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& last_selected_shingle,
+//     const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate,
+//     double gap)
+// {
+//     // Step 1: Compute the X direction from the center of the last selected shingle and the reference
+//     Eigen::Vector3d last_center = last_selected_shingle->GetCenter();
+//     Eigen::Vector3d last_extent = last_selected_shingle->extent_;
+//     Eigen::Vector3d last_right_edge = last_center + Eigen::Vector3d(last_extent.x() / 2.0, 0, 0);
+
+//     // Step 2: Compute the candidate's left edge based on its center and extent
+//     Eigen::Vector3d cand_center = candidate->GetCenter();
+//     Eigen::Vector3d cand_extent = candidate->extent_;
+//     Eigen::Vector3d cand_left_edge = cand_center - Eigen::Vector3d(cand_extent.x() / 2.0, 0, 0);
+
+//     // Step 3: Translate the candidate based on the X direction
+//     Eigen::Vector3d translation = last_right_edge + Eigen::Vector3d(gap, 0, 0) - cand_left_edge;
+//     candidate->Translate(translation);  // Apply translation to the candidate itself
+
+//     // Step 4: Ensure the candidate's orientation matches that of the last selected shingle
+//     Eigen::Matrix3d rotation_fix = last_selected_shingle->R_ * candidate->R_.transpose();
+//     candidate->Rotate(rotation_fix, candidate->GetCenter());  // Apply rotation to the candidate itself
+
+//     return candidate;  // Return the transformed candidate (same object, no copy)
+// }
+
+
+
+// this worked
+// std::shared_ptr<open3d::geometry::OrientedBoundingBox> GeometryProcessor::alignAndShiftNextBox(
+//     const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& last_selected_shingle,
+//     const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate,
+//     double gap)
+// {
+//     // Step 1: Compute the X direction from the center of the last selected shingle and the reference
+//     Eigen::Vector3d last_center = last_selected_shingle->GetCenter();
+//     Eigen::Vector3d last_extent = last_selected_shingle->extent_;
+//     Eigen::Vector3d last_right_edge = last_center + Eigen::Vector3d(last_extent.x() / 2.0, 0, 0);  // Right edge of the last box
+
+//     // Step 2: Compute the candidate's left edge based on its center and extent
+//     Eigen::Vector3d cand_center = candidate->GetCenter();
+//     Eigen::Vector3d cand_extent = candidate->extent_;
+//     Eigen::Vector3d cand_left_edge = cand_center - Eigen::Vector3d(cand_extent.x() / 2.0, 0, 0);  // Left edge of the candidate
+
+//     // Step 3: Translate the candidate based on the X direction (aligning left edge to right edge)
+//     Eigen::Vector3d translation = last_right_edge + Eigen::Vector3d(gap, 0, 0) - cand_left_edge;  // Shift by gap
+//     candidate->Translate(translation);  // Apply translation to the candidate itself
+
+//     // Step 4: Ensure the candidate's orientation matches that of the last selected shingle
+//     Eigen::Matrix3d rotation_fix = last_selected_shingle->R_ * candidate->R_.transpose();
+//     candidate->Rotate(rotation_fix, candidate->GetCenter());  // Apply rotation to the candidate itself
+
+//     return candidate;  // Return the transformed candidate (same object, no copy)
+// }
+
+
 std::shared_ptr<open3d::geometry::OrientedBoundingBox> GeometryProcessor::alignAndShiftNextBox(
     const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& last_selected_shingle,
     const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate,
     double gap)
 {
-    // Step 1: Compute the X direction from the center of the last selected shingle and the reference
+    // --- Step 1: Extract properties of last selected shingle
     Eigen::Vector3d last_center = last_selected_shingle->GetCenter();
     Eigen::Vector3d last_extent = last_selected_shingle->extent_;
-    Eigen::Vector3d last_right_edge = last_center + Eigen::Vector3d(last_extent.x() / 2.0, 0, 0);
+    Eigen::Matrix3d last_R = last_selected_shingle->R_;
 
-    // Step 2: Compute the candidate's left edge based on its center and extent
+    // Extract x-axis of last shingle
+    Eigen::Vector3d last_x_axis = last_R.col(0);
+
+    // Flip the x-axis if needed
+    if (last_x_axis.x() < 0) {
+        std::cout << "Flipping x-axis!" << std::endl;
+        last_R.col(0) = -last_R.col(0);
+        last_R.col(1) = -last_R.col(1);  // Keep coordinate system right-handed
+    }
+
+    // Apply the modified rotation to the bounding box
+    last_selected_shingle->R_ = last_R;
+
+    // --- Debug: Print candidate length to check consistency
+    double candidate_length = candidate->extent_.x();
+    std::cout << "Candidate Length: " << candidate_length << " mm" << std::endl;
+
+    // --- Step 2: Compute the bottom-right corner of the last selected shingle in global coordinates
+    Eigen::Vector3d last_bottom_right = last_center + last_R * Eigen::Vector3d(last_extent.x() / 2.0, -last_extent.y() / 2.0, -last_extent.z() / 2.0);
+
+    // --- Step 3: Compute the bottom-left corner of the candidate in global coordinates
     Eigen::Vector3d cand_center = candidate->GetCenter();
     Eigen::Vector3d cand_extent = candidate->extent_;
-    Eigen::Vector3d cand_left_edge = cand_center - Eigen::Vector3d(cand_extent.x() / 2.0, 0, 0);
+    Eigen::Matrix3d cand_R = candidate->R_;
+    Eigen::Vector3d cand_bottom_left = cand_center + cand_R * Eigen::Vector3d(-cand_extent.x() / 2.0, -cand_extent.y() / 2.0, -cand_extent.z() / 2.0);
 
-    // Step 3: Translate the candidate based on the X direction
-    Eigen::Vector3d translation = last_right_edge + Eigen::Vector3d(gap, 0, 0) - cand_left_edge;
+    // --- Step 4: Compute the correct translation
+    Eigen::Vector3d translation = last_bottom_right - cand_bottom_left + gap * last_x_axis;  // Shift by gap along x-axis
+    //translation.y() = 0;  // Prevent progressive shift along y
 
-    // Step 4: Create a transformed copy of the candidate and apply translation
-    auto transformed_candidate = std::make_shared<open3d::geometry::OrientedBoundingBox>(*candidate);
-    transformed_candidate->Translate(translation);
+    // --- Debug: Print translation vector to check for y-offsets
+    std::cout << "Translation Vector: " << translation.transpose() << std::endl;
 
-    // Step 5: Ensure the candidate's orientation matches that of the last selected shingle
-    Eigen::Matrix3d rotation_fix = last_selected_shingle->R_ * candidate->R_.transpose();
-    transformed_candidate->Rotate(rotation_fix, transformed_candidate->GetCenter());
+    // --- Step 5: Apply the translation
+    std::cout << "Before translation: " << candidate->GetCenter().transpose() << std::endl;
+    candidate->Translate(translation);
+    std::cout << "After translation: " << candidate->GetCenter().transpose() << std::endl;
 
-    return transformed_candidate;  // Return the transformed candidate with correct position and orientation
+
+    // --- Step 6: Apply rotation to match the last shingle’s orientation
+    Eigen::Matrix3d rotation_fix = last_R * cand_R.transpose();  
+    candidate->Rotate(rotation_fix, last_bottom_right);  
+
+    // --- Step 7: Return the aligned and rotated candidate box
+    return candidate;
 }
+
 
 
 
@@ -1619,7 +1820,7 @@ std::shared_ptr<open3d::geometry::OrientedBoundingBox> GeometryProcessor::alignA
 //     return arranged_bboxes;
 // }
 
-
+///////////////////////////////////////////////////////////////
 std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> 
 GeometryProcessor::arrangeShingleRow(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& reference_row,
@@ -1714,8 +1915,54 @@ GeometryProcessor::arrangeShingleRow(
 }
 
 
+////////////////////////////////////////////////////
+// arrange multiple shingle rows
 
 
+
+
+
+////////////////////////////////
+
+void GeometryProcessor::visualizeAllShingleRows(
+    const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& arranged_rows)  
+{
+    if (arranged_rows.empty()) {
+        std::cout << "No rows to visualize.\n";
+        return;
+    }
+
+    std::cout << "Visualizing " << arranged_rows.size() << " rows...\n";
+
+    open3d::visualization::Visualizer visualizer;
+    visualizer.CreateVisualizerWindow("Shingle Rows Visualization", 800, 600);
+
+    // Define a set of distinct colors (cycling through if rows > available colors)
+    std::vector<Eigen::Vector3d> colors = {
+        {1.0, 0.0, 0.0}, // Red
+        {0.0, 1.0, 0.0}, // Green
+        {0.0, 0.0, 1.0}, // Blue
+        {1.0, 1.0, 0.0}, // Yellow
+        {1.0, 0.0, 1.0}, // Magenta
+        {0.0, 1.0, 1.0}  // Cyan
+    };
+
+    for (size_t i = 0; i < arranged_rows.size(); ++i) {
+        Eigen::Vector3d color = colors[i % colors.size()]; // Cycle through colors if needed
+
+        for (const auto& shingle : arranged_rows[i]) {
+            auto colored_box = std::make_shared<open3d::geometry::OrientedBoundingBox>(*shingle);
+            colored_box->color_ = color;
+            visualizer.AddGeometry(colored_box);
+        }
+
+        std::cout << "Row " << i + 1 << " visualized with color: [" 
+                  << color.x() << ", " << color.y() << ", " << color.z() << "]\n";
+    }
+
+    visualizer.Run();
+    visualizer.DestroyVisualizerWindow();
+}
 
 
 ///////////////////////////////////////////////////////
@@ -1874,6 +2121,49 @@ void GeometryProcessor::visualizeShingleRows(
     visualizer.Run();
     visualizer.DestroyVisualizerWindow();
 }
+
+
+////////////////////////////////////////////
+// Function to visualize the 3D plane of last_selected_shingle
+void GeometryProcessor::visualizeShinglePlane(const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& box) {
+    // Extract rotation matrix (orientation of the box)
+    Eigen::Matrix3d R = box->R_;
+    Eigen::Vector3d center = box->GetCenter();
+
+    // Extract local coordinate axes
+    Eigen::Vector3d x_axis = R.col(0);  // X-axis (Red)
+    Eigen::Vector3d y_axis = R.col(1);  // Y-axis (Green)
+    Eigen::Vector3d z_axis = R.col(2);  // Z-axis (Blue)
+
+    double axis_length = 0.1; // Length of the visualization axes
+
+    // Define line sets for the three local axes
+    auto x_axis_line = std::make_shared<open3d::geometry::LineSet>();
+    x_axis_line->points_ = {center, center + axis_length * x_axis};
+    x_axis_line->lines_ = {{0, 1}};
+    x_axis_line->colors_.push_back(Eigen::Vector3d(1, 0, 0)); // Red for x-axis
+
+    auto y_axis_line = std::make_shared<open3d::geometry::LineSet>();
+    y_axis_line->points_ = {center, center + axis_length * y_axis};
+    y_axis_line->lines_ = {{0, 1}};
+    y_axis_line->colors_.push_back(Eigen::Vector3d(0, 1, 0)); // Green for y-axis
+
+    auto z_axis_line = std::make_shared<open3d::geometry::LineSet>();
+    z_axis_line->points_ = {center, center + axis_length * z_axis};
+    z_axis_line->lines_ = {{0, 1}};
+    z_axis_line->colors_.push_back(Eigen::Vector3d(0, 0, 1)); // Blue for z-axis
+
+    // Print the local axes
+    std::cout << "Shingle Local Axes:\n";
+    std::cout << "X-Axis: " << x_axis.transpose() << std::endl;
+    std::cout << "Y-Axis: " << y_axis.transpose() << std::endl;
+    std::cout << "Z-Axis: " << z_axis.transpose() << std::endl;
+
+    // Show visualization with the box and its local axes
+    open3d::visualization::DrawGeometries({box, x_axis_line, y_axis_line, z_axis_line}, "Shingle 3D Plane");
+}
+
+
 
 /////////////////////////////////////////////
 namespace fs = std::filesystem;

@@ -33,12 +33,12 @@ int main() {
 
     // std::cout << "Successfully loaded " << all_point_clouds.size() << " point clouds from folder: " << folder << std::endl;
 
-    // // Now process the point clouds (refine, segment, and merge them)
+    // Now process the point clouds (refine, segment, and merge them)
     // perception.processPointClouds(all_point_clouds);
     // perception.logOriginalPointCloud();
     
 
-    // store the original point cloud
+    // // store the original point cloud
     auto original_pc = std::make_shared<open3d::geometry::PointCloud>(*perception.getPointCloud());
 
 
@@ -50,7 +50,7 @@ int main() {
     // std::vector <PC_o3d_ptr> clusters = perception.getClusters();
 
 
-    // instantiate geometryprocessor
+    // // instantiate geometryprocessor
     GeometryProcessor geom_processor;
     // auto shingles_bbx = geom_processor.computeOrientedBoundingBoxes(clusters);
     // //auto shingles_bbx = geom_processor.computeMinimalOrientedBoundingBoxes(clusters);
@@ -83,7 +83,7 @@ int main() {
 
     ///////////////////////////////////////////////////////////
     // First Row
-    auto rect_first_row = geom_processor.createRandomRectangles(10 , 0.25);  // Create 10 random rectangles
+    auto rect_first_row = geom_processor.createRandomRectangles(40 , 0.25);  // Create 10 random rectangles
     geom_processor.visualizeRectangles(rect_first_row, original_pc);
 
     // Create bounding boxes from rectangles
@@ -110,7 +110,7 @@ int main() {
 
 
 //////////////////////////////////////////////////////////////////////
-    auto second_row_sorted = geom_processor.findNextBestShingles(first_row_of_shingles ,bbx_second_row , 0.03 , gap ,max_length  );
+    auto second_row_sorted = geom_processor.findNextBestShingles(first_row_of_shingles ,bbx_second_row , 0.03 , gap ,max_length);
 
 
     // auto first_box_second_row = geom_processor.alignAndShiftFirstBox(first_row_of_shingles ,bbx_second_row , gap , max_length , 0 );
@@ -125,18 +125,47 @@ int main() {
         0.003,
         max_length,
         rotation_angle,
-        0.02);
+        0);
 
     geom_processor.visualizeShingleRows(first_row_of_shingles ,second_row_of_shingles );
+///////////////////////////////////////////////////////////////////////////////////////
+
+    //
+    std::cout << "starting third and forth row'\n\n\n\n" ;
+    auto rect_third_and_forth_row = geom_processor.createRandomRectangles(30 , 0.45 );  // Create 10 random rectangles
+    geom_processor.visualizeRectangles(rect_third_and_forth_row);
+    auto bbx_third_and_forth_row = geom_processor.createBoundingBoxFromRectangle(rect_third_and_forth_row, 0.002);
+    
+
+    //auto third_forth_row_sorted = geom_processor.findNextBestShinglesForMultipleRows(second_row_of_shingles , bbx_third_and_forth_row , 3 , 0.03 , gap , max_length ) ;
+    auto third_forth_row_sorted = geom_processor.findNextBestShinglesForMultipleRows(second_row_of_shingles , bbx_third_and_forth_row ,3 ,  0.03 , gap , max_length);
+
+
+
+
+    // // Now pass it to the visualization function
+    geom_processor.visualizeAllShingleRows(third_forth_row_sorted);
+
+
+
+
+
+
+
+
+
+
+
     
     
-// do the visualization in function
 
 
 
     // export
     geom_processor.exportBoundingBoxes(first_row_of_shingles ,export_folder , "first_row_" );
     geom_processor.exportBoundingBoxes(second_row_of_shingles ,export_folder , "second_row_" );
+    geom_processor.exportBoundingBoxes(third_forth_row_sorted[0] ,export_folder , "third_row_" );
+
 
 
     return 0;

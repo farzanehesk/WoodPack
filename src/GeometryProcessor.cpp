@@ -817,67 +817,303 @@ void GeometryProcessor::visualizePlanesOnBoundingBoxes(
 
 //////////////////////////////////////////
 // 20. Function to create n random rectangles
-std::vector<Rectangle> GeometryProcessor::createRandomRectangles(int n, double fixed_length) {
-    std::vector<Rectangle> rectangles;
-    double min_width = 0.08;    // 8 cm
-    double max_width = 0.20;    // 20 cm
-    double surface_width = 2.0; // Example surface width (adjust as needed)
-    double surface_height = 2.0;// Example surface height (adjust as needed)
-    double min_gap = 0.02;      // Minimum gap between rectangles (2 cm)
+// std::vector<Rectangle> GeometryProcessor::createRandomRectangles(int n, double fixed_length) {
+//     std::vector<Rectangle> rectangles;
+//     double min_width = 0.08;    // 8 cm
+//     double max_width = 0.20;    // 20 cm
+//     double surface_width = 2.0; // Example surface width (adjust as needed)
+//     double surface_height = 2.0;// Example surface height (adjust as needed)
+//     double min_gap = 0.02;      // Minimum gap between rectangles (2 cm)
 
-    std::srand(static_cast<unsigned int>(std::time(0))); // Seed random generator
+//     std::srand(static_cast<unsigned int>(std::time(0))); // Seed random generator
 
-    for (int i = 0; i < n; ++i) {
-        bool valid_position = false;
-        std::array<Eigen::Vector3d, 4> corners;
+//     for (int i = 0; i < n; ++i) {
+//         bool valid_position = false;
+//         std::array<Eigen::Vector3d, 4> corners;
 
-        for (int attempt = 0; attempt < 100; ++attempt) { // Try up to 100 times
-            double width = min_width + (max_width - min_width) * (std::rand() / double(RAND_MAX));
-            double x = min_gap + (surface_width - width - min_gap) * (std::rand() / double(RAND_MAX));
-            double y = min_gap + (surface_height - fixed_length - min_gap) * (std::rand() / double(RAND_MAX));
+//         for (int attempt = 0; attempt < 100; ++attempt) { // Try up to 100 times
+//             double width = min_width + (max_width - min_width) * (std::rand() / double(RAND_MAX));
+//             double x = min_gap + (surface_width - width - min_gap) * (std::rand() / double(RAND_MAX));
+//             double y = min_gap + (surface_height - fixed_length - min_gap) * (std::rand() / double(RAND_MAX));
 
-            // Define the corners
-            Eigen::Vector3d p1(x, y, 0);
-            Eigen::Vector3d p2(x + width, y, 0);
-            Eigen::Vector3d p3(x + width, y + fixed_length, 0);
-            Eigen::Vector3d p4(x, y + fixed_length, 0);
+//             // Define the corners
+//             Eigen::Vector3d p1(x, y, 0);
+//             Eigen::Vector3d p2(x + width, y, 0);
+//             Eigen::Vector3d p3(x + width, y + fixed_length, 0);
+//             Eigen::Vector3d p4(x, y + fixed_length, 0);
 
-            corners = {p1, p2, p3, p4};
+//             corners = {p1, p2, p3, p4};
 
-            // Check for overlap with existing rectangles
-            bool overlap = false;
-            for (const auto& rect : rectangles) {
-                auto existing_corners = rect.getSortedCorners();
-                double ex_min_x = existing_corners[0].x();
-                double ex_max_x = existing_corners[1].x();
-                double ex_min_y = existing_corners[0].y();
-                double ex_max_y = existing_corners[2].y();
+//             // Check for overlap with existing rectangles
+//             bool overlap = false;
+//             for (const auto& rect : rectangles) {
+//                 auto existing_corners = rect.getSortedCorners();
+//                 double ex_min_x = existing_corners[0].x();
+//                 double ex_max_x = existing_corners[1].x();
+//                 double ex_min_y = existing_corners[0].y();
+//                 double ex_max_y = existing_corners[2].y();
 
-                double new_min_x = p1.x();
-                double new_max_x = p2.x();
-                double new_min_y = p1.y();
-                double new_max_y = p3.y();
+//                 double new_min_x = p1.x();
+//                 double new_max_x = p2.x();
+//                 double new_min_y = p1.y();
+//                 double new_max_y = p3.y();
 
-                if (!(new_max_x + min_gap < ex_min_x || new_min_x > ex_max_x + min_gap ||
-                      new_max_y + min_gap < ex_min_y || new_min_y > ex_max_y + min_gap)) {
-                    overlap = true;
-                    break;
-                }
-            }
+//                 if (!(new_max_x + min_gap < ex_min_x || new_min_x > ex_max_x + min_gap ||
+//                       new_max_y + min_gap < ex_min_y || new_min_y > ex_max_y + min_gap)) {
+//                     overlap = true;
+//                     break;
+//                 }
+//             }
 
-            if (!overlap) {
-                valid_position = true;
-                break;
-            }
-        }
+//             if (!overlap) {
+//                 valid_position = true;
+//                 break;
+//             }
+//         }
 
-        if (valid_position) {
-            rectangles.emplace_back(Rectangle(corners));
-        }
+//         if (valid_position) {
+//             rectangles.emplace_back(Rectangle(corners));
+//         }
+//     }
+
+//     return rectangles;
+// }
+
+// std::vector<Rectangle> GeometryProcessor::createRandomRectangles(int n, double fixed_length) {
+//     std::vector<Rectangle> rectangles;
+    
+//     double min_width = 0.08;    // 8 cm
+//     double max_width = 0.20;    // 20 cm
+//     double min_gap = 0.02;      // Minimum gap between rectangles (2 cm)
+
+//     // Estimate total area needed based on average rectangle size
+//     double avg_width = (min_width + max_width) / 2.0;  
+//     double avg_area = avg_width * fixed_length;        
+//     double density_factor = 2.5; // Allow more space
+//     double total_area_needed = n * avg_area * density_factor;
+//     double surface_side = std::sqrt(total_area_needed); 
+
+//     double surface_width = surface_side;
+//     double surface_height = surface_side;
+
+//     std::cout << "[INFO] Dynamic surface size: " << surface_width << "m x " << surface_height << "m\n";
+
+//     std::srand(static_cast<unsigned int>(std::time(0))); // Seed random generator
+
+//     for (int i = 0; i < n; ++i) {
+//         bool valid_position = false;
+//         std::array<Eigen::Vector3d, 4> corners;
+//         double width = 0.0;  // Store width for printing
+//         double computed_length = 0.0; // Store computed length
+
+//         for (int attempt = 0; attempt < 500; ++attempt) {  
+//             width = min_width + (max_width - min_width) * (std::rand() / double(RAND_MAX));
+//             double x = min_gap + (surface_width - width - min_gap) * (std::rand() / double(RAND_MAX));
+//             double y = min_gap + (surface_height - fixed_length - min_gap) * (std::rand() / double(RAND_MAX));
+
+//             Eigen::Vector3d p1(x, y, 0);
+//             Eigen::Vector3d p2(x + width, y, 0);
+//             Eigen::Vector3d p3(x + width, y + fixed_length, 0);
+//             Eigen::Vector3d p4(x, y + fixed_length, 0);
+
+//             corners = {p1, p2, p3, p4};
+
+//             // Check for overlap
+//             bool overlap = false;
+//             for (const auto& rect : rectangles) {
+//                 auto existing_corners = rect.getSortedCorners();
+//                 double ex_min_x = existing_corners[0].x();
+//                 double ex_max_x = existing_corners[1].x();
+//                 double ex_min_y = existing_corners[0].y();
+//                 double ex_max_y = existing_corners[2].y();
+
+//                 double new_min_x = p1.x();
+//                 double new_max_x = p2.x();
+//                 double new_min_y = p1.y();
+//                 double new_max_y = p3.y();
+
+//                 if (!(new_max_x + min_gap < ex_min_x || new_min_x > ex_max_x + min_gap ||
+//                       new_max_y + min_gap < ex_min_y || new_min_y > ex_max_y + min_gap)) {
+//                     overlap = true;
+//                     break;
+//                 }
+//             }
+
+//             if (!overlap) {
+//                 valid_position = true;
+//                 break;
+//             }
+//         }
+
+//         if (valid_position) {
+//             Rectangle rect(corners);
+//             rectangles.push_back(rect);
+
+//             // Compute actual length after creation
+//             auto created_corners = rect.getSortedCorners();
+//             computed_length = (created_corners[2] - created_corners[0]).norm(); // Length along y-axis
+
+//             std::cout << "[DEBUG] Rectangle " << i + 1 << ": "
+//                       << "Width = " << width << "m, "
+//                       << "Expected Length = " << fixed_length << "m, "
+//                       << "Computed Length = " << computed_length << "m\n";
+
+//             if (std::abs(computed_length - fixed_length) > 1e-6) {
+//                 std::cout << "[WARNING] Length mismatch detected!\n";
+//             }
+//         } else {
+//             std::cout << "[WARNING] Could not place rectangle " << i + 1 << " after 500 attempts.\n";
+//         }
+//     }
+
+//     std::cout << "[INFO] Created " << rectangles.size() << " rectangles out of " << n << " requested.\n";
+//     return rectangles;
+// }
+
+// Function to generate 'n' rectangles with random widths and fixed length 'L'
+// std::vector<Rectangle> GeometryProcessor::generateRectangles(int n, double L) {
+//     std::vector<Rectangle> rectangles;
+//     std::random_device rd;
+//     std::mt19937 gen(rd());
+//     std::uniform_real_distribution<double> width_dist(0.08, 0.20); // Random width: 8cm - 20cm
+
+//     Eigen::Vector3d base_origin(0, 0, 0); // Starting point for first rectangle
+//     Eigen::Vector3d x_axis(1, 0, 0); // Width direction
+//     Eigen::Vector3d y_axis(0, 1, 0); // Length direction
+
+//     for (int i = 0; i < n; ++i) {
+//         double width = width_dist(gen); // Generate random width
+
+//         // Define the four corners of the rectangle
+//         Eigen::Vector3d p1 = base_origin;
+//         Eigen::Vector3d p2 = p1 + width * x_axis;
+//         Eigen::Vector3d p3 = p2 + L * y_axis;
+//         Eigen::Vector3d p4 = p1 + L * y_axis;
+
+//         std::array<Eigen::Vector3d, 4> corners = {p1, p2, p3, p4};
+
+//         // Create rectangle and add to the list
+//         rectangles.emplace_back(Rectangle(corners));
+
+//         // Compute actual length after creation
+//         auto created_corners = rectangles.back().getSortedCorners();
+//         double computed_length = (created_corners[2] - created_corners[0]).norm(); // Length along y-axis
+
+//         // Print the computed length
+//         std::cout << "Rectangle " << i + 1 << ": Width = " << width << "m, Expected Length = " << L 
+//                   << "m, Computed Length = " << computed_length << "m" << std::endl;
+
+//         // Move base_origin for the next rectangle (stacking horizontally)
+//         base_origin += width * x_axis;
+//     }
+
+//     return rectangles;
+// }
+
+
+
+// std::vector<Rectangle> GeometryProcessor::generateRectangles(int n, double L) {
+//     std::vector<Rectangle> rectangles;
+//     std::random_device rd;
+//     std::mt19937 gen(rd());
+//     std::uniform_real_distribution<double> width_dist(0.08, 0.20); // Random width: 8cm - 20cm
+
+//     Eigen::Vector3d base_origin(0, 0, 0); // Starting point for first rectangle
+//     Eigen::Vector3d x_axis(1, 0, 0); // Width direction
+//     Eigen::Vector3d y_axis(0, 1, 0); // Length direction
+
+//     for (int i = 0; i < n; ++i) {
+//         double width = width_dist(gen); // Generate random width
+
+//         // Define the four corners of the rectangle with fixed length L
+//         Eigen::Vector3d p1 = base_origin;
+//         Eigen::Vector3d p2 = p1 + width * x_axis;
+//         Eigen::Vector3d p3 = p2 + L * y_axis; // Fixed length L
+//         Eigen::Vector3d p4 = p1 + L * y_axis; // Fixed length L
+
+//         std::array<Eigen::Vector3d, 4> corners = {p1, p2, p3, p4};
+
+//         // Create rectangle and add to the list
+//         rectangles.emplace_back(Rectangle(corners));
+
+//         // Compute actual length after creation
+//         auto created_corners = rectangles.back().getSortedCorners();
+//         double computed_length = (created_corners[2] - created_corners[0]).norm(); // Length along y-axis
+
+//         // Print the computed length
+//         std::cout << "Rectangle " << i + 1 << ": Width = " << width << "m, Expected Length = " << L 
+//                   << "m, Computed Length = " << computed_length << "m" << std::endl;
+
+//         // Move base_origin for the next rectangle (stacking horizontally)
+//         base_origin += width * x_axis;
+//     }
+
+//     return rectangles;
+// }
+
+
+
+
+/////////////////////////////////
+// Function to generate a random number between min and max
+    double GeometryProcessor::getRandomWidth(double min, double max) {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_real_distribution<> dis(min, max);
+        return dis(gen);
     }
 
-    return rectangles;
+    // Function to create 'n' bounding boxes and place them next to each other
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProcessor::createBoundingBoxes(int n , double fixed_length) {
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> boxes;
+
+    double min_width = 0.08;
+    double max_width = 0.2;
+
+    // Start position for the first box
+    Eigen::Vector3d start_pos(-0.5, 0.3, 0.0);
+    double current_x = start_pos.x();
+
+    for (int i = 0; i < n; ++i) {
+        double width = getRandomWidth(min_width, max_width);
+
+        // Define center of bounding box
+        Eigen::Vector3d center(current_x + width / 2.0, start_pos.y() + fixed_length / 2.0, start_pos.z());
+
+        // Set half extents with width along x, length along y, and thickness along z
+        Eigen::Vector3d half_extents(width / 2.0, fixed_length / 2.0, 0.002);
+
+        // Create oriented bounding box
+        auto box = std::make_shared<open3d::geometry::OrientedBoundingBox>(
+            center, Eigen::Matrix3d::Identity(), half_extents * 2);
+
+        // Set color
+        box->color_ = Eigen::Vector3d(1, 0, 0); // Red
+
+        // Add to list
+        boxes.push_back(box);
+
+        // Compute actual dimensions
+        double computed_width = box->extent_.x();  // Width along x-axis
+        double computed_length = box->extent_.y(); // Length along y-axis
+
+        // Print bounding box dimensions
+        std::cout << "Bounding Box " << i + 1 << ": Width = " 
+                  << computed_width << "m, Expected Length = " 
+                  << fixed_length << "m, Computed Length = " 
+                  << computed_length << "m" << std::endl;
+
+        // Print the center and extents of the bounding box before and after translation/rotation
+        std::cout << "Center: " << box->GetCenter().transpose() << std::endl;
+        std::cout << "Half Extents: " << box->extent_.transpose() << std::endl;
+
+        // Update position for next box (move in x-direction)
+        current_x += width + 0.005; // Maintain 5mm gap
+    }
+
+    return boxes;
 }
+
 
 
 //////////////////////////////////////////////////
@@ -1004,8 +1240,6 @@ void GeometryProcessor::transform_bounding_box_to_plane(
 
 ////////////////////////////////////////////////
 // 23. arrangeShingleRow
-
-
 std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProcessor::arrangeFirstShingleRow(
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& bounding_boxes,
     double gap,
@@ -1014,7 +1248,6 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
 
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arranged_bboxes;
     Eigen::Vector3d current_position(0, 0, 0);  // Start at the origin
-
 
     double previous_half_width = 0;  // Keeps track of half the previous box's width
     double total_length = 0;  // Keeps track of the total accumulated length
@@ -1026,8 +1259,7 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
         // Compute the bounding box's extent
         Eigen::Vector3d extent = bbox->extent_;
 
-
-        // Identify the longest axis (we want the shorter edge to be aligned with X)
+        // Identify the longest axis (we want Y to be the longest)
         int longest_axis = 0;  // Assume X is longest by default
         if (extent.y() > extent.x() && extent.y() > extent.z()) {
             longest_axis = 1;  // Y-axis is the longest
@@ -1035,17 +1267,16 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
             longest_axis = 2;  // Z-axis is the longest
         }
 
-        // Rotate if the longest edge is not already perpendicular to X
+        // Rotate the bounding box so that the longest axis is aligned with Y
         if (longest_axis == 1) {
-            // If Y is longest, rotate 90 degrees around Z to align shorter edge with X
-            transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 0, 1), M_PI_2, bbox->GetCenter(), true);
+            // Y is already the longest axis, no rotation needed
         } else if (longest_axis == 2) {
-            // If Z is longest, rotate 90 degrees around Y to align shorter edge with X
+            // If Z is the longest, rotate 90 degrees around Y to align Z with Y
             transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 1, 0), M_PI_2, bbox->GetCenter(), true);
         }
 
-        // Get the new extent after rotation
-        extent = bbox->extent_;
+        // Now the longest axis is aligned with Y, and the shorter edges are along X and Z
+        extent = bbox->extent_;  // Get the new extent after rotation
         double current_half_width = extent.x() / 2.0;  // Half of the width after rotation
 
         // Predict next position before placing
@@ -1093,99 +1324,78 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
     for (auto& bbox : arranged_bboxes) {
         // Rotate the bounding box around its center
         transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(1, 0, 0), -rotation_radians, bbox->GetCenter(), true);
-
     }
 
     // Debug print: Total length of the row from (0,0,0) to rightmost edge
     std::cout << "Total row length: " << last_box_right_edge.x() << " meters" << std::endl;
 
-for (auto& bbox : arranged_bboxes) {
-    Eigen::Matrix3d rotation_matrix = bbox->R_;  // Get the rotation matrix
+    // Debugging bounding box rotation
+    for (auto& bbox : arranged_bboxes) {
+        Eigen::Matrix3d rotation_matrix = bbox->R_;  // Get the rotation matrix
 
-    // Extract rotation angles (Euler angles)
-    double angle_x = std::atan2(rotation_matrix(2, 1), rotation_matrix(2, 2));  // Rotation around X
-    double angle_y = std::atan2(-rotation_matrix(2, 0),
-                                std::sqrt(rotation_matrix(2, 1) * rotation_matrix(2, 1) + 
-                                          rotation_matrix(2, 2) * rotation_matrix(2, 2)));  // Rotation around Y
-    double angle_z = std::atan2(rotation_matrix(1, 0), rotation_matrix(0, 0));  // Rotation around Z
+        // Extract rotation angles (Euler angles)
+        double angle_x = std::atan2(rotation_matrix(2, 1), rotation_matrix(2, 2));  // Rotation around X
+        double angle_y = std::atan2(-rotation_matrix(2, 0),
+                                    std::sqrt(rotation_matrix(2, 1) * rotation_matrix(2, 1) + 
+                                              rotation_matrix(2, 2) * rotation_matrix(2, 2)));  // Rotation around Y
+        double angle_z = std::atan2(rotation_matrix(1, 0), rotation_matrix(0, 0));  // Rotation around Z
 
-    // Convert to degrees
-    double angle_x_degrees = angle_x * 180.0 / M_PI;
-    double angle_y_degrees = angle_y * 180.0 / M_PI;
-    double angle_z_degrees = angle_z * 180.0 / M_PI;
+        // Convert to degrees
+        double angle_x_degrees = angle_x * 180.0 / M_PI;
+        double angle_y_degrees = angle_y * 180.0 / M_PI;
+        double angle_z_degrees = angle_z * 180.0 / M_PI;
 
-    // std::cout << "Bounding Box Rotation Angles:" << std::endl;
-    // std::cout << "  Around X: " << angle_x << " radians (" << angle_x_degrees << " degrees)" << std::endl;
-    // std::cout << "  Around Y: " << angle_y << " radians (" << angle_y_degrees << " degrees)" << std::endl;
-    // std::cout << "  Around Z: " << angle_z << " radians (" << angle_z_degrees << " degrees)" << std::endl;
+        // std::cout << "Bounding Box Rotation Angles:" << std::endl;
+        // std::cout << "  Around X: " << angle_x << " radians (" << angle_x_degrees << " degrees)" << std::endl;
+        // std::cout << "  Around Y: " << angle_y << " radians (" << angle_y_degrees << " degrees)" << std::endl;
+        // std::cout << "  Around Z: " << angle_z << " radians (" << angle_z_degrees << " degrees)" << std::endl;
+    }
 
-    
-}
-
-    // debug
+    // Debug: First row top face
     Eigen::Vector3d first_row_top_face = arranged_bboxes[0]->GetCenter();
     first_row_top_face.z() += (arranged_bboxes[0]->extent_.z() / 2.0);
     std::cout << "[DEBUG] First row top face (final): " << first_row_top_face.transpose() << std::endl;
 
     return arranged_bboxes;
 }
-
 /////////////////////////////////////////////////////////////////////
-//
-// Eigen::Vector2d GeometryProcessor::projectToXYPlane(
-//     const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& bbox) {
-//     // Get the position and rotation matrix of the bounding box
-//     Eigen::Vector3d position = bbox->GetCenter();
-//     Eigen::Matrix3d rotation_matrix = bbox->R_;  // Rotation matrix of the bounding box
-    
-//     // Project the center of the bounding box to the XY plane
-//     Eigen::Vector3d projected_center = rotation_matrix * position;
-//     return Eigen::Vector2d(projected_center.x(), projected_center.y());
-// }
-
-
-
-// std::shared_ptr<open3d::geometry::OrientedBoundingBox> GeometryProcessor::projectToXYPlane(
-//     const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& bbox) {
-
-//     // Get the position and rotation matrix of the bounding box
-//     Eigen::Vector3d position = bbox->GetCenter();
-//     Eigen::Matrix3d rotation_matrix = bbox->R_;  // Rotation matrix of the bounding box
-
-//     // Project the center of the bounding box to the XY plane by zeroing the Z-coordinate
-//     Eigen::Vector3d projected_center = position;
-//     projected_center[2] = 0;  // Set Z-coordinate to zero to project onto the XY plane
-
-//     // Create a new oriented bounding box with the projected center but the same rotation
-//     std::shared_ptr<open3d::geometry::OrientedBoundingBox> projected_bbox = 
-//         std::make_shared<open3d::geometry::OrientedBoundingBox>(
-//             projected_center, // New center (XY plane)
-//             bbox->extent_,    // Same extent as the original
-//             rotation_matrix   // Same rotation matrix
-//         );
-
-//     return projected_bbox;
-// }
 
 
 
 ////////////////////////////
-void GeometryProcessor::alignBoxToXYPlane(const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& bbox) {
-    // Extract the rotation matrix of the bounding box
+
+void GeometryProcessor::alignBoxToXYPlane(std::shared_ptr<open3d::geometry::OrientedBoundingBox>& bbox) {
+    // Extract the original rotation matrix
     Eigen::Matrix3d rotation = bbox->R_;
 
-    // Compute a matrix that aligns the box to the XY plane
-    // Extract the 2x2 block and transpose it
-    Eigen::Matrix2d rotation2D = rotation.block<2, 2>(0, 0).transpose();
+    // Ensure the primary axis aligns with the XY plane
+    // Take the first two columns and normalize them
+    Eigen::Vector3d x_axis = rotation.col(0).normalized();
+    Eigen::Vector3d y_axis = rotation.col(1).normalized();
 
-    // Create a new 3x3 alignment matrix and set the top-left 2x2 block
-    Eigen::Matrix3d alignmentMatrix = Eigen::Matrix3d::Identity();
-    alignmentMatrix.block<2, 2>(0, 0) = rotation2D;
+    // Project the vectors onto the XY plane by setting their Z components to zero
+    x_axis.z() = 0;
+    y_axis.z() = 0;
 
-    // Apply the alignment matrix to the box's rotation matrix
-    bbox->R_ = alignmentMatrix;
-    
-    // The center of the bounding box remains unchanged, no need to update
+    // Normalize the projected vectors
+    x_axis.normalize();
+    y_axis.normalize();
+
+    // Compute the third axis using the cross product (ensures right-handed coordinate system)
+    Eigen::Vector3d z_axis = x_axis.cross(y_axis);
+    z_axis.normalize();
+
+    // Construct the new rotation matrix
+    Eigen::Matrix3d new_rotation;
+    new_rotation.col(0) = x_axis;
+    new_rotation.col(1) = y_axis;
+    new_rotation.col(2) = z_axis;  // This ensures it's still a valid rotation matrix
+
+    // Apply the new rotation matrix
+    bbox->R_ = new_rotation;
+
+    // Optionally, ensure the center remains unchanged
+    // If needed, update bbox->center_ accordingly
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -1495,51 +1705,76 @@ GeometryProcessor::findNextBestShinglesForMultipleRows(
     // Step 1: Make a copy of first_row to ensure it's not modified
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> first_row_copy;
     for (const auto& bbox : first_row) {
-        first_row_copy.push_back(std::make_shared<open3d::geometry::OrientedBoundingBox>(*bbox));
+        auto bbox_copy = std::make_shared<open3d::geometry::OrientedBoundingBox>(*bbox) ;
+        first_row_copy.push_back(bbox_copy);
     }
 
-    arranged_rows.push_back(first_row_copy);
+    //arranged_rows.push_back(first_row_copy);
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> previous_row = first_row_copy;
 
-    // Step 2: Make a copy of candidates to ensure it's not modified inside the loop
-    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> current_candidates = candidates;
+    // // Step 2: Make a copy of candidates to ensure it's not modified inside the loop
+    // std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> current_candidates = candidates;
 
+    
+    auto current_candidates_copy = copyBoundingBoxes(candidates);
     std::cout << "Starting row arrangement for " << num_rows << " rows.\n";
+    std::cout << "[DEBUG] Initial number of candidates: " << current_candidates_copy.size() << "\n";
+
 
     for (int i = 1; i < num_rows; ++i) {
         std::cout << "Finding best shingles for row " << i + 1 << "...\n";
-        std::cout << "[DEBUG] Number of candidates at the beginning of row " << i + 1 << ": " << current_candidates.size() << std::endl;
+        std::cout << "[DEBUG] Number of candidates at the beginning of row " << i + 1 << ": " << current_candidates_copy.size() << std::endl;
 
         // Step 3: Call findNextBestShingles without modifying original candidates
-        auto next_row = findNextBestShingles(previous_row, current_candidates, min_stagger, max_gap, max_length);
+        auto next_row = findNextBestShingles(previous_row, current_candidates_copy, min_stagger, max_gap, max_length);
+        std::cout << "[DEBUG] Candidates AFTER arranging row " << i + 1 << ": " << current_candidates_copy.size() << "\n";
+
 
         if (next_row.empty()) {
             std::cout << "No valid shingles found for row " << i + 1 << ". Stopping arrangement.\n";
             break;
         }
 
-        // Step 4: Remove selected shingles from current_candidates AFTER each iteration
-        for (const auto& shingle : next_row) {
-            current_candidates.erase(std::remove_if(current_candidates.begin(), current_candidates.end(),
-                [&shingle](const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate) {
-                    return candidate == shingle;
-                }), current_candidates.end());
-        }
+        // // Step 4: Remove selected shingles from current_candidates AFTER each iteration
+        // for (const auto& shingle : next_row) {
+        //     current_candidates.erase(std::remove_if(current_candidates.begin(), current_candidates.end(),
+        //         [&shingle](const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate) {
+        //             return candidate == shingle;
+        //         }), current_candidates.end());
+        // }
+        std::cout << "[DEBUG] Candidates AFTER REMOVING used shingles in row " << i + 1 << ": " << current_candidates_copy.size() << "\n";
 
         // Store the next row and update previous_row for the next iteration
         arranged_rows.push_back(next_row);
-        previous_row = next_row;
+        previous_row = copyBoundingBoxes(next_row); // Work with copies instead
 
         std::cout << "Row " << i + 1 << " completed with " << next_row.size() << " shingles.\n";
     }
 
     // Step 5: Update the original candidates list
-    candidates = current_candidates;
+    candidates = current_candidates_copy;
 
     std::cout << "Shingle arrangement completed with " << arranged_rows.size() << " rows.\n";
     return arranged_rows;
 }
+///////////////////////////////////////
 
+
+
+////////////////////////////////////////
+std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProcessor::copyBoundingBoxes(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& input_boxes) {
+    
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> copied_boxes;
+    
+    for (const auto& box : input_boxes) {
+        // Create a new shared pointer with copied data
+        auto bbox_copy = std::make_shared<open3d::geometry::OrientedBoundingBox>(*box);
+        copied_boxes.push_back(bbox_copy);
+    }
+
+    return copied_boxes;
+}
 
 
 ///////////////////////////////////////////
@@ -1562,21 +1797,25 @@ std::shared_ptr<open3d::geometry::OrientedBoundingBox> GeometryProcessor::alignA
     double max_length,
     double rotation_angle) 
 {
-    // --- Step 1: Compute the chosen corner for the reference row’s first box.
+    // --- Step 1: Compute the bottom left corner of the reference box.
     Eigen::Vector3d f_center = reference_box->GetCenter();
     Eigen::Vector3d f_extent = reference_box->extent_;
     Eigen::Matrix3d f_R = reference_box->R_;
-    Eigen::Vector3d f_local_offset(f_extent.x() / 2.0, f_extent.y() / 2.0, -f_extent.z() / 2.0);
+    
+    // Adjust to use the bottom left corner
+    Eigen::Vector3d f_local_offset(-f_extent.x() / 2.0, -f_extent.y() / 2.0, -f_extent.z() / 2.0);
     Eigen::Vector3d f_global_corner = f_center + f_R * f_local_offset;
 
-    // --- Step 2: Compute the same chosen corner for the target row’s first box.
+    // --- Step 2: Compute the bottom left corner of the target box.
     Eigen::Vector3d s_center = target_box->GetCenter();
     Eigen::Vector3d s_extent = target_box->extent_;
     Eigen::Matrix3d s_R = target_box->R_;
-    Eigen::Vector3d s_local_offset(s_extent.x() / 2.0, s_extent.y() / 2.0, -s_extent.z() / 2.0);
+    
+    // Adjust to use the bottom left corner
+    Eigen::Vector3d s_local_offset(-s_extent.x() / 2.0, -s_extent.y() / 2.0, -s_extent.z() / 2.0);
     Eigen::Vector3d s_global_corner = s_center + s_R * s_local_offset;
 
-    // --- Step 3: Translate the target box to match the reference box’s corner.
+    // --- Step 3: Translate the target box to match the reference box’s bottom left corner.
     Eigen::Vector3d trans = f_global_corner - s_global_corner;
     target_box->Translate(trans);
 
@@ -1589,62 +1828,6 @@ std::shared_ptr<open3d::geometry::OrientedBoundingBox> GeometryProcessor::alignA
 }
 
 /////////////////////////////////////////////////////
-// std::shared_ptr<open3d::geometry::OrientedBoundingBox> GeometryProcessor::alignAndShiftNextBox(
-//     const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& last_selected_shingle,
-//     const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate,
-//     double gap)
-// {
-//     // Step 1: Compute the X direction from the center of the last selected shingle and the reference
-//     Eigen::Vector3d last_center = last_selected_shingle->GetCenter();
-//     Eigen::Vector3d last_extent = last_selected_shingle->extent_;
-//     Eigen::Vector3d last_right_edge = last_center + Eigen::Vector3d(last_extent.x() / 2.0, 0, 0);
-
-//     // Step 2: Compute the candidate's left edge based on its center and extent
-//     Eigen::Vector3d cand_center = candidate->GetCenter();
-//     Eigen::Vector3d cand_extent = candidate->extent_;
-//     Eigen::Vector3d cand_left_edge = cand_center - Eigen::Vector3d(cand_extent.x() / 2.0, 0, 0);
-
-//     // Step 3: Translate the candidate based on the X direction
-//     Eigen::Vector3d translation = last_right_edge + Eigen::Vector3d(gap, 0, 0) - cand_left_edge;
-
-//     // Step 4: Create a transformed copy of the candidate and apply translation
-//     auto transformed_candidate = std::make_shared<open3d::geometry::OrientedBoundingBox>(*candidate);
-//     transformed_candidate->Translate(translation);
-
-//     // Step 5: Ensure the candidate's orientation matches that of the last selected shingle
-//     Eigen::Matrix3d rotation_fix = last_selected_shingle->R_ * candidate->R_.transpose();
-//     transformed_candidate->Rotate(rotation_fix, transformed_candidate->GetCenter());
-
-//     return transformed_candidate;  // Return the transformed candidate with correct position and orientation
-// }
-
-// std::shared_ptr<open3d::geometry::OrientedBoundingBox> GeometryProcessor::alignAndShiftNextBox(
-//     const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& last_selected_shingle,
-//     const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate,
-//     double gap)
-// {
-//     // Step 1: Compute the X direction from the center of the last selected shingle and the reference
-//     Eigen::Vector3d last_center = last_selected_shingle->GetCenter();
-//     Eigen::Vector3d last_extent = last_selected_shingle->extent_;
-//     Eigen::Vector3d last_right_edge = last_center + Eigen::Vector3d(last_extent.x() / 2.0, 0, 0);
-
-//     // Step 2: Compute the candidate's left edge based on its center and extent
-//     Eigen::Vector3d cand_center = candidate->GetCenter();
-//     Eigen::Vector3d cand_extent = candidate->extent_;
-//     Eigen::Vector3d cand_left_edge = cand_center - Eigen::Vector3d(cand_extent.x() / 2.0, 0, 0);
-
-//     // Step 3: Translate the candidate based on the X direction
-//     Eigen::Vector3d translation = last_right_edge + Eigen::Vector3d(gap, 0, 0) - cand_left_edge;
-//     candidate->Translate(translation);  // Apply translation to the candidate itself
-
-//     // Step 4: Ensure the candidate's orientation matches that of the last selected shingle
-//     Eigen::Matrix3d rotation_fix = last_selected_shingle->R_ * candidate->R_.transpose();
-//     candidate->Rotate(rotation_fix, candidate->GetCenter());  // Apply rotation to the candidate itself
-
-//     return candidate;  // Return the transformed candidate (same object, no copy)
-// }
-
-
 
 // this worked
 // std::shared_ptr<open3d::geometry::OrientedBoundingBox> GeometryProcessor::alignAndShiftNextBox(
@@ -1674,151 +1857,6 @@ std::shared_ptr<open3d::geometry::OrientedBoundingBox> GeometryProcessor::alignA
 // }
 
 
-std::shared_ptr<open3d::geometry::OrientedBoundingBox> GeometryProcessor::alignAndShiftNextBox(
-    const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& last_selected_shingle,
-    const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate,
-    double gap)
-{
-    // --- Step 1: Extract properties of last selected shingle
-    Eigen::Vector3d last_center = last_selected_shingle->GetCenter();
-    Eigen::Vector3d last_extent = last_selected_shingle->extent_;
-    Eigen::Matrix3d last_R = last_selected_shingle->R_;
-
-    // Extract x-axis of last shingle
-    Eigen::Vector3d last_x_axis = last_R.col(0);
-
-    // Flip the x-axis if needed
-    if (last_x_axis.x() < 0) {
-        std::cout << "Flipping x-axis!" << std::endl;
-        last_R.col(0) = -last_R.col(0);
-        last_R.col(1) = -last_R.col(1);  // Keep coordinate system right-handed
-    }
-
-    // Apply the modified rotation to the bounding box
-    last_selected_shingle->R_ = last_R;
-
-    // --- Debug: Print candidate length to check consistency
-    double candidate_length = candidate->extent_.x();
-    std::cout << "Candidate Length: " << candidate_length << " mm" << std::endl;
-
-    // --- Step 2: Compute the bottom-right corner of the last selected shingle in global coordinates
-    Eigen::Vector3d last_bottom_right = last_center + last_R * Eigen::Vector3d(last_extent.x() / 2.0, -last_extent.y() / 2.0, -last_extent.z() / 2.0);
-
-    // --- Step 3: Compute the bottom-left corner of the candidate in global coordinates
-    Eigen::Vector3d cand_center = candidate->GetCenter();
-    Eigen::Vector3d cand_extent = candidate->extent_;
-    Eigen::Matrix3d cand_R = candidate->R_;
-    Eigen::Vector3d cand_bottom_left = cand_center + cand_R * Eigen::Vector3d(-cand_extent.x() / 2.0, -cand_extent.y() / 2.0, -cand_extent.z() / 2.0);
-
-    // --- Step 4: Compute the correct translation
-    Eigen::Vector3d translation = last_bottom_right - cand_bottom_left + gap * last_x_axis;  // Shift by gap along x-axis
-    //translation.y() = 0;  // Prevent progressive shift along y
-
-    // --- Debug: Print translation vector to check for y-offsets
-    std::cout << "Translation Vector: " << translation.transpose() << std::endl;
-
-    // --- Step 5: Apply the translation
-    std::cout << "Before translation: " << candidate->GetCenter().transpose() << std::endl;
-    candidate->Translate(translation);
-    std::cout << "After translation: " << candidate->GetCenter().transpose() << std::endl;
-
-
-    // --- Step 6: Apply rotation to match the last shingle’s orientation
-    Eigen::Matrix3d rotation_fix = last_R * cand_R.transpose();  
-    candidate->Rotate(rotation_fix, last_bottom_right);  
-
-    // --- Step 7: Return the aligned and rotated candidate box
-    return candidate;
-}
-
-
-
-
-
-
-//////////////////////////////////////////////////////
-// std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> 
-// GeometryProcessor::arrangeShingleRow(
-//     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& reference_row,
-//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& target_row,
-//     double gap,
-//     double max_length,
-//     double rotation_angle,
-//     double vertical_overlap) { // New parameter for vertical shift
-
-//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arranged_bboxes;
-
-//     if (reference_row.empty() || target_row.empty()) {
-//         return arranged_bboxes;
-//     }
-
-//     // Step 1: Align the first box of the target row with the first box of the reference row
-//     auto first_box_target_row = target_row[0];  
-//     auto first_box_reference_row = reference_row[0];
-
-//     // Align first box of the target row to the first box of the reference row
-//     auto first_box_target_row_aligned = alignAndShiftFirstBox(reference_row[0], target_row[0], gap, max_length, rotation_angle);
-
-//     // Add the aligned first box of target row to the arranged list
-//     arranged_bboxes.push_back(first_box_target_row_aligned);
-
-//     // Step 2: Compute the X-direction (for horizontal alignment)
-//     Eigen::Vector3d reference_point_first_row = reference_row[0]->GetCenter();
-//     Eigen::Vector3d reference_point_second_row = reference_row[1]->GetCenter();
-//     Eigen::Vector3d x_direction = (reference_point_second_row - reference_point_first_row).normalized();
-
-//     // Step 3: Arrange the rest of the target row relative to the first box in the target row
-//     double total_length = first_box_target_row_aligned->extent_.x(); // Track row length
-
-//     for (size_t i = 1; i < target_row.size(); ++i) {
-//         auto& bbox = target_row[i];
-
-//         // Ensure orientation matches the reference row
-//         Eigen::Matrix3d rotation_fix = first_box_reference_row->R_ * bbox->R_.transpose();
-//         bbox->Rotate(rotation_fix, bbox->GetCenter());
-
-//         // Move relative to the last arranged box (ensuring positive X)
-//         double spacing = arranged_bboxes.back()->extent_.x() / 2.0 + gap + bbox->extent_.x() / 2.0;
-//         Eigen::Vector3d shift_x = spacing * x_direction;  
-
-//         // Apply translation to place it next to the last arranged box
-//         bbox->Translate(arranged_bboxes.back()->GetCenter() + shift_x - bbox->GetCenter());
-
-//         // Update total length
-//         total_length += spacing;
-//         if (total_length > max_length) break;
-
-//         arranged_bboxes.push_back(bbox);
-//     }
-
-//     // Step 4: Compute the Y-direction (for vertical alignment)
-//     // for some reason, the y direction seems to be reversed
-//     Eigen::Vector3d y_direction = reference_row[0]->R_.col(1); // Local Y-axis of the reference row
-
-
-//     // Step 5: Apply vertical overlap shift using local Y direction
-//     Eigen::Vector3d vertical_shift = y_direction * vertical_overlap; 
-
-//     // Apply the vertical shift to each box in the target row
-//     for (auto& bbox : arranged_bboxes) {
-//         bbox->Translate(vertical_shift); // Correct vertical translation based on overlap
-//     }
-
-//     // Step 6: Stack the target row above or below the reference row by the thickness of the first box
-//     double thickness = reference_row[0]->extent_.z(); // Thickness of the first box in the reference row
-//     Eigen::Vector3d stack_shift = reference_row[0]->R_ * Eigen::Vector3d(0, 0, thickness);
-
-//     for (auto& bbox : arranged_bboxes) {
-//         bbox->Translate(stack_shift); // Stack them above reference row
-
-//     }
-
-//     // Print the number of shingles and total length
-//     std::cout << "[INFO] Number of shingles arranged in current row: " << arranged_bboxes.size() << std::endl;
-//     std::cout << "[INFO] Total current row length: " << total_length << " meters" << std::endl;
-
-//     return arranged_bboxes;
-// }
 
 ///////////////////////////////////////////////////////////////
 std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> 
@@ -1916,7 +1954,66 @@ GeometryProcessor::arrangeShingleRow(
 
 
 ////////////////////////////////////////////////////
-// arrange multiple shingle rows
+std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
+GeometryProcessor::arrangeMultipleShingleRows(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& reference_row,
+    std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& candidate_rows,
+    double gap,
+    double max_length,
+    double rotation_angle,
+    double vertical_overlap) 
+{
+    // Make a deep copy of candidate rows to avoid modifying the original data
+    std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> candidate_rows_copy;
+    
+    for (const auto& row : candidate_rows) {
+        candidate_rows_copy.push_back(copyBoundingBoxes(row));  // Deep copy each row's bounding boxes
+    }
+
+    std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> arranged_rows;
+    std::cout << "Arranging multiple rows...\n";
+
+    // Step 1: Start arranging subsequent rows
+    for (size_t i = 0; i < candidate_rows_copy.size(); ++i) {
+        std::cout << "Arranging row " << i + 1 << "...\n";
+
+        // Copy the candidate row before modification to prevent changing the original
+        auto candidate_row_copy = copyBoundingBoxes(candidate_rows_copy[i]);
+
+
+        // Step 2: Use arrangeShingleRow to align the current candidate row
+        auto arranged_row = arrangeShingleRow(reference_row, candidate_row_copy, gap, max_length, rotation_angle, 0);
+
+
+        if (arranged_row.empty()) {
+            std::cout << "No valid shingles found for row " << i + 1 << ". Skipping this row.\n";
+            continue;
+        }
+
+        // Step 3: Add the arranged row to the list of arranged rows
+        arranged_rows.push_back(arranged_row);
+    }
+
+    // Step 4: If vertical_overlap is zero, no translation is needed, so skip this step
+    if (vertical_overlap != 0) {
+        Eigen::Vector3d y_direction = reference_row[0]->R_.col(1);  // Local Y-axis of the reference row
+
+        for (size_t i = 0; i < arranged_rows.size(); ++i) {
+            Eigen::Vector3d vertical_shift = y_direction * vertical_overlap * (i + 1);
+
+            for (auto& bounding_box : arranged_rows[i]) {
+                // Ensure translation does not affect bounding box size
+                bounding_box->Translate(vertical_shift);
+            }
+        }
+    }
+
+    std::cout << "Shingle arrangement for multiple rows completed.\n";
+    return arranged_rows;
+}
+
+
+
 
 
 
@@ -1966,48 +2063,125 @@ void GeometryProcessor::visualizeAllShingleRows(
 
 
 ///////////////////////////////////////////////////////
+// void GeometryProcessor::visualize_bounding_boxes(
+//     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& bounding_boxes) {
+//     // Create a visualizer object
+//     open3d::visualization::Visualizer visualizer;
+//     visualizer.CreateVisualizerWindow("Bounding Boxes Visualization");
+
+//     // Create global coordinate axes using lines
+//     auto axis_lines = std::make_shared<open3d::geometry::LineSet>();
+//     axis_lines->points_ = {
+//         Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(1, 0, 0),  // X-axis (Red)
+//         Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 1, 0),  // Y-axis (Green)
+//         Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 0, 1)   // Z-axis (Blue)
+//     };
+//     axis_lines->lines_ = {
+//         Eigen::Vector2i(0, 1),  // X-axis
+//         Eigen::Vector2i(2, 3),  // Y-axis
+//         Eigen::Vector2i(4, 5)   // Z-axis
+//     };
+//     axis_lines->colors_ = {
+//         Eigen::Vector3d(1, 0, 0),  // Red for X-axis
+//         Eigen::Vector3d(0, 1, 0),  // Green for Y-axis
+//         Eigen::Vector3d(0, 0, 1)   // Blue for Z-axis
+//     };
+
+//     // Add the global axes to the visualizer
+//     visualizer.AddGeometry(axis_lines);
+
+
+
+//     // Visualize bounding boxes
+//     for (const auto& bbox : bounding_boxes) {
+//         visualizer.AddGeometry(bbox);
+
+//         //     // // Use built-in coordinate frame for axes
+//         // auto coordinate_frame = open3d::geometry::TriangleMesh::CreateCoordinateFrame(0.1 , bbox->GetCenter());
+//         // visualizer.AddGeometry(coordinate_frame);
+//     }
+
+//     // Start the visualizer
+//     visualizer.Run();
+//     visualizer.DestroyVisualizerWindow();
+// }
+
+
+
 void GeometryProcessor::visualize_bounding_boxes(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& bounding_boxes) {
+
     // Create a visualizer object
     open3d::visualization::Visualizer visualizer;
     visualizer.CreateVisualizerWindow("Bounding Boxes Visualization");
 
-    // Create global coordinate axes using lines
-    auto axis_lines = std::make_shared<open3d::geometry::LineSet>();
-    axis_lines->points_ = {
-        Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(1, 0, 0),  // X-axis (Red)
-        Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 1, 0),  // Y-axis (Green)
-        Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 0, 1)   // Z-axis (Blue)
-    };
-    axis_lines->lines_ = {
-        Eigen::Vector2i(0, 1),  // X-axis
-        Eigen::Vector2i(2, 3),  // Y-axis
-        Eigen::Vector2i(4, 5)   // Z-axis
-    };
-    axis_lines->colors_ = {
-        Eigen::Vector3d(1, 0, 0),  // Red for X-axis
-        Eigen::Vector3d(0, 1, 0),  // Green for Y-axis
-        Eigen::Vector3d(0, 0, 1)   // Blue for Z-axis
-    };
 
-    // Add the global axes to the visualizer
-    visualizer.AddGeometry(axis_lines);
+    // Use built-in coordinate frame for axes
+    auto coordinate_frame = open3d::geometry::TriangleMesh::CreateCoordinateFrame(0.1);
+    visualizer.AddGeometry(coordinate_frame);
 
+    // // Create global coordinate axes using lines
+    // auto axis_lines = std::make_shared<open3d::geometry::LineSet>();
+    // axis_lines->points_ = {
+    //     Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(1, 0, 0),  // X-axis (Red)
+    //     Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 1, 0),  // Y-axis (Green)
+    //     Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 0, 1)   // Z-axis (Blue)
+    // };
+    // axis_lines->lines_ = {
+    //     Eigen::Vector2i(0, 1),  // X-axis
+    //     Eigen::Vector2i(2, 3),  // Y-axis
+    //     Eigen::Vector2i(4, 5)   // Z-axis
+    // };
+    // axis_lines->colors_ = {
+    //     Eigen::Vector3d(1, 0, 0),  // Red for X-axis
+    //     Eigen::Vector3d(0, 1, 0),  // Green for Y-axis
+    //     Eigen::Vector3d(0, 0, 1)   // Blue for Z-axis
+    // };
 
+    // // Add the global axes to the visualizer
+    // visualizer.AddGeometry(axis_lines);
 
-    // Visualize bounding boxes
+    // Visualize bounding boxes and their axes
     for (const auto& bbox : bounding_boxes) {
         visualizer.AddGeometry(bbox);
 
-        //     // // Use built-in coordinate frame for axes
-        // auto coordinate_frame = open3d::geometry::TriangleMesh::CreateCoordinateFrame(0.1 , bbox->GetCenter());
-        // visualizer.AddGeometry(coordinate_frame);
+        // Get rotation matrix and center of the bounding box
+        Eigen::Matrix3d rotation = bbox->R_;  // Rotation matrix
+        Eigen::Vector3d center = bbox->GetCenter();  // Center of the box
+
+        // Define length for the axes (let's use a fixed length, e.g., 0.1m for visualization)
+        double axis_length = 0.1;
+
+        // Create lines for the 3D axes of the bounding box
+        open3d::geometry::LineSet bbox_axes;
+        bbox_axes.points_ = {
+            center, center + rotation.col(0) * axis_length,  // X-axis (Red)
+            center, center + rotation.col(1) * axis_length,  // Y-axis (Green)
+            center, center + rotation.col(2) * axis_length   // Z-axis (Blue)
+        };
+        bbox_axes.lines_ = {
+            Eigen::Vector2i(0, 1),  // X-axis
+            Eigen::Vector2i(2, 3),  // Y-axis
+            Eigen::Vector2i(4, 5)   // Z-axis
+        };
+        bbox_axes.colors_ = {
+            Eigen::Vector3d(1, 0, 0),  // Red for X-axis
+            Eigen::Vector3d(0, 1, 0),  // Green for Y-axis
+            Eigen::Vector3d(0, 0, 1)   // Blue for Z-axis
+        };
+
+        // Add the axes of the bounding box to the visualizer
+        visualizer.AddGeometry(std::make_shared<open3d::geometry::LineSet>(bbox_axes));
     }
 
     // Start the visualizer
     visualizer.Run();
     visualizer.DestroyVisualizerWindow();
 }
+
+
+
+
 //////////////////////////////////////////////////
 //
 // void GeometryProcessor::visualizeShingleRows(

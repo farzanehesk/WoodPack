@@ -179,7 +179,20 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
             /// Returns a vector of Rectangle objects.
     std::vector<Rectangle> createRandomRectangles(int n, double fixed_length);
 
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundingBoxes(int n , double fixed_length) ;
+
     //
+
+
+    // Function to generate a random number between min and max
+    double getRandomWidth(double min, double max) ;
+    
+    //
+    // // Function to create a bounding box with a given position
+    // open3d::geometry::OrientedBoundingBox createBoundingBox(double x_pos, double length, double min_width, double max_width);
+
+
+
 
     //
     // 22.transform_bounding_box
@@ -219,8 +232,12 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
 
 
     //
-    void alignBoxToXYPlane(const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& bbox) ;
+    //void alignBoxToXYPlane(const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& bbox) ;
 
+    //
+    void alignBoxToXYPlane(std::shared_ptr<open3d::geometry::OrientedBoundingBox>& bbox);
+
+    
     ///
     std::shared_ptr<open3d::geometry::OrientedBoundingBox> selectRandomCandidate(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& candidates) ;
@@ -301,15 +318,6 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
     double vertical_overlap);
 
 
-    //
-    // std::shared_ptr<open3d::geometry::OrientedBoundingBox> alignAndShiftFirstBox(
-    // const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& reference_row,
-    // std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& target_row,
-    // double gap,
-    // double max_length,
-    // double rotation_angle);
-
-
     // 
     std::shared_ptr<open3d::geometry::OrientedBoundingBox> alignAndShiftFirstBox(
     const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& reference_box,
@@ -360,18 +368,23 @@ std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
 
 
     //
-    std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> arrangeMultipleRows(
-    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& candidates,
-    double min_stagger,
-    double max_gap,
+std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
+    arrangeMultipleShingleRows(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& reference_row,
+    std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& candidate_rows,  // Non-const reference
+    double gap,
     double max_length,
-    int max_rows,
-    double rotation_angle) ;
+    double rotation_angle,
+    double vertical_overlap)  ;
     
 
     //
     void visualizeShinglePlane(const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& box);
 
+
+    //
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> copyBoundingBoxes(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& input_boxes);
 
 
 

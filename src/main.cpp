@@ -83,17 +83,17 @@ int main() {
 
     ///////////////////////////////////////////////////////////
     // First Row
-    auto rect_first_row = geom_processor.createRandomRectangles(40 , 0.25);  // Create 10 random rectangles
-    geom_processor.visualizeRectangles(rect_first_row, original_pc);
+    auto bbx_first_row = geom_processor.createBoundingBoxes(20 , 0.25);
+    geom_processor.visualize_bounding_boxes(bbx_first_row);
 
     // Create bounding boxes from rectangles
-    auto bbx_first_row = geom_processor.createBoundingBoxFromRectangle(rect_first_row, 0.002);
+    //auto bbx_first_row = geom_processor.createBoundingBoxFromRectangle(rect_first_row, 0.002);
 
     /////////////////////////////////////////////////////////////
     // Create the first row of shingles with generated random boxes
     double gap = 0.003;       // 3mm gap
     double max_length = 1.0;  // Ensure row is at least 1m long
-    double rotation_angle = 5; 
+    double rotation_angle = 15; 
     // 10 degrees in radians
 
     auto first_row_of_shingles = geom_processor.arrangeFirstShingleRow(bbx_first_row , gap , max_length ,rotation_angle );
@@ -102,22 +102,27 @@ int main() {
 
     /////////////////////////////////////////////////////////////
     // Create the second row of shingles with generated random boxes
-    auto rect_second_row = geom_processor.createRandomRectangles(20 , 0.35 );  // Create 10 random rectangles
-    geom_processor.visualizeRectangles(rect_second_row);
-    auto bbx_second_row = geom_processor.createBoundingBoxFromRectangle(rect_second_row, 0.002);
+    auto bbx_second_row = geom_processor.createBoundingBoxes(45 , 0.35 );  // Create 10 random rectangles
+    geom_processor.visualize_bounding_boxes(bbx_second_row);
+    //auto bbx_second_row = geom_processor.createBoundingBoxFromRectangle(rect_second_row, 0.002);
     //geom_processor.visualize_bounding_boxes(bbx_second_row);
 
 
 
-//////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////
     auto second_row_sorted = geom_processor.findNextBestShingles(first_row_of_shingles ,bbx_second_row , 0.03 , gap ,max_length);
 
 
-    // auto first_box_second_row = geom_processor.alignAndShiftFirstBox(first_row_of_shingles ,bbx_second_row , gap , max_length , 0 );
-    // geom_processor.visualizeShingleRows(first_row_of_shingles ,{first_box_second_row} );
+//     // auto first_box_second_row = geom_processor.alignAndShiftFirstBox(first_row_of_shingles ,bbx_second_row , gap , max_length , 0 );
+//     // geom_processor.visualizeShingleRows(first_row_of_shingles ,{first_box_second_row} );
 
 
-   
+
+    //
+    //
+    //
+    //
+    auto second_row_sorted_copy = geom_processor.copyBoundingBoxes(second_row_sorted);
     
     auto second_row_of_shingles = geom_processor.arrangeShingleRow(
         first_row_of_shingles,
@@ -128,17 +133,28 @@ int main() {
         0);
 
     geom_processor.visualizeShingleRows(first_row_of_shingles ,second_row_of_shingles );
-///////////////////////////////////////////////////////////////////////////////////////
+
+    geom_processor.exportBoundingBoxes(second_row_of_shingles ,export_folder , "second_row_before_" );
+
+// ///////////////////////////////////////////////////////////////////////////////////////
 
     //
     std::cout << "starting third and forth row'\n\n\n\n" ;
-    auto rect_third_and_forth_row = geom_processor.createRandomRectangles(30 , 0.45 );  // Create 10 random rectangles
-    geom_processor.visualizeRectangles(rect_third_and_forth_row);
-    auto bbx_third_and_forth_row = geom_processor.createBoundingBoxFromRectangle(rect_third_and_forth_row, 0.002);
-    
+    auto bbx_third_and_forth_row = geom_processor.createBoundingBoxes(45 , 0.45 );  // Create 10 random rectangles
+    std::cout << "Number of RECTANGLES in rect_third_and_forth_row: " << bbx_third_and_forth_row.size() << std::endl;
+
+    //geom_processor.visualizeRectangles(rect_third_and_forth_row);
+    //auto bbx_third_and_forth_row = geom_processor.createBoundingBoxFromRectangle(rect_third_and_forth_row, 0.002);
+    //std::cout << "Number of BOXES in bbx_third_and_forth_row: " << rect_third_and_forth_row.size() << std::endl;
+
+    //
+    //
+    //
+    //
+    auto second_row_of_shingles_copy = geom_processor.copyBoundingBoxes(second_row_of_shingles);
 
     //auto third_forth_row_sorted = geom_processor.findNextBestShinglesForMultipleRows(second_row_of_shingles , bbx_third_and_forth_row , 3 , 0.03 , gap , max_length ) ;
-    auto third_forth_row_sorted = geom_processor.findNextBestShinglesForMultipleRows(second_row_of_shingles , bbx_third_and_forth_row ,3 ,  0.03 , gap , max_length);
+    auto third_forth_row_sorted = geom_processor.findNextBestShinglesForMultipleRows(second_row_of_shingles , bbx_third_and_forth_row ,3  ,  0.03 , gap , max_length);
 
 
 
@@ -146,6 +162,49 @@ int main() {
     // // Now pass it to the visualization function
     geom_processor.visualizeAllShingleRows(third_forth_row_sorted);
 
+    
+   auto third_forth_row_arranged = geom_processor.arrangeMultipleShingleRows(second_row_of_shingles ,third_forth_row_sorted , gap , max_length , rotation_angle , 0 );
+   std::cout << "Number of rows in third_forth_row_: " << third_forth_row_arranged.size() << std::endl;
+    
+    
+    // Print the box length for each bounding box in the arranged rows
+    for (size_t row_idx = 0; row_idx < third_forth_row_arranged.size(); ++row_idx) {
+        // Iterate through each inner vector (row of bounding boxes)
+        for (size_t i = 0; i < third_forth_row_arranged[row_idx].size(); ++i) {
+            // Access the shared_ptr for each bounding box in the row
+            std::shared_ptr<open3d::geometry::OrientedBoundingBox> box = third_forth_row_arranged[row_idx][i];
+
+            // Dereference the shared pointer to access the bounding box and get its length (y-axis dimension)
+            double box_length = box->extent_.y(); // Length is along the y-axis
+            std::cout << "Row " << row_idx + 1 << ", Bounding Box " << i + 1 
+                    << " Length: " << box_length << " meters" << std::endl;
+        }
+    }
+
+
+
+
+
+    // Create a vector to hold all the rows
+    std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> combined_rows;
+
+    // Add the first and second rows to the combined rows
+    combined_rows.push_back(first_row_of_shingles);
+    combined_rows.push_back(second_row_of_shingles);
+
+    // Add all rows from the third_forth_row to the combined rows
+    for (const auto& row : third_forth_row_arranged) {
+        combined_rows.push_back(row);
+    }
+
+    for (const auto& row : third_forth_row_sorted) {
+        combined_rows.push_back(row);
+    }
+
+
+    std::cout << "Number of rows in combined_rows: " << combined_rows.size() << std::endl;
+
+    geom_processor.visualizeAllShingleRows(combined_rows);
 
 
 
@@ -161,10 +220,11 @@ int main() {
 
 
 
-    // export
+//     // export
     geom_processor.exportBoundingBoxes(first_row_of_shingles ,export_folder , "first_row_" );
     geom_processor.exportBoundingBoxes(second_row_of_shingles ,export_folder , "second_row_" );
     geom_processor.exportBoundingBoxes(third_forth_row_sorted[0] ,export_folder , "third_row_" );
+    geom_processor.exportBoundingBoxes(third_forth_row_sorted[1] ,export_folder , "forth_row_" );
 
 
 

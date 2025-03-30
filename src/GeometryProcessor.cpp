@@ -1240,6 +1240,126 @@ void GeometryProcessor::transform_bounding_box_to_plane(
 
 ////////////////////////////////////////////////
 // 23. arrangeShingleRow
+// std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProcessor::arrangeFirstShingleRow(
+//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& bounding_boxes,
+//     double gap,
+//     double max_length,
+//     double rotation_angle) {  // Rotation for the entire row
+
+//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arranged_bboxes;
+//     Eigen::Vector3d current_position(0, 0, 0);  // Start at the origin
+
+//     double previous_half_width = 0;  // Keeps track of half the previous box's width
+//     double total_length = 0;  // Keeps track of the total accumulated length
+
+//     Eigen::Vector3d last_box_right_edge(0, 0, 0);  // Stores the rightmost edge position
+//     bool min_length_reached = false;  // Flag to check if we reached at least max_length
+
+//     for (auto& bbox : bounding_boxes) {
+//         // Compute the bounding box's extent
+//         Eigen::Vector3d extent = bbox->extent_;
+
+//         // Identify the longest axis (we want Y to be the longest)
+//         int longest_axis = 0;  // Assume X is longest by default
+//         if (extent.y() > extent.x() && extent.y() > extent.z()) {
+//             longest_axis = 1;  // Y-axis is the longest
+//         } else if (extent.z() > extent.x() && extent.z() > extent.y()) {
+//             longest_axis = 2;  // Z-axis is the longest
+//         }
+
+//         // Rotate the bounding box so that the longest axis is aligned with Y
+//         if (longest_axis == 1) {
+//             // Y is already the longest axis, no rotation needed
+//         } else if (longest_axis == 2) {
+//             // If Z is the longest, rotate 90 degrees around Y to align Z with Y
+//             transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 1, 0), M_PI_2, bbox->GetCenter(), true);
+//         }
+
+//         // Now the longest axis is aligned with Y, and the shorter edges are along X and Z
+//         extent = bbox->extent_;  // Get the new extent after rotation
+//         double current_half_width = extent.x() / 2.0;  // Half of the width after rotation
+
+//         // Predict next position before placing
+//         double new_total_length = total_length + previous_half_width + gap + current_half_width;
+
+//         // Allow placing shingles until we reach at least max_length
+//         if (min_length_reached && new_total_length > max_length) {
+//             break;  // Stop only after reaching at least max_length
+//         }
+
+//         // Correct placement: shift by previous half-width + gap + current half-width
+//         current_position.x() += previous_half_width + gap + current_half_width;
+
+//         // Translate the bounding box to align it along X-axis
+//         Eigen::Vector3d translation = current_position - bbox->GetCenter();
+//         transform_bounding_box(bbox, translation, Eigen::Vector3d(0, 1, 0), 0, Eigen::Vector3d(0, 0, 0), true);
+
+//         // Store the rightmost edge position (center + half width in X direction)
+//         last_box_right_edge = bbox->GetCenter() + Eigen::Vector3d(current_half_width, 0, 0);
+
+//         // Add the bounding box to the list
+//         arranged_bboxes.push_back(bbox);
+
+//         // Update tracking variables
+//         previous_half_width = current_half_width;
+//         total_length = new_total_length;
+
+//         // Mark that we have reached at least max_length
+//         if (total_length >= max_length) {
+//             min_length_reached = true;
+//         }
+//     }
+
+//     // **Convert degrees to radians** (rotation_angle is in degrees)
+//     double rotation_radians = rotation_angle * M_PI / 180.0;  // Convert to radians
+
+//     // Debug print: Rotation angle in both degrees and radians
+//     std::cout << "Applying rotation: " << rotation_angle << " degrees (" 
+//           << rotation_radians << " radians)" << std::endl;
+
+//     // **Apply the correct rotation to the entire row** (rotate each box around its center)
+//     Eigen::Vector3d rotation_center(0, 0, 0);  // Rotation center at the origin (can be adjusted if needed)
+
+//     // Apply a x-degree rotation around the Y-axis to make the longer edge align with the global X-axis
+//     for (auto& bbox : arranged_bboxes) {
+//         // Rotate the bounding box around its center
+//         transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(1, 0, 0), -rotation_radians, bbox->GetCenter(), true);
+//     }
+
+//     // Debug print: Total length of the row from (0,0,0) to rightmost edge
+//     std::cout << "Total row length: " << last_box_right_edge.x() << " meters" << std::endl;
+
+//     // Debugging bounding box rotation
+//     for (auto& bbox : arranged_bboxes) {
+//         Eigen::Matrix3d rotation_matrix = bbox->R_;  // Get the rotation matrix
+
+//         // Extract rotation angles (Euler angles)
+//         double angle_x = std::atan2(rotation_matrix(2, 1), rotation_matrix(2, 2));  // Rotation around X
+//         double angle_y = std::atan2(-rotation_matrix(2, 0),
+//                                     std::sqrt(rotation_matrix(2, 1) * rotation_matrix(2, 1) + 
+//                                               rotation_matrix(2, 2) * rotation_matrix(2, 2)));  // Rotation around Y
+//         double angle_z = std::atan2(rotation_matrix(1, 0), rotation_matrix(0, 0));  // Rotation around Z
+
+//         // Convert to degrees
+//         double angle_x_degrees = angle_x * 180.0 / M_PI;
+//         double angle_y_degrees = angle_y * 180.0 / M_PI;
+//         double angle_z_degrees = angle_z * 180.0 / M_PI;
+
+//         // std::cout << "Bounding Box Rotation Angles:" << std::endl;
+//         // std::cout << "  Around X: " << angle_x << " radians (" << angle_x_degrees << " degrees)" << std::endl;
+//         // std::cout << "  Around Y: " << angle_y << " radians (" << angle_y_degrees << " degrees)" << std::endl;
+//         // std::cout << "  Around Z: " << angle_z << " radians (" << angle_z_degrees << " degrees)" << std::endl;
+//     }
+
+//     // Debug: First row top face
+//     Eigen::Vector3d first_row_top_face = arranged_bboxes[0]->GetCenter();
+//     first_row_top_face.z() += (arranged_bboxes[0]->extent_.z() / 2.0);
+//     std::cout << "[DEBUG] First row top face (final): " << first_row_top_face.transpose() << std::endl;
+
+//     return arranged_bboxes;
+// }
+
+
 std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProcessor::arrangeFirstShingleRow(
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& bounding_boxes,
     double gap,
@@ -1255,60 +1375,67 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
     Eigen::Vector3d last_box_right_edge(0, 0, 0);  // Stores the rightmost edge position
     bool min_length_reached = false;  // Flag to check if we reached at least max_length
 
-    for (auto& bbox : bounding_boxes) {
-        // Compute the bounding box's extent
-        Eigen::Vector3d extent = bbox->extent_;
 
-        // Identify the longest axis (we want Y to be the longest)
-        int longest_axis = 0;  // Assume X is longest by default
-        if (extent.y() > extent.x() && extent.y() > extent.z()) {
-            longest_axis = 1;  // Y-axis is the longest
-        } else if (extent.z() > extent.x() && extent.z() > extent.y()) {
-            longest_axis = 2;  // Z-axis is the longest
+    for (size_t i = 0; i < bounding_boxes.size(); ++i) {
+    auto& bbox = bounding_boxes[i];
+
+    // Compute the bounding box's extent
+    Eigen::Vector3d extent = bbox->extent_;
+    double current_half_width = extent.x() / 2.0;  // Half of the width after rotation
+
+    // Predict total length if this box is added
+    double new_total_length = total_length + previous_half_width + gap + current_half_width;
+
+    // **Check if adding this box significantly exceeds 1m**
+    if (min_length_reached && new_total_length > max_length) {
+        // Find a better alternative (smallest overshoot or closest to 1m)
+        double best_fit_length = new_total_length;
+        size_t best_fit_index = i;  // Default to current box
+
+        for (size_t j = i + 1; j < bounding_boxes.size(); ++j) {
+            auto& alternative_bbox = bounding_boxes[j];
+            double alt_half_width = alternative_bbox->extent_.x() / 2.0;
+            double alt_new_total_length = total_length + previous_half_width + gap + alt_half_width;
+
+            // Choose the box that minimizes the overshoot
+            if (alt_new_total_length >= max_length && alt_new_total_length < best_fit_length) {
+                best_fit_length = alt_new_total_length;
+                best_fit_index = j;
+            }
         }
 
-        // Rotate the bounding box so that the longest axis is aligned with Y
-        if (longest_axis == 1) {
-            // Y is already the longest axis, no rotation needed
-        } else if (longest_axis == 2) {
-            // If Z is the longest, rotate 90 degrees around Y to align Z with Y
-            transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 1, 0), M_PI_2, bbox->GetCenter(), true);
+        // If a better option was found, use it
+        if (best_fit_index != i) {
+            std::swap(bounding_boxes[i], bounding_boxes[best_fit_index]);
+            bbox = bounding_boxes[i];  // Update bbox reference
+            current_half_width = bbox->extent_.x() / 2.0;
+            new_total_length = total_length + previous_half_width + gap + current_half_width;
         }
 
-        // Now the longest axis is aligned with Y, and the shorter edges are along X and Z
-        extent = bbox->extent_;  // Get the new extent after rotation
-        double current_half_width = extent.x() / 2.0;  // Half of the width after rotation
-
-        // Predict next position before placing
-        double new_total_length = total_length + previous_half_width + gap + current_half_width;
-
-        // Allow placing shingles until we reach at least max_length
-        if (min_length_reached && new_total_length > max_length) {
-            break;  // Stop only after reaching at least max_length
-        }
-
-        // Correct placement: shift by previous half-width + gap + current half-width
-        current_position.x() += previous_half_width + gap + current_half_width;
-
-        // Translate the bounding box to align it along X-axis
-        Eigen::Vector3d translation = current_position - bbox->GetCenter();
-        transform_bounding_box(bbox, translation, Eigen::Vector3d(0, 1, 0), 0, Eigen::Vector3d(0, 0, 0), true);
-
-        // Store the rightmost edge position (center + half width in X direction)
-        last_box_right_edge = bbox->GetCenter() + Eigen::Vector3d(current_half_width, 0, 0);
-
-        // Add the bounding box to the list
-        arranged_bboxes.push_back(bbox);
-
-        // Update tracking variables
-        previous_half_width = current_half_width;
-        total_length = new_total_length;
-
-        // Mark that we have reached at least max_length
-        if (total_length >= max_length) {
-            min_length_reached = true;
-        }
+        // If still exceeding, break out after ensuring at least 1m is reached
+        if (new_total_length > max_length) break;
     }
+
+    // Update position
+    current_position.x() += previous_half_width + gap + current_half_width;
+
+    // Translate the bounding box to align along X-axis
+    Eigen::Vector3d translation = current_position - bbox->GetCenter();
+    transform_bounding_box(bbox, translation, Eigen::Vector3d(0, 1, 0), 0, Eigen::Vector3d(0, 0, 0), true);
+
+    // Store rightmost edge position
+    last_box_right_edge = bbox->GetCenter() + Eigen::Vector3d(current_half_width, 0, 0);
+
+    // Add the bounding box to the list
+    arranged_bboxes.push_back(bbox);
+
+    // Update tracking variables
+    previous_half_width = current_half_width;
+    total_length = new_total_length;
+
+    // Mark that at least 1m has been reached
+    if (total_length >= max_length) min_length_reached = true;
+}
 
     // **Convert degrees to radians** (rotation_angle is in degrees)
     double rotation_radians = rotation_angle * M_PI / 180.0;  // Convert to radians
@@ -1327,7 +1454,7 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
     }
 
     // Debug print: Total length of the row from (0,0,0) to rightmost edge
-    std::cout << "Total row length: " << last_box_right_edge.x() << " meters" << std::endl;
+    std::cout << "Total first row length: " << last_box_right_edge.x() << " meters" << std::endl;
 
     // Debugging bounding box rotation
     for (auto& bbox : arranged_bboxes) {
@@ -1443,6 +1570,252 @@ std::vector<double> GeometryProcessor::calculateRightEdgeDistancesFromCandidate(
 }
 
 ////////////////////////////////////////////////////////////////////
+
+// std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProcessor::findNextBestShingles(
+//     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
+//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& candidates,
+//     double min_stagger,
+//     double max_gap,
+//     double max_length) 
+// {
+//     // Create a copy of the first row to avoid modifying the original
+//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> first_row_aligned;
+//     for (const auto& bbox : first_row) {
+//         auto bbox_copy = std::make_shared<open3d::geometry::OrientedBoundingBox>(*bbox);
+//         alignBoxToXYPlane(bbox_copy);
+//         first_row_aligned.push_back(bbox_copy);
+//     }
+
+//     // Get the left edge of the first box in the first row as our starting reference
+//     Eigen::Vector3d current_right_edge = first_row_aligned[0]->GetCenter() - 
+//                                          Eigen::Vector3d(first_row_aligned[0]->extent_.x() / 2.0, 0, 0);
+//     std::cout << "[DEBUG] Initial current right edge: " << current_right_edge.transpose() << std::endl;
+
+//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> second_row;
+//     double total_width = 0.0;
+
+//     // Find the maximum width among candidates
+//     double max_candidate_width = 0.0;
+//     for (const auto& candidate : candidates) {
+//         max_candidate_width = std::max(max_candidate_width, candidate->extent_.x());
+//     }
+
+//     // Calculate initial distances to the right edges of the first row
+//     std::vector<double> distances;
+//     for (const auto& bbox : first_row_aligned) {
+//         double distance = (bbox->GetCenter() - current_right_edge).x() + bbox->extent_.x() / 2.0;
+//         distances.push_back(distance);
+//         std::cout << "[DEBUG] Distance to right edge for current box: " << distance << std::endl;
+//     }
+
+//     // Step 1: Find the first valid shingle
+//     std::shared_ptr<open3d::geometry::OrientedBoundingBox> first_shingle = nullptr;
+
+//     for (size_t candidate_index = 0; candidate_index < candidates.size(); ++candidate_index) {
+//         auto candidate = candidates[candidate_index];
+
+//         std::cout << "[DEBUG] Checking candidate " << candidate_index << ", current total width: " << total_width << std::endl;
+
+//         // Iterate through distances to find the best fit
+//         for (size_t i = 0; i < distances.size(); ++i) {
+//             double distance = distances[i];
+
+//             // Remove invalid distances
+//             if (distance > max_candidate_width) {
+//                 distances.erase(distances.begin() + i);
+//                 --i;
+//                 continue;
+//             }
+
+//             // Transform candidate to match reference alignment
+//             auto candidate_aligned = alignAndShiftFirstBox(first_row_aligned[0], candidate ,max_gap, max_length, 0.0 );
+
+//             // --- Print candidate width ---
+//             std::cout << "[DEBUG] Candidate width: " << candidate_aligned->extent_.x() << std::endl;
+
+
+//             // Visualize the candidate
+//             visualizeShingleRows(first_row_aligned, {candidate_aligned});
+
+//             // Check if the candidate width is within the valid range
+//             if (candidate->extent_.x() > (distance + min_stagger) ||  
+//                 candidate->extent_.x() < (distance - min_stagger)) 
+
+//             {
+//                 first_shingle = candidate_aligned;
+//                 second_row.push_back(first_shingle);
+//                 std::cout << "first shingle found" << '\n';
+
+//                 // Visualize first shingle of second row
+//                 visualizeShingleRows(first_row_aligned, second_row);
+
+//                 // Update the right edge
+//                 current_right_edge = updateRightEdge(current_right_edge, first_shingle , max_gap);
+//                 // print current right edge
+//                 std::cout << "[DEBUG]  current right edge: " << current_right_edge.transpose() << std::endl;
+
+        
+//                 total_width += first_shingle->extent_.x();
+
+
+//                 // print it
+
+//                 // Remove the first shingle from the candidate list
+//                 candidates.erase(candidates.begin() + candidate_index);
+//                 --candidate_index;
+
+//                 // Update distances based on the new right edge
+//                 distances.clear();
+//                 for (const auto& bbox : first_row_aligned) {
+//                     double new_distance = (bbox->GetCenter() - current_right_edge).x() + bbox->extent_.x() / 2.0;
+//                     distances.push_back(new_distance);
+
+
+//                     // print them
+//                 }
+
+//                     // Remove invalid distances
+//             distances.erase(std::remove_if(distances.begin(), distances.end(),
+//             [&](double d) { return d > (max_candidate_width + 0.03) || d <  0; }), distances.end());
+
+
+//                 break;
+//             }
+//         }
+
+//         if (first_shingle) break;
+//     }
+
+//     if (!first_shingle) {
+//         std::cerr << "[ERROR] No valid first shingle found!\n";
+//         return second_row;
+//     }
+//     //////////
+//     // **Step 2: Continue placing additional shingles**
+
+
+//     // double last_right_edge_first_row = first_row_aligned.back()->GetCenter().x() + first_row_aligned.back()->extent_.x() / 2.0;
+//     // std::cout << "[DEBUG] Last right edge of first row: " << last_right_edge_first_row << std::endl;
+
+
+//     std::shared_ptr<open3d::geometry::OrientedBoundingBox> last_selected_shingle = first_shingle;
+
+//     int candidate_counter = 2; // Counter to track number of shingles added to the second row
+//     for (size_t candidate_index = 0; candidate_index < candidates.size(); ++candidate_index) {
+//         auto candidate = candidates[candidate_index];
+
+//         std::cout << "[DEBUG] Checking next candidate " << candidate_index 
+//                 << ", current total width: " << total_width << std::endl;
+
+//         std::cout << "[DEBUG] Valid distances after removal: ";
+//         for (const auto& dist : distances) {
+//             std::cout << dist << " ";
+//         }
+//         std::cout << std::endl;
+
+//         bool is_valid_for_all_distances = true;
+
+//         for (double distance : distances) {
+//             std::cout << "[DEBUG] Checking candidate width against distance: " << distance << std::endl;
+
+//             if (!(candidate->extent_.x() > (distance + min_stagger) ||  
+//                 candidate->extent_.x() < (distance - min_stagger))) {
+//                 is_valid_for_all_distances = false;
+//                 break;  // If one distance fails, stop checking
+//             }
+//         }
+
+
+//         // Step 1: Get reference shingle (last in previous row)
+//         Eigen::Matrix3d last_R = last_selected_shingle->R_;  // Keep same rotation
+//         Eigen::Vector3d last_center = last_selected_shingle->GetCenter();
+
+//         // Step 2: Compute X translation for the next shingle, ensuring a gap
+//         double spacing = last_selected_shingle->extent_.x() / 2.0 + max_gap + candidate->extent_.x() / 2.0;
+//         Eigen::Vector3d shift_x = spacing * last_R.col(0);  // Ensure translation only along X
+
+//         // Step 3: Apply the X translation to the new shingle
+//         auto next_shingle = std::make_shared<open3d::geometry::OrientedBoundingBox>(*candidate);
+//         next_shingle->R_ = last_R;  // Keep the same rotation as the previous one
+
+//         // Ensure that the shingle is translated along the positive X direction.
+//         if (shift_x.x() < 0) {
+//             shift_x = -shift_x;  // Reverse if the shift goes negative along X
+//         }
+
+//         next_shingle->Translate(last_center + shift_x - next_shingle->GetCenter());
+//         //
+//         // auto next_shingle = alignAndShiftNextBox(last_selected_shingle, candidate, max_gap);
+//         // // Extract left bottom corner (assuming the corner at min x and min y is the left bottom)
+//         // Eigen::Vector3d left_bottom_corner = next_shingle->GetCenter() - 
+//         // Eigen::Vector3d(next_shingle->extent_.x() / 2.0, 
+//         //                 next_shingle->extent_.y() / 2.0, 
+//         //                 0);
+
+
+//        // visualizeShingleRows(first_row_aligned, {first_shingle, next_shingle});
+//         std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> current_visualization = second_row;
+//         current_visualization.push_back(next_shingle);  // Add the candidate being tested
+//         visualizeShingleRows(first_row_aligned, current_visualization);
+
+
+
+//         if (is_valid_for_all_distances) {
+//             // --- Print candidate width ---
+//             //std::cout << "[DEBUG] Candidate width: " << candidate->extent_.x() << std::endl;
+//             std::cout << "[DEBUG] Candidate width: " << next_shingle->extent_.x() << std::endl;
+
+//             std::cout << "[DEBUG] Candidate meets condition for ALL valid distances. Adding to second row.\n";
+
+//             //auto next_shingle = alignAndShiftNextBox(last_selected_shingle, candidate, max_gap);
+//             second_row.push_back(next_shingle);
+//             std::cout << "Shingle " << candidate_counter << " found and added to the second row" << '\n'; // Show which candidate is added
+
+//             // Increment the counter after adding the shingle
+//             candidate_counter++;
+
+//             last_selected_shingle = next_shingle;
+//             current_right_edge = updateRightEdge(current_right_edge, next_shingle, max_gap);
+
+//             std::cout << "[DEBUG]  current right edge: " << current_right_edge.transpose() << std::endl;
+//             total_width += next_shingle->extent_.x();
+//             std::cout << "[DEBUG] Updated total width: " << total_width << std::endl;
+
+//             // Check if total width exceeds max_length and break if necessary
+//             if (total_width > max_length) {
+//                 std::cout << "[DEBUG] Total width exceeds max_length, stopping placement." << std::endl;
+//                 break;  // This break is only triggered when max_length is exceeded
+//             }
+
+//             candidates.erase(candidates.begin() + candidate_index);
+//             --candidate_index;
+
+//             distances.clear();
+//             for (const auto& bbox : first_row_aligned) {
+//                 double new_distance = (bbox->GetCenter() - current_right_edge).x() + bbox->extent_.x() / 2.0;
+//                 distances.push_back(new_distance);
+//             }
+
+//             std::cout << "[DEBUG] Distances updated after adding shingle: ";
+//             for (const auto& dist : distances) {
+//                 std::cout << dist << " ";
+//             }
+//             std::cout << std::endl;
+
+//             // Remove invalid distances
+//             distances.erase(std::remove_if(distances.begin(), distances.end(),
+//                 [&](double d) { return d > (max_candidate_width + 0.03) || d < 0; }), distances.end());
+//         }
+//     }
+//     // Final visualization for debugging
+//     visualizeShingleRows(first_row_aligned, second_row);
+
+//     std::cout << "[DEBUG] Number of shingles selected for second row: " << second_row.size() << std::endl;
+
+
+//     return second_row;
+// }
+
 
 std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProcessor::findNextBestShingles(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
@@ -1565,11 +1938,17 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
     }
     //////////
     // **Step 2: Continue placing additional shingles**
+    double last_right_edge_first_row = first_row_aligned.back()->GetCenter().x() + first_row_aligned.back()->extent_.x() / 2.0;
+    std::cout << "[DEBUG] Last right edge of first row: " << last_right_edge_first_row << std::endl;
+
     std::shared_ptr<open3d::geometry::OrientedBoundingBox> last_selected_shingle = first_shingle;
 
-    int candidate_counter = 2; // Counter to track number of shingles added to the second row
+    int candidate_counter = 2;  // Counter to track number of shingles added to the second row
     for (size_t candidate_index = 0; candidate_index < candidates.size(); ++candidate_index) {
         auto candidate = candidates[candidate_index];
+
+        double remaining_width = last_right_edge_first_row - current_right_edge.x();
+        std::cout << "[DEBUG] Remaining width to match first row: " << remaining_width << std::endl;
 
         std::cout << "[DEBUG] Checking next candidate " << candidate_index 
                 << ", current total width: " << total_width << std::endl;
@@ -1581,17 +1960,33 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
         std::cout << std::endl;
 
         bool is_valid_for_all_distances = true;
-
         for (double distance : distances) {
             std::cout << "[DEBUG] Checking candidate width against distance: " << distance << std::endl;
-
             if (!(candidate->extent_.x() > (distance + min_stagger) ||  
                 candidate->extent_.x() < (distance - min_stagger))) {
                 is_valid_for_all_distances = false;
-                break;  // If one distance fails, stop checking
+                break;  // Stop checking if one distance fails
             }
         }
 
+        bool is_last_shingle = (total_width + candidate->extent_.x() > remaining_width - 0.01); // Small tolerance
+
+        if (is_last_shingle) {
+            std::cout << "[DEBUG] Selecting last shingle to match first row alignment.\n";
+
+            // Find the best-fit candidate for the last position
+            auto best_fit = std::min_element(
+                candidates.begin(), candidates.end(),
+                [&](const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& a,
+                    const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& b) {
+                    return std::abs(a->extent_.x() - remaining_width) < std::abs(b->extent_.x() - remaining_width);
+                });
+
+            if (best_fit != candidates.end()) {
+                candidate = *best_fit;
+                std::cout << "[DEBUG] Best-fit last shingle width: " << candidate->extent_.x() << std::endl;
+            }
+        }
 
         // Step 1: Get reference shingle (last in previous row)
         Eigen::Matrix3d last_R = last_selected_shingle->R_;  // Keep same rotation
@@ -1611,44 +2006,18 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
         }
 
         next_shingle->Translate(last_center + shift_x - next_shingle->GetCenter());
-        //
-        // auto next_shingle = alignAndShiftNextBox(last_selected_shingle, candidate, max_gap);
-        // // Extract left bottom corner (assuming the corner at min x and min y is the left bottom)
-        // Eigen::Vector3d left_bottom_corner = next_shingle->GetCenter() - 
-        // Eigen::Vector3d(next_shingle->extent_.x() / 2.0, 
-        //                 next_shingle->extent_.y() / 2.0, 
-        //                 0);
 
-    // // Print the left bottom corner position
-    // std::cout << "[DEBUG] Next shingle left bottom corner: " 
-    //         << left_bottom_corner.transpose() << std::endl;
-
-    // // Print the length of the box (extent in x direction)
-    // std::cout << "[DEBUG] Next shingle length (extent y): " 
-    //         << next_shingle->extent_.y() << std::endl;
-
-
-       // visualizeShingleRows(first_row_aligned, {first_shingle, next_shingle});
         std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> current_visualization = second_row;
-        current_visualization.push_back(next_shingle);  // Add the candidate being tested
+        current_visualization.push_back(next_shingle);
         visualizeShingleRows(first_row_aligned, current_visualization);
 
-
-
         if (is_valid_for_all_distances) {
-            // --- Print candidate width ---
-            //std::cout << "[DEBUG] Candidate width: " << candidate->extent_.x() << std::endl;
-            std::cout << "[DEBUG] Candidate width: " << next_shingle->extent_.x() << std::endl;
-
             std::cout << "[DEBUG] Candidate meets condition for ALL valid distances. Adding to second row.\n";
 
-            //auto next_shingle = alignAndShiftNextBox(last_selected_shingle, candidate, max_gap);
             second_row.push_back(next_shingle);
-            std::cout << "Shingle " << candidate_counter << " found and added to the second row" << '\n'; // Show which candidate is added
+            std::cout << "Shingle " << candidate_counter << " found and added to the second row" << '\n';
 
-            // Increment the counter after adding the shingle
             candidate_counter++;
-
             last_selected_shingle = next_shingle;
             current_right_edge = updateRightEdge(current_right_edge, next_shingle, max_gap);
 
@@ -1659,10 +2028,10 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
             // Check if total width exceeds max_length and break if necessary
             if (total_width > max_length) {
                 std::cout << "[DEBUG] Total width exceeds max_length, stopping placement." << std::endl;
-                break;  // This break is only triggered when max_length is exceeded
+                break;
             }
 
-            candidates.erase(candidates.begin() + candidate_index);
+            candidates.erase(std::remove(candidates.begin(), candidates.end(), candidate), candidates.end());
             --candidate_index;
 
             distances.clear();
@@ -1677,7 +2046,6 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
             }
             std::cout << std::endl;
 
-            // Remove invalid distances
             distances.erase(std::remove_if(distances.begin(), distances.end(),
                 [&](double d) { return d > (max_candidate_width + 0.03) || d < 0; }), distances.end());
         }
@@ -1690,6 +2058,19 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
 
     return second_row;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //////////////////////////////////////////
 

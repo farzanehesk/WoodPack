@@ -179,7 +179,7 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
             /// Returns a vector of Rectangle objects.
     std::vector<Rectangle> createRandomRectangles(int n, double fixed_length);
 
-    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundingBoxes(int n , double fixed_length) ;
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundingBoxes(int n , double fixed_length , bool debug) ;
 
     //
 

@@ -83,7 +83,7 @@ int main() {
 
     ///////////////////////////////////////////////////////////
     // First Row
-    auto bbx_first_row = geom_processor.createBoundingBoxes(20 , 0.25);
+    auto bbx_first_row = geom_processor.createBoundingBoxes(20 , 0.25 , false);
     geom_processor.visualize_bounding_boxes(bbx_first_row);
 
     // Create bounding boxes from rectangles
@@ -102,7 +102,7 @@ int main() {
 
     /////////////////////////////////////////////////////////////
     // Create the second row of shingles with generated random boxes
-    auto bbx_second_row = geom_processor.createBoundingBoxes(45 , 0.35 );  // Create 10 random rectangles
+    auto bbx_second_row = geom_processor.createBoundingBoxes(45 , 0.35, false );  // Create 10 random rectangles
     geom_processor.visualize_bounding_boxes(bbx_second_row);
     //auto bbx_second_row = geom_processor.createBoundingBoxFromRectangle(rect_second_row, 0.002);
     //geom_processor.visualize_bounding_boxes(bbx_second_row);
@@ -140,7 +140,7 @@ int main() {
 
     //
     std::cout << "starting third and forth row'\n\n\n\n" ;
-    auto bbx_third_and_forth_row = geom_processor.createBoundingBoxes(45 , 0.45 );  // Create 10 random rectangles
+    auto bbx_third_and_forth_row = geom_processor.createBoundingBoxes(45 , 0.45, false );  // Create 10 random rectangles
     std::cout << "Number of RECTANGLES in rect_third_and_forth_row: " << bbx_third_and_forth_row.size() << std::endl;
 
     //geom_processor.visualizeRectangles(rect_third_and_forth_row);
@@ -163,7 +163,7 @@ int main() {
     geom_processor.visualizeAllShingleRows(third_forth_row_sorted);
 
     
-   auto third_forth_row_arranged = geom_processor.arrangeMultipleShingleRows(second_row_of_shingles ,third_forth_row_sorted , gap , max_length , rotation_angle , 0 );
+   auto third_forth_row_arranged = geom_processor.arrangeMultipleShingleRows(second_row_of_shingles ,third_forth_row_sorted , gap , max_length , rotation_angle , 0.02 );
    std::cout << "Number of rows in third_forth_row_: " << third_forth_row_arranged.size() << std::endl;
     
     
@@ -197,9 +197,9 @@ int main() {
         combined_rows.push_back(row);
     }
 
-    for (const auto& row : third_forth_row_sorted) {
-        combined_rows.push_back(row);
-    }
+    // for (const auto& row : third_forth_row_sorted) {
+    //     combined_rows.push_back(row);
+    // }
 
 
     std::cout << "Number of rows in combined_rows: " << combined_rows.size() << std::endl;
@@ -210,7 +210,10 @@ int main() {
 
 
 
+    // 1. third forth row z overlap : done 
+    // 2. vertical overlaps
 
+    
 
 
 
@@ -223,8 +226,8 @@ int main() {
 //     // export
     geom_processor.exportBoundingBoxes(first_row_of_shingles ,export_folder , "first_row_" );
     geom_processor.exportBoundingBoxes(second_row_of_shingles ,export_folder , "second_row_" );
-    geom_processor.exportBoundingBoxes(third_forth_row_sorted[0] ,export_folder , "third_row_" );
-    geom_processor.exportBoundingBoxes(third_forth_row_sorted[1] ,export_folder , "forth_row_" );
+    geom_processor.exportBoundingBoxes(third_forth_row_arranged[0] ,export_folder , "third_row_" );
+    geom_processor.exportBoundingBoxes(third_forth_row_arranged[1] ,export_folder , "forth_row_" );
 
 
 

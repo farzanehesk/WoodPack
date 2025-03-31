@@ -352,8 +352,12 @@ std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
     std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> 
     arrangeMultipleShingleRows(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& reference_row,
-    const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& sorted_candidate_rows,
-    double gap, double max_length, double rotation_angle, double vertical_overlap);
+    std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& candidate_rows,
+    double gap,
+    double max_length,
+    double rotation_angle,
+    double third_fourth_overlap,  // New argument for 3rd & 4th row overlap
+    double staggered_vertical_overlap);
 
 
     //

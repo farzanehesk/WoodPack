@@ -154,7 +154,7 @@ int main() {
     auto second_row_of_shingles_copy = geom_processor.copyBoundingBoxes(second_row_of_shingles);
 
     //auto third_forth_row_sorted = geom_processor.findNextBestShinglesForMultipleRows(second_row_of_shingles , bbx_third_and_forth_row , 3 , 0.03 , gap , max_length ) ;
-    auto third_forth_row_sorted = geom_processor.findNextBestShinglesForMultipleRows(second_row_of_shingles , bbx_third_and_forth_row ,3  ,  0.03 , gap , max_length);
+    auto third_forth_row_sorted = geom_processor.findNextBestShinglesForMultipleRows(second_row_of_shingles , bbx_third_and_forth_row ,6  ,  0.03 , gap , max_length);
 
 
 
@@ -163,7 +163,7 @@ int main() {
     geom_processor.visualizeAllShingleRows(third_forth_row_sorted);
 
     
-   auto third_forth_row_arranged = geom_processor.arrangeMultipleShingleRows(second_row_of_shingles ,third_forth_row_sorted , gap , max_length , rotation_angle , 0 );
+   auto third_forth_row_arranged = geom_processor.arrangeMultipleShingleRows(second_row_of_shingles ,third_forth_row_sorted , gap , max_length , rotation_angle , 0.02 , -0.11 );
    std::cout << "Number of rows in third_forth_row_: " << third_forth_row_arranged.size() << std::endl;
     
     

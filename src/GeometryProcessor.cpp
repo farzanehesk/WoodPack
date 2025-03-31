@@ -1965,15 +1965,6 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
         }
         std::cout << std::endl;
 
-        // bool is_valid_for_all_distances = true;
-        // for (double distance : distances) {
-        //     std::cout << "[DEBUG] Checking candidate width against distance: " << distance << std::endl;
-        //     if (!(candidate->extent_.x() >= (distance + min_stagger) ||  
-        //         candidate->extent_.x() <= (distance - min_stagger))) {
-        //         is_valid_for_all_distances = false;
-        //         break;  // Stop checking if one distance fails
-        //     }
-        // }
 
 
         bool is_valid_for_all_distances = true;
@@ -1991,29 +1982,6 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
                 break;  // Stop checking further distances if one fails
             }
         }
-
-
-
-        // bool is_last_shingle = (total_width + candidate->extent_.x() > remaining_width - 0.01); // Small tolerance
-
-        // if (is_last_shingle) {
-        //     std::cout << "[DEBUG] Selecting last shingle to match first row alignment.\n";
-
-        //     // Find the best-fit candidate for the last position
-        //     auto best_fit = std::min_element(
-        //         candidates.begin(), candidates.end(),
-        //         [&](const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& a,
-        //             const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& b) {
-        //             return std::abs(a->extent_.x() - remaining_width) < std::abs(b->extent_.x() - remaining_width);
-        //         });
-
-        //     if (best_fit != candidates.end()) {
-        //         candidate = *best_fit;
-        //         std::cout << "[DEBUG] Best-fit last shingle width: " << candidate->extent_.x() << std::endl;
-        //     }
-        // }
-
-        // Only allow overriding the candidate if it's the last shingle
 
 
         
@@ -2394,6 +2362,69 @@ GeometryProcessor::arrangeShingleRow(
 
 
 ////////////////////////////////////////////////////
+// std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
+// GeometryProcessor::arrangeMultipleShingleRows(
+//     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& reference_row,
+//     std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& candidate_rows,
+//     double gap,
+//     double max_length,
+//     double rotation_angle,
+//     double vertical_overlap) 
+// {
+//     std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> candidate_rows_copy;
+    
+//     for (const auto& row : candidate_rows) {
+//         candidate_rows_copy.push_back(copyBoundingBoxes(row));  // Deep copy each row's bounding boxes
+//     }
+
+//     std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> arranged_rows;
+//     std::cout << "Arranging multiple rows...\n";
+
+//     // Start with the first reference row
+//     auto previous_row = reference_row;
+
+//     // Step 1: Arrange each candidate row based on the previous row
+//     for (size_t i = 0; i < candidate_rows_copy.size(); ++i) {
+//         std::cout << "Arranging row " << i + 1 << "...\n";
+
+//         auto candidate_row_copy = copyBoundingBoxes(candidate_rows_copy[i]);
+
+//         // Step 2: Align and stack the current row on top of the previous row
+//         auto arranged_row = arrangeShingleRow(previous_row, candidate_row_copy, gap, max_length, rotation_angle, 0);
+
+//         if (arranged_row.empty()) {
+//             std::cout << "No valid shingles found for row " << i + 1 << ". Skipping this row.\n";
+//             continue;
+//         }
+
+
+//         // Step 4: Add the arranged row to the list of arranged rows
+//         arranged_rows.push_back(arranged_row);
+
+//         // Update the reference for the next row
+//         previous_row = arranged_row;
+//     }
+
+//     //Step 5: Apply vertical overlap shift if needed
+//     if (vertical_overlap != 0) {
+//         Eigen::Vector3d y_direction = reference_row[0]->R_.col(1);
+
+//         for (size_t i = 0; i < arranged_rows.size(); ++i) {
+//             Eigen::Vector3d vertical_shift = y_direction * vertical_overlap * (i + 1);
+
+//             for (auto& bounding_box : arranged_rows[i]) {
+//                 bounding_box->Translate(vertical_shift);
+//             }
+//         }
+//     }
+
+
+
+//     std::cout << "Shingle arrangement for multiple rows completed.\n";
+//     return arranged_rows;
+// }
+
+
 std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
 GeometryProcessor::arrangeMultipleShingleRows(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& reference_row,
@@ -2401,7 +2432,8 @@ GeometryProcessor::arrangeMultipleShingleRows(
     double gap,
     double max_length,
     double rotation_angle,
-    double vertical_overlap) 
+    double third_fourth_overlap,  // New argument for 3rd & 4th row overlap
+    double staggered_vertical_overlap)     // New argument for 5th row onward
 {
     std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> candidate_rows_copy;
     
@@ -2412,16 +2444,13 @@ GeometryProcessor::arrangeMultipleShingleRows(
     std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> arranged_rows;
     std::cout << "Arranging multiple rows...\n";
 
-    // Start with the first reference row
     auto previous_row = reference_row;
 
-    // Step 1: Arrange each candidate row based on the previous row
     for (size_t i = 0; i < candidate_rows_copy.size(); ++i) {
         std::cout << "Arranging row " << i + 1 << "...\n";
 
         auto candidate_row_copy = copyBoundingBoxes(candidate_rows_copy[i]);
 
-        // Step 2: Align and stack the current row on top of the previous row
         auto arranged_row = arrangeShingleRow(previous_row, candidate_row_copy, gap, max_length, rotation_angle, 0);
 
         if (arranged_row.empty()) {
@@ -2429,23 +2458,25 @@ GeometryProcessor::arrangeMultipleShingleRows(
             continue;
         }
 
-
-        // Step 4: Add the arranged row to the list of arranged rows
         arranged_rows.push_back(arranged_row);
-
-        // Update the reference for the next row
         previous_row = arranged_row;
     }
 
-    // Step 5: Apply vertical overlap shift if needed
-    if (vertical_overlap != 0) {
+    // Step 5: Apply vertical overlap shift based on row index
+    if (third_fourth_overlap != 0 || staggered_vertical_overlap != 0) {
         Eigen::Vector3d y_direction = reference_row[0]->R_.col(1);
 
         for (size_t i = 0; i < arranged_rows.size(); ++i) {
-            Eigen::Vector3d vertical_shift = y_direction * vertical_overlap * (i + 1);
+            Eigen::Vector3d vertical_shift;
 
-            for (auto& bounding_box : arranged_rows[i]) {
-                bounding_box->Translate(vertical_shift);
+            if (i < 2) {  // 3rd and 4th rows (index 0 & 1 in arranged_rows)
+                vertical_shift = y_direction * (-third_fourth_overlap);
+            } else {  // From 5th row onward
+                vertical_shift = y_direction * (-staggered_vertical_overlap * (i - 1));
+            }
+
+            for (auto& bbox : arranged_rows[i]) {
+                bbox->Translate(vertical_shift);
             }
         }
     }
@@ -2453,9 +2484,6 @@ GeometryProcessor::arrangeMultipleShingleRows(
     std::cout << "Shingle arrangement for multiple rows completed.\n";
     return arranged_rows;
 }
-
-
-
 
 
 
@@ -2478,11 +2506,7 @@ void GeometryProcessor::visualizeAllShingleRows(
     // Define a set of distinct colors (cycling through if rows > available colors)
     std::vector<Eigen::Vector3d> colors = {
         {1.0, 0.0, 0.0}, // Red
-        {0.0, 1.0, 0.0}, // Green
         {0.0, 0.0, 1.0}, // Blue
-        {1.0, 1.0, 0.0}, // Yellow
-        {1.0, 0.0, 1.0}, // Magenta
-        {0.0, 1.0, 1.0}  // Cyan
     };
 
     for (size_t i = 0; i < arranged_rows.size(); ++i) {

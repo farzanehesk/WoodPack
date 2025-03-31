@@ -163,7 +163,7 @@ int main() {
     geom_processor.visualizeAllShingleRows(third_forth_row_sorted);
 
     
-   auto third_forth_row_arranged = geom_processor.arrangeMultipleShingleRows(second_row_of_shingles ,third_forth_row_sorted , gap , max_length , rotation_angle , 0.02 );
+   auto third_forth_row_arranged = geom_processor.arrangeMultipleShingleRows(second_row_of_shingles ,third_forth_row_sorted , gap , max_length , rotation_angle , 0 );
    std::cout << "Number of rows in third_forth_row_: " << third_forth_row_arranged.size() << std::endl;
     
     

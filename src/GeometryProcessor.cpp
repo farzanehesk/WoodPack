@@ -1994,24 +1994,47 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
 
 
 
-        bool is_last_shingle = (total_width + candidate->extent_.x() > remaining_width - 0.01); // Small tolerance
+        // bool is_last_shingle = (total_width + candidate->extent_.x() > remaining_width - 0.01); // Small tolerance
 
-        if (is_last_shingle) {
-            std::cout << "[DEBUG] Selecting last shingle to match first row alignment.\n";
+        // if (is_last_shingle) {
+        //     std::cout << "[DEBUG] Selecting last shingle to match first row alignment.\n";
 
-            // Find the best-fit candidate for the last position
-            auto best_fit = std::min_element(
-                candidates.begin(), candidates.end(),
-                [&](const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& a,
-                    const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& b) {
-                    return std::abs(a->extent_.x() - remaining_width) < std::abs(b->extent_.x() - remaining_width);
-                });
+        //     // Find the best-fit candidate for the last position
+        //     auto best_fit = std::min_element(
+        //         candidates.begin(), candidates.end(),
+        //         [&](const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& a,
+        //             const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& b) {
+        //             return std::abs(a->extent_.x() - remaining_width) < std::abs(b->extent_.x() - remaining_width);
+        //         });
 
-            if (best_fit != candidates.end()) {
-                candidate = *best_fit;
-                std::cout << "[DEBUG] Best-fit last shingle width: " << candidate->extent_.x() << std::endl;
-            }
+        //     if (best_fit != candidates.end()) {
+        //         candidate = *best_fit;
+        //         std::cout << "[DEBUG] Best-fit last shingle width: " << candidate->extent_.x() << std::endl;
+        //     }
+        // }
+
+        // Only allow overriding the candidate if it's the last shingle
+
+
+        
+    // Check if the only remaining distance matches the last right edge of the first row
+    bool is_last_shingle = (distances.size() == 1) && (std::abs(distances[0] - (last_right_edge_first_row - current_right_edge.x())) < 0.01);
+
+    if (is_last_shingle) {  
+        std::cout << "[DEBUG] Identified last shingle of the row. Finding best-fit candidate.\n";
+
+        auto best_fit = std::min_element(
+            candidates.begin(), candidates.end(),
+            [&](const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& a,
+                const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& b) {
+                return std::abs(a->extent_.x() - distances[0]) < std::abs(b->extent_.x() - distances[0]);
+            });
+
+        if (best_fit != candidates.end()) {
+            candidate = *best_fit;
+            std::cout << "[DEBUG] Best-fit last shingle width: " << candidate->extent_.x() << std::endl;
         }
+    }
 
 
 
@@ -2344,7 +2367,6 @@ GeometryProcessor::arrangeShingleRow(
     }
 
     // Step 4: Compute the Y-direction (for vertical alignment)
-    // for some reason, the y direction seems to be reversed
     Eigen::Vector3d y_direction = reference_row[0]->R_.col(1); // Local Y-axis of the reference row
 
     // Step 5: Apply vertical overlap shift using local Y direction
@@ -2372,65 +2394,6 @@ GeometryProcessor::arrangeShingleRow(
 
 
 ////////////////////////////////////////////////////
-// std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
-// GeometryProcessor::arrangeMultipleShingleRows(
-//     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& reference_row,
-//     std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& candidate_rows,
-//     double gap,
-//     double max_length,
-//     double rotation_angle,
-//     double vertical_overlap) 
-// {
-//     // Make a deep copy of candidate rows to avoid modifying the original data
-//     std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> candidate_rows_copy;
-    
-//     for (const auto& row : candidate_rows) {
-//         candidate_rows_copy.push_back(copyBoundingBoxes(row));  // Deep copy each row's bounding boxes
-//     }
-
-//     std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> arranged_rows;
-//     std::cout << "Arranging multiple rows...\n";
-
-//     // Step 1: Start arranging subsequent rows
-//     for (size_t i = 0; i < candidate_rows_copy.size(); ++i) {
-//         std::cout << "Arranging row " << i + 1 << "...\n";
-
-//         // Copy the candidate row before modification to prevent changing the original
-//         auto candidate_row_copy = copyBoundingBoxes(candidate_rows_copy[i]);
-
-
-//         // Step 2: Use arrangeShingleRow to align the current candidate row
-//         auto arranged_row = arrangeShingleRow(reference_row, candidate_row_copy, gap, max_length, rotation_angle, 0);
-
-
-//         if (arranged_row.empty()) {
-//             std::cout << "No valid shingles found for row " << i + 1 << ". Skipping this row.\n";
-//             continue;
-//         }
-
-//         // Step 3: Add the arranged row to the list of arranged rows
-//         arranged_rows.push_back(arranged_row);
-//     }
-
-//     // Step 4: If vertical_overlap is zero, no translation is needed, so skip this step
-//     if (vertical_overlap != 0) {
-//         Eigen::Vector3d y_direction = reference_row[0]->R_.col(1);  // Local Y-axis of the reference row
-
-//         for (size_t i = 0; i < arranged_rows.size(); ++i) {
-//             Eigen::Vector3d vertical_shift = y_direction * vertical_overlap * (i + 1);
-
-//             for (auto& bounding_box : arranged_rows[i]) {
-//                 // Ensure translation does not affect bounding box size
-//                 bounding_box->Translate(vertical_shift);
-//             }
-//         }
-//     }
-
-//     std::cout << "Shingle arrangement for multiple rows completed.\n";
-//     return arranged_rows;
-// }
-
-
 std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
 GeometryProcessor::arrangeMultipleShingleRows(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& reference_row,

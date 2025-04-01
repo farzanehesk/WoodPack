@@ -2300,7 +2300,9 @@ GeometryProcessor::arrangeShingleRow(
 
     // Step 3: Arrange the rest of the target row relative to the first box in the target row
     double total_length = first_box_target_row_aligned->extent_.x(); // Track row length
-    bool min_length_reached = false;  // Flag to ensure we reach at least max_length
+    
+    // // // 
+    //bool min_length_reached = false;  // Flag to ensure we reach at least max_length
 
     for (size_t i = 1; i < target_row.size(); ++i) {
         auto& bbox = target_row[i];
@@ -2319,17 +2321,19 @@ GeometryProcessor::arrangeShingleRow(
         // Predict next position before placing
         double new_total_length = total_length + arranged_bboxes.back()->extent_.x() / 2.0 + gap + bbox->extent_.x() / 2.0;
 
+        // // // 
         // Allow placing shingles until we reach at least max_length
-        if (min_length_reached && new_total_length > max_length) {
-            break;  // Stop only after reaching at least max_length
-        }
+        // if (min_length_reached && new_total_length > max_length) {
+        //     break;  // Stop only after reaching at least max_length
+        // }
 
         total_length = new_total_length;
 
-        // Mark that we have reached at least max_length
-        if (total_length >= max_length) {
-            min_length_reached = true;
-        }
+        // // // 
+        // // Mark that we have reached at least max_length
+        // if (total_length >= max_length) {
+        //     min_length_reached = true;
+        // }
 
         arranged_bboxes.push_back(bbox);
     }
@@ -2506,7 +2510,10 @@ void GeometryProcessor::visualizeAllShingleRows(
     // Define a set of distinct colors (cycling through if rows > available colors)
     std::vector<Eigen::Vector3d> colors = {
         {1.0, 0.0, 0.0}, // Red
+        {0.0, 1.0, 0.0}, // Green
         {0.0, 0.0, 1.0}, // Blue
+        {1.0, 0.0, 1.0}, // Magenta
+        {0.0, 1.0, 1.0}  // Cyan
     };
 
     for (size_t i = 0; i < arranged_rows.size(); ++i) {
@@ -2805,33 +2812,69 @@ void GeometryProcessor::visualizeShinglePlane(const std::shared_ptr<open3d::geom
 
 
 /////////////////////////////////////////////
-namespace fs = std::filesystem;
+//namespace fs = std::filesystem;
 
-// Helper: Convert an oriented bounding box to a triangle mesh
+
 std::shared_ptr<open3d::geometry::TriangleMesh> GeometryProcessor::CreateMeshFromOrientedBoundingBox(
-    const open3d::geometry::OrientedBoundingBox& obb) {
-    // Get the 8 corner points of the bounding box.
-    std::vector<Eigen::Vector3d> points = obb.GetBoxPoints();
-    
-    // Define triangles for the 6 faces.
-    // The assumed order of points is:
-    // 0: (-1,-1,-1), 1: (1,-1,-1), 2: (1,1,-1), 3: (-1,1,-1),
-    // 4: (-1,-1,1),  5: (1,-1,1),  6: (1,1,1),  7: (-1,1,1)
-    // after transformation by the OBB.
-    std::vector<Eigen::Vector3i> triangles = {
-        {0, 1, 2}, {0, 2, 3}, // bottom face
-        {4, 5, 6}, {4, 6, 7}, // top face
-        {0, 1, 5}, {0, 5, 4}, // front face
-        {2, 3, 7}, {2, 7, 6}, // back face
-        {1, 2, 6}, {1, 6, 5}, // right face
-        {3, 0, 4}, {3, 4, 7}  // left face
+    const open3d::geometry::OrientedBoundingBox& obb, 
+    const Eigen::Vector3d& color) {
+
+    auto mesh = open3d::geometry::TriangleMesh::CreateFromOrientedBoundingBox(obb);
+    if (!mesh) {
+        std::cerr << "Failed to create mesh from OBB" << std::endl;
+        return nullptr;
+    }
+
+    // ✅ EXPLICITLY ASSIGN COLORS TO EACH VERTEX
+    mesh->vertex_colors_.clear();
+    for (size_t i = 0; i < mesh->vertices_.size(); ++i) {
+        mesh->vertex_colors_.push_back(color);  // Assign per vertex
+    }
+
+    // 🔹 Ensure the color assignment is applied correctly
+    if (mesh->vertex_colors_.size() != mesh->vertices_.size()) {
+        std::cerr << "Error: Vertex color count mismatch!" << std::endl;
+    }
+
+    // ✅ COMPUTE NORMALS FOR BETTER VISUALIZATION
+    mesh->ComputeTriangleNormals();
+    mesh->ComputeVertexNormals();
+
+    return mesh;
+}
+
+
+
+void GeometryProcessor::visualizeShingleMeshes(
+    const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& combined_rows) {
+
+    std::vector<std::shared_ptr<const open3d::geometry::Geometry>> all_geometries;
+
+    // Define a color list for different rows (extend if more rows exist)
+    std::vector<Eigen::Vector3d> row_colors = {
+        {0, 0, 1},   // Blue for first row
+        {1, 0, 0},   // Red for second row
+        {0, 1, 0},   // Green for third row
+        {1, 1, 0},   // Yellow for fourth row
+        {1, 0, 1},   // Magenta for fifth row
+        {0, 1, 1}    // Cyan for sixth row
     };
 
-    auto mesh = std::make_shared<open3d::geometry::TriangleMesh>();
-    mesh->vertices_ = points;
-    mesh->triangles_ = triangles;
-    mesh->ComputeVertexNormals();
-    return mesh;
+    for (size_t i = 0; i < combined_rows.size(); ++i) {
+        Eigen::Vector3d color = row_colors[i % row_colors.size()]; // Cycle through colors
+
+        for (const auto& bbox : combined_rows[i]) {
+            auto mesh = CreateMeshFromOrientedBoundingBox(*bbox, color);
+            all_geometries.push_back(mesh);
+        }
+    }
+
+    // Add coordinate frame for reference
+    auto coordinate_frame = open3d::geometry::TriangleMesh::CreateCoordinateFrame(0.1);
+    all_geometries.push_back(coordinate_frame);
+
+    // Visualize the meshes
+    open3d::visualization::DrawGeometries(all_geometries);
 }
 
 
@@ -2840,11 +2883,24 @@ std::shared_ptr<open3d::geometry::TriangleMesh> GeometryProcessor::CreateMeshFro
 void GeometryProcessor::exportBoundingBoxes(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& boxes,
     const std::string& folder,
+    const Eigen::Vector3d& color,  // New parameter for color
     const std::string& prefix )
 {
     int index = 0;
     for (const auto& box : boxes) {
-        auto mesh = CreateMeshFromOrientedBoundingBox(*box);
+        auto mesh = CreateMeshFromOrientedBoundingBox(*box, color);
+
+        if (!mesh) {
+            std::cerr << "Failed to create mesh from bounding box" << std::endl;
+            continue;
+        }
+
+        // 🔹 Ensure every vertex gets the correct color
+        for (size_t i = 0; i < mesh->vertices_.size(); ++i) {
+            mesh->vertex_colors_[i] = color;
+        }
+
+        // Export the mesh
         std::string filename = folder + "/" + prefix + "box_" + std::to_string(index) + ".ply";
         if (!open3d::io::WriteTriangleMesh(filename, *mesh)) {
             std::cerr << "Failed to write bounding box file: " << filename << std::endl;

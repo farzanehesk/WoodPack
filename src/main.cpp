@@ -93,7 +93,7 @@ int main() {
     // Create the first row of shingles with generated random boxes
     double gap = 0.003;       // 3mm gap
     double max_length = 1.0;  // Ensure row is at least 1m long
-    double rotation_angle = 15; 
+    double rotation_angle = 5; 
     // 10 degrees in radians
 
     auto first_row_of_shingles = geom_processor.arrangeFirstShingleRow(bbx_first_row , gap , max_length ,rotation_angle );
@@ -134,7 +134,6 @@ int main() {
 
     geom_processor.visualizeShingleRows(first_row_of_shingles ,second_row_of_shingles );
 
-    geom_processor.exportBoundingBoxes(second_row_of_shingles ,export_folder , "second_row_before_" );
 
 // ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -154,7 +153,7 @@ int main() {
     auto second_row_of_shingles_copy = geom_processor.copyBoundingBoxes(second_row_of_shingles);
 
     //auto third_forth_row_sorted = geom_processor.findNextBestShinglesForMultipleRows(second_row_of_shingles , bbx_third_and_forth_row , 3 , 0.03 , gap , max_length ) ;
-    auto third_forth_row_sorted = geom_processor.findNextBestShinglesForMultipleRows(second_row_of_shingles , bbx_third_and_forth_row ,6  ,  0.03 , gap , max_length);
+    auto third_forth_row_sorted = geom_processor.findNextBestShinglesForMultipleRows(second_row_of_shingles , bbx_third_and_forth_row ,5  ,  0.03 , gap , max_length);
 
 
 
@@ -205,13 +204,19 @@ int main() {
     std::cout << "Number of rows in combined_rows: " << combined_rows.size() << std::endl;
 
     geom_processor.visualizeAllShingleRows(combined_rows);
-
+    geom_processor.visualizeShingleMeshes(combined_rows);
 
 
 
 
     // 1. third forth row z overlap : done 
-    // 2. vertical overlaps
+    // 2. vertical overlaps : done
+
+
+    // 3. insert the substrycture point cloud under arranged shingles
+    // 4. check the angles based on the prototype built by craftspeople
+    // 5. create mesh to visualize boxes
+
 
     
 
@@ -224,10 +229,13 @@ int main() {
 
 
 //     // export
-    geom_processor.exportBoundingBoxes(first_row_of_shingles ,export_folder , "first_row_" );
-    geom_processor.exportBoundingBoxes(second_row_of_shingles ,export_folder , "second_row_" );
-    geom_processor.exportBoundingBoxes(third_forth_row_arranged[0] ,export_folder , "third_row_" );
-    geom_processor.exportBoundingBoxes(third_forth_row_arranged[1] ,export_folder , "forth_row_" );
+    geom_processor.exportBoundingBoxes(first_row_of_shingles ,export_folder ,{0, 0, 1} ,  "first_row_" );
+    geom_processor.exportBoundingBoxes(second_row_of_shingles ,export_folder ,{0, 1, 0}, "second_row_" );
+    geom_processor.exportBoundingBoxes(third_forth_row_arranged[0] ,export_folder ,{1, 0, 0}, "third_row_" );
+    geom_processor.exportBoundingBoxes(third_forth_row_arranged[1] ,export_folder , {0, 0, 1} ,"forth_row_" );
+    geom_processor.exportBoundingBoxes(third_forth_row_arranged[2] ,export_folder ,{0, 1, 0}, "fifth_row_" );
+    geom_processor.exportBoundingBoxes(third_forth_row_arranged[3] ,export_folder ,{1, 0, 0}, "sixth_row_" );
+
 
 
 

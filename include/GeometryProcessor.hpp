@@ -290,14 +290,18 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
     void exportBoundingBoxes(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& boxes,
     const std::string& folder,
+    const Eigen::Vector3d& color,  // New parameter for color
     const std::string& prefix = "");
 
     //
     std::shared_ptr<open3d::geometry::TriangleMesh> CreateMeshFromOrientedBoundingBox(
-    const open3d::geometry::OrientedBoundingBox& obb);
+    const open3d::geometry::OrientedBoundingBox& obb, 
+    const Eigen::Vector3d& color);
 
 
     ///
+    void visualizeShingleMeshes(
+    const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& combined_rows);
 
 
 

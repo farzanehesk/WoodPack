@@ -1081,7 +1081,7 @@ void GeometryProcessor::visualizePlanesOnBoundingBoxes(
         Eigen::Vector3d center(current_x + width / 2.0, start_pos.y() + fixed_length / 2.0, start_pos.z());
 
         // Set half extents with width along x, length along y, and thickness along z
-        Eigen::Vector3d half_extents(width / 2.0, fixed_length / 2.0, 0.002);
+        Eigen::Vector3d half_extents(width / 2.0, fixed_length / 2.0, 0.005);
 
         // Create oriented bounding box
         auto box = std::make_shared<open3d::geometry::OrientedBoundingBox>(
@@ -2812,9 +2812,6 @@ void GeometryProcessor::visualizeShinglePlane(const std::shared_ptr<open3d::geom
 
 
 /////////////////////////////////////////////
-//namespace fs = std::filesystem;
-
-
 std::shared_ptr<open3d::geometry::TriangleMesh> GeometryProcessor::CreateMeshFromOrientedBoundingBox(
     const open3d::geometry::OrientedBoundingBox& obb, 
     const Eigen::Vector3d& color) {
@@ -2825,7 +2822,7 @@ std::shared_ptr<open3d::geometry::TriangleMesh> GeometryProcessor::CreateMeshFro
         return nullptr;
     }
 
-    // ✅ EXPLICITLY ASSIGN COLORS TO EACH VERTEX
+    // EXPLICITLY ASSIGN COLORS TO EACH VERTEX
     mesh->vertex_colors_.clear();
     for (size_t i = 0; i < mesh->vertices_.size(); ++i) {
         mesh->vertex_colors_.push_back(color);  // Assign per vertex
@@ -2836,7 +2833,7 @@ std::shared_ptr<open3d::geometry::TriangleMesh> GeometryProcessor::CreateMeshFro
         std::cerr << "Error: Vertex color count mismatch!" << std::endl;
     }
 
-    // ✅ COMPUTE NORMALS FOR BETTER VISUALIZATION
+    // COMPUTE NORMALS FOR BETTER VISUALIZATION
     mesh->ComputeTriangleNormals();
     mesh->ComputeVertexNormals();
 
@@ -2845,9 +2842,42 @@ std::shared_ptr<open3d::geometry::TriangleMesh> GeometryProcessor::CreateMeshFro
 
 
 
-void GeometryProcessor::visualizeShingleMeshes(
-    const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& combined_rows) {
+// void GeometryProcessor::visualizeShingleMeshes(
+//     const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& combined_rows) {
 
+//     std::vector<std::shared_ptr<const open3d::geometry::Geometry>> all_geometries;
+
+//     // Define a color list for different rows (extend if more rows exist)
+//     std::vector<Eigen::Vector3d> row_colors = {
+//         {0, 0, 1},   // Blue for first row
+//         {1, 0, 0},   // Red for second row
+//         {0, 1, 0},   // Green for third row
+//         {1, 1, 0},   // Yellow for fourth row
+//         {1, 0, 1},   // Magenta for fifth row
+//         {0, 1, 1}    // Cyan for sixth row
+//     };
+
+//     for (size_t i = 0; i < combined_rows.size(); ++i) {
+//         Eigen::Vector3d color = row_colors[i % row_colors.size()]; // Cycle through colors
+
+//         for (const auto& bbox : combined_rows[i]) {
+//             auto mesh = CreateMeshFromOrientedBoundingBox(*bbox, color);
+//             all_geometries.push_back(mesh);
+//         }
+//     }
+
+//     // Add coordinate frame for reference
+//     auto coordinate_frame = open3d::geometry::TriangleMesh::CreateCoordinateFrame(0.1);
+//     all_geometries.push_back(coordinate_frame);
+
+//     // Visualize the meshes
+//     open3d::visualization::DrawGeometries(all_geometries);
+// }
+
+void GeometryProcessor::visualizeShingleMeshes(
+    const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& combined_rows,
+    std::shared_ptr<open3d::geometry::PointCloud> point_cloud = nullptr) // Optional argument
+{
     std::vector<std::shared_ptr<const open3d::geometry::Geometry>> all_geometries;
 
     // Define a color list for different rows (extend if more rows exist)
@@ -2869,11 +2899,17 @@ void GeometryProcessor::visualizeShingleMeshes(
         }
     }
 
+    // If a point cloud is provided, add it to the visualization
+    if (point_cloud && !point_cloud->IsEmpty()) {
+        point_cloud->PaintUniformColor(Eigen::Vector3d(0.5, 0.5, 0.5)); // Gray color for point cloud
+        all_geometries.push_back(point_cloud);
+    }
+
     // Add coordinate frame for reference
     auto coordinate_frame = open3d::geometry::TriangleMesh::CreateCoordinateFrame(0.1);
     all_geometries.push_back(coordinate_frame);
 
-    // Visualize the meshes
+    // Visualize the meshes and point cloud
     open3d::visualization::DrawGeometries(all_geometries);
 }
 

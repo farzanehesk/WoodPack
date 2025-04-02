@@ -300,9 +300,12 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
 
 
     ///
-    void visualizeShingleMeshes(
-    const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& combined_rows);
+    // void visualizeShingleMeshes(
+    // const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& combined_rows);
 
+    void visualizeShingleMeshes(
+    const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& combined_rows,
+    std::shared_ptr<open3d::geometry::PointCloud> point_cloud );
 
 
     //

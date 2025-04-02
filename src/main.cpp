@@ -38,6 +38,9 @@ int main() {
     // perception.logOriginalPointCloud();
     
 
+
+
+
     // // store the original point cloud
     auto original_pc = std::make_shared<open3d::geometry::PointCloud>(*perception.getPointCloud());
 
@@ -93,7 +96,7 @@ int main() {
     // Create the first row of shingles with generated random boxes
     double gap = 0.003;       // 3mm gap
     double max_length = 1.0;  // Ensure row is at least 1m long
-    double rotation_angle = 5; 
+    double rotation_angle = 9; 
     // 10 degrees in radians
 
     auto first_row_of_shingles = geom_processor.arrangeFirstShingleRow(bbx_first_row , gap , max_length ,rotation_angle );
@@ -201,21 +204,37 @@ int main() {
     // }
 
 
+
+        // Load the point cloud
+    auto sub_structure = perception.loadPointCloud("scans/substructure.ply" , false);
+
+    if (sub_structure) {
+        // Visualize the stored point cloud
+        perception.visualizerPointCloud();
+    } else {
+        std::cerr << "Failed to load or process point cloud." << std::endl;
+    }
+    auto sub_structure_pc = perception.getPointCloud();
+
+
     std::cout << "Number of rows in combined_rows: " << combined_rows.size() << std::endl;
 
     geom_processor.visualizeAllShingleRows(combined_rows);
-    geom_processor.visualizeShingleMeshes(combined_rows);
+    geom_processor.visualizeShingleMeshes(combined_rows ,sub_structure_pc);
 
 
 
 
     // 1. third forth row z overlap : done 
     // 2. vertical overlaps : done
+    // 5. create mesh to visualize boxes : done
+    // 3. insert the substrycture point cloud under arranged shingles : done
 
 
-    // 3. insert the substrycture point cloud under arranged shingles
+
     // 4. check the angles based on the prototype built by craftspeople
-    // 5. create mesh to visualize boxes
+    // export substructure
+
 
 
     

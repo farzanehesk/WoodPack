@@ -225,7 +225,62 @@ void PointCloudProcessor::loadParameters(const std::string& config_file_name = "
 
 
 
-bool PointCloudProcessor::loadPointCloud(const std::string& filename)
+// bool PointCloudProcessor::loadPointCloud(const std::string& filename, bool flip_z)
+// {
+//     if (!pc_ptr_) {
+//         pc_ptr_ = std::make_shared<open3d::geometry::PointCloud>();
+//     }
+//     std::string filepath = "data/" + filename;
+    
+//     if (open3d::io::ReadPointCloud(filepath, *pc_ptr_))
+//     {
+//         std::cout << "Successfully loaded point cloud from " << filepath << '\n';
+
+//         // Check the scale of the point cloud
+//         if (!pc_ptr_->IsEmpty()) {
+//             auto bbox = pc_ptr_->GetAxisAlignedBoundingBox();
+//             Eigen::Vector3d min = bbox.min_bound_;
+//             Eigen::Vector3d max = bbox.max_bound_;
+//             Eigen::Vector3d extent = max - min;
+            
+//             std::cout << "Point cloud extent: " << extent.transpose() << std::endl;
+
+//             // If the extent is in millimeters or centimeters, scale to meters
+//             double scale_factor = 1.0;
+//             if (extent.x() > 1000 || extent.y() > 1000 || extent.z() > 1000) {
+//                 scale_factor = 0.001; // Convert mm to meters
+//                 std::cout << "Point cloud scale is in millimeters. Scaling to meters." << std::endl;
+//             } 
+//             else if (extent.x() > 100 || extent.y() > 100 || extent.z() > 100) {
+//                 scale_factor = 0.01; // Convert cm to meters
+//                 std::cout << "Point cloud scale is in centimeters. Scaling to meters." << std::endl;
+//             }
+
+//             // Scale and Flip the Point Cloud
+//             for (auto& point : pc_ptr_->points_) {
+//                 point *= scale_factor;  // Scale first
+//                 point.z() = -point.z(); // Flip Z-axis
+//             }
+
+//             std::cout << "Flipping point cloud along the Z-axis...\n";
+
+//             // Visualize the flipped point cloud
+//             std::cout << "Visualizing the flipped and scaled point cloud...\n";
+//             open3d::visualization::DrawGeometries({pc_ptr_}, "Flipped Point Cloud", 800, 600);
+//         }
+//         else {
+//             std::cerr << "Loaded point cloud is empty.\n";
+//         }
+
+//         return true;
+//     }
+//     else {
+//         std::cerr << "Failed to load point cloud from " << filepath << '\n';
+//         return false;
+//     }
+// }
+
+bool PointCloudProcessor::loadPointCloud(const std::string& filename, bool flip_z)
 {
     if (!pc_ptr_) {
         pc_ptr_ = std::make_shared<open3d::geometry::PointCloud>();
@@ -256,17 +311,23 @@ bool PointCloudProcessor::loadPointCloud(const std::string& filename)
                 std::cout << "Point cloud scale is in centimeters. Scaling to meters." << std::endl;
             }
 
-            // Scale and Flip the Point Cloud
+            // Scale the point cloud
             for (auto& point : pc_ptr_->points_) {
-                point *= scale_factor;  // Scale first
-                point.z() = -point.z(); // Flip Z-axis
+                point *= scale_factor;
+                
+                // Flip Z-axis only if the user chooses to do so
+                if (flip_z) {
+                    point.z() = -point.z();
+                }
             }
 
-            std::cout << "Flipping point cloud along the Z-axis...\n";
+            if (flip_z) {
+                std::cout << "Flipping point cloud along the Z-axis...\n";
+            }
 
-            // Visualize the flipped point cloud
-            std::cout << "Visualizing the flipped and scaled point cloud...\n";
-            open3d::visualization::DrawGeometries({pc_ptr_}, "Flipped Point Cloud", 800, 600);
+            // Visualize the scaled (and possibly flipped) point cloud
+            std::cout << "Visualizing the processed point cloud...\n";
+            open3d::visualization::DrawGeometries({pc_ptr_}, "Processed Point Cloud", 800, 600);
         }
         else {
             std::cerr << "Loaded point cloud is empty.\n";
@@ -279,6 +340,7 @@ bool PointCloudProcessor::loadPointCloud(const std::string& filename)
         return false;
     }
 }
+
 
 /////////////////////////////////////////////////////////
 

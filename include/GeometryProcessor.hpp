@@ -86,6 +86,11 @@ public:
     
 
     //
+    std::vector<std::pair<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr>>
+    computeOrientedBoundingBoxesWithClouds(const std::vector<PC_o3d_ptr>& clusters);
+
+
+    //
     std::vector<open3d::geometry::OrientedBoundingBox> computeMinimalOrientedBoundingBoxes(
     const std::vector<PC_o3d_ptr>& clusters);
 
@@ -365,6 +370,17 @@ std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
     double rotation_angle,
     double third_fourth_overlap,  // New argument for 3rd & 4th row overlap
     double staggered_vertical_overlap);
+
+
+    //
+    std::vector<PC_o3d_ptr> arrangePointCloudsWithBoundingBoxes(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& arranged_boxes,
+    const std::vector<std::pair<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr>>& box_cloud_pairs);
+
+
+    //
+    void visualizePointClouds(const std::vector<std::shared_ptr<open3d::geometry::PointCloud>>& clouds);
+
 
 
     //

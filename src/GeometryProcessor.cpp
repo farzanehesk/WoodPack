@@ -92,6 +92,92 @@
 // return bounding_boxes; 
 // }
 
+// std::vector<open3d::geometry::OrientedBoundingBox> GeometryProcessor::computeOrientedBoundingBoxes(
+//     const std::vector<PC_o3d_ptr>& clusters) 
+// {
+//     std::vector<open3d::geometry::OrientedBoundingBox> bounding_boxes;
+//     bounding_boxes.reserve(clusters.size());
+
+//     for (const auto& cluster : clusters) {
+//         if (cluster->points_.empty()) continue;
+
+//         // Convert Open3D point cloud to Eigen matrix
+//         Eigen::MatrixXd data(cluster->points_.size(), 3);
+//         for (size_t i = 0; i < cluster->points_.size(); ++i) {
+//             data.row(i) = cluster->points_[i].transpose();
+//         }
+
+//         // Compute centroid
+//         Eigen::Vector3d centroid = data.colwise().mean();
+//         Eigen::MatrixXd centered = data.rowwise() - centroid.transpose();
+
+//         // Compute covariance matrix
+//         Eigen::Matrix3d covariance = (centered.transpose() * centered) / double(cluster->points_.size());
+
+//         // Eigen decomposition (PCA)
+//         Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigen_solver(covariance);
+//         Eigen::Matrix3d eigenvectors = eigen_solver.eigenvectors(); // Principal axes
+
+//         // Ensure right-handed coordinate system
+//         if (eigenvectors.determinant() < 0) {
+//             eigenvectors.col(0) = -eigenvectors.col(0);
+//         }
+
+//         // Ensure correct alignment of X, Y, Z axes
+//         Eigen::Vector3d x_axis = eigenvectors.col(0);
+//         Eigen::Vector3d y_axis = eigenvectors.col(1);
+//         Eigen::Vector3d z_axis = eigenvectors.col(2);
+
+//         // Fix: Ensure Z-axis always points upward
+//         Eigen::Vector3d global_up(0, 0, 1);
+//         if (z_axis.dot(global_up) < 0) {
+//             z_axis = -z_axis;
+//             x_axis = -x_axis;
+//         }
+
+//         // Project points onto PCA space
+//         std::vector<Eigen::Vector3d> transformed_points;
+//         transformed_points.reserve(cluster->points_.size());
+//         for (const auto& point : cluster->points_) {
+//             transformed_points.push_back(eigenvectors.transpose() * (point - centroid));
+//         }
+
+//         // Compute min/max bounds in PCA-aligned space
+//         Eigen::Vector3d min_bound = transformed_points.front();
+//         Eigen::Vector3d max_bound = transformed_points.front();
+//         for (const auto& p : transformed_points) {
+//             min_bound = min_bound.cwiseMin(p);
+//             max_bound = max_bound.cwiseMax(p);
+//         }
+
+//         // Get extents and reorder axes (Ensure X is the shortest, Y is the longest)
+//         Eigen::Vector3d extents = (max_bound - min_bound).cwiseAbs();
+//         std::array<std::pair<double, int>, 3> sorted_axes = {
+//             std::make_pair(extents.x(), 0),
+//             std::make_pair(extents.y(), 1),
+//             std::make_pair(extents.z(), 2)
+//         };
+
+//         std::sort(sorted_axes.begin(), sorted_axes.end());
+
+//         Eigen::Matrix3d corrected_R;
+//         corrected_R.col(0) = eigenvectors.col(sorted_axes[0].second);  // X (shortest)
+//         corrected_R.col(1) = eigenvectors.col(sorted_axes[1].second);  // Y (longest)
+//         corrected_R.col(2) = eigenvectors.col(sorted_axes[2].second);  // Z (always up)
+
+//         // Create final Oriented Bounding Box (OBB)
+//         auto obb = open3d::geometry::OrientedBoundingBox();
+//         obb.center_ = centroid;
+//         obb.extent_ = Eigen::Vector3d(sorted_axes[0].first, sorted_axes[1].first, sorted_axes[2].first);
+//         obb.R_ = corrected_R;
+
+//         bounding_boxes.push_back(obb);
+//     }
+//     return bounding_boxes;
+// }
+
+
+
 std::vector<open3d::geometry::OrientedBoundingBox> GeometryProcessor::computeOrientedBoundingBoxes(
     const std::vector<PC_o3d_ptr>& clusters) 
 {
@@ -114,35 +200,23 @@ std::vector<open3d::geometry::OrientedBoundingBox> GeometryProcessor::computeOri
         // Compute covariance matrix
         Eigen::Matrix3d covariance = (centered.transpose() * centered) / double(cluster->points_.size());
 
-        // Eigen decomposition (PCA)
+        // PCA: eigen decomposition
         Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigen_solver(covariance);
-        Eigen::Matrix3d eigenvectors = eigen_solver.eigenvectors(); // Principal axes
+        Eigen::Matrix3d eigvecs = eigen_solver.eigenvectors(); // principal axes
 
         // Ensure right-handed coordinate system
-        if (eigenvectors.determinant() < 0) {
-            eigenvectors.col(0) = -eigenvectors.col(0);
+        if (eigvecs.determinant() < 0) {
+            eigvecs.col(0) *= -1;
         }
 
-        // Ensure correct alignment of X, Y, Z axes
-        Eigen::Vector3d x_axis = eigenvectors.col(0);
-        Eigen::Vector3d y_axis = eigenvectors.col(1);
-        Eigen::Vector3d z_axis = eigenvectors.col(2);
-
-        // Fix: Ensure Z-axis always points upward
-        Eigen::Vector3d global_up(0, 0, 1);
-        if (z_axis.dot(global_up) < 0) {
-            z_axis = -z_axis;
-            x_axis = -x_axis;
-        }
-
-        // Project points onto PCA space
+        // Project points into PCA space
         std::vector<Eigen::Vector3d> transformed_points;
         transformed_points.reserve(cluster->points_.size());
         for (const auto& point : cluster->points_) {
-            transformed_points.push_back(eigenvectors.transpose() * (point - centroid));
+            transformed_points.push_back(eigvecs.transpose() * (point - centroid));
         }
 
-        // Compute min/max bounds in PCA-aligned space
+        // Get min and max bounds
         Eigen::Vector3d min_bound = transformed_points.front();
         Eigen::Vector3d max_bound = transformed_points.front();
         for (const auto& p : transformed_points) {
@@ -150,31 +224,142 @@ std::vector<open3d::geometry::OrientedBoundingBox> GeometryProcessor::computeOri
             max_bound = max_bound.cwiseMax(p);
         }
 
-        // Get extents and reorder axes (Ensure X is the shortest, Y is the longest)
-        Eigen::Vector3d extents = (max_bound - min_bound).cwiseAbs();
-        std::array<std::pair<double, int>, 3> sorted_axes = {
-            std::make_pair(extents.x(), 0),
-            std::make_pair(extents.y(), 1),
-            std::make_pair(extents.z(), 2)
-        };
+        Eigen::Vector3d extents = max_bound - min_bound;
 
-        std::sort(sorted_axes.begin(), sorted_axes.end());
+        // Sort extents to match your convention: Z (shortest), X (width), Y (length)
+        std::array<std::pair<double, int>, 3> dims = {{
+            std::make_pair(extents[0], 0),
+            std::make_pair(extents[1], 1),
+            std::make_pair(extents[2], 2)
+        }};
+        std::sort(dims.begin(), dims.end()); // ascending
 
-        Eigen::Matrix3d corrected_R;
-        corrected_R.col(0) = eigenvectors.col(sorted_axes[0].second);  // X (shortest)
-        corrected_R.col(1) = eigenvectors.col(sorted_axes[1].second);  // Y (longest)
-        corrected_R.col(2) = eigenvectors.col(sorted_axes[2].second);  // Z (always up)
+        int z_idx = dims[0].second; // shortest = thickness = Z
+        int x_idx = dims[1].second; // width = X
+        int y_idx = dims[2].second; // longest = length = Y
 
-        // Create final Oriented Bounding Box (OBB)
-        auto obb = open3d::geometry::OrientedBoundingBox();
+        Eigen::Matrix3d reordered_axes;
+        reordered_axes.col(0) = eigvecs.col(x_idx); // X - width
+        reordered_axes.col(1) = eigvecs.col(y_idx); // Y - length
+        reordered_axes.col(2) = eigvecs.col(z_idx); // Z - thickness
+
+        // Ensure Z axis points upward
+        if (reordered_axes.col(2).dot(Eigen::Vector3d(0, 0, 1)) < 0) {
+            reordered_axes.col(2) *= -1;
+            reordered_axes.col(1) *= -1; // maintain right-handed system
+        }
+
+        // Get extents in correct order
+        Eigen::Vector3d final_extents;
+        final_extents.x() = extents[x_idx]; // width
+        final_extents.y() = extents[y_idx]; // length
+        final_extents.z() = extents[z_idx]; // thickness
+
+        // Build bounding box
+        open3d::geometry::OrientedBoundingBox obb;
         obb.center_ = centroid;
-        obb.extent_ = Eigen::Vector3d(sorted_axes[0].first, sorted_axes[1].first, sorted_axes[2].first);
-        obb.R_ = corrected_R;
+        obb.R_ = reordered_axes;
+        obb.extent_ = final_extents;
 
         bounding_boxes.push_back(obb);
     }
+
     return bounding_boxes;
 }
+
+////////////////////////////////////////////////////////////////////////////
+std::vector<std::pair<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr>>
+GeometryProcessor::computeOrientedBoundingBoxesWithClouds(const std::vector<PC_o3d_ptr>& clusters)
+{
+    std::vector<std::pair<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr>> result;
+    result.reserve(clusters.size());
+
+    for (const auto& cluster : clusters) {
+        if (cluster->points_.empty()) continue;
+
+        // Convert Open3D point cloud to Eigen matrix
+        Eigen::MatrixXd data(cluster->points_.size(), 3);
+        for (size_t i = 0; i < cluster->points_.size(); ++i) {
+            data.row(i) = cluster->points_[i].transpose();
+        }
+
+        // Compute centroid
+        Eigen::Vector3d centroid = data.colwise().mean();
+        Eigen::MatrixXd centered = data.rowwise() - centroid.transpose();
+
+        // Compute covariance matrix
+        Eigen::Matrix3d covariance = (centered.transpose() * centered) / double(cluster->points_.size());
+
+        // PCA: eigen decomposition
+        Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigen_solver(covariance);
+        Eigen::Matrix3d eigvecs = eigen_solver.eigenvectors(); // principal axes
+
+        // Ensure right-handed coordinate system
+        if (eigvecs.determinant() < 0) {
+            eigvecs.col(0) *= -1;
+        }
+
+        // Project points into PCA space
+        std::vector<Eigen::Vector3d> transformed_points;
+        transformed_points.reserve(cluster->points_.size());
+        for (const auto& point : cluster->points_) {
+            transformed_points.push_back(eigvecs.transpose() * (point - centroid));
+        }
+
+        // Get min and max bounds
+        Eigen::Vector3d min_bound = transformed_points.front();
+        Eigen::Vector3d max_bound = transformed_points.front();
+        for (const auto& p : transformed_points) {
+            min_bound = min_bound.cwiseMin(p);
+            max_bound = max_bound.cwiseMax(p);
+        }
+
+        Eigen::Vector3d extents = max_bound - min_bound;
+
+        // Sort extents to match your convention: Z (shortest), X (width), Y (length)
+        std::array<std::pair<double, int>, 3> dims = {{
+            std::make_pair(extents[0], 0),
+            std::make_pair(extents[1], 1),
+            std::make_pair(extents[2], 2)
+        }};
+        std::sort(dims.begin(), dims.end()); // ascending
+
+        int z_idx = dims[0].second; // shortest = thickness = Z
+        int x_idx = dims[1].second; // width = X
+        int y_idx = dims[2].second; // longest = length = Y
+
+        Eigen::Matrix3d reordered_axes;
+        reordered_axes.col(0) = eigvecs.col(x_idx); // X - width
+        reordered_axes.col(1) = eigvecs.col(y_idx); // Y - length
+        reordered_axes.col(2) = eigvecs.col(z_idx); // Z - thickness
+
+        // Ensure Z axis points upward
+        if (reordered_axes.col(2).dot(Eigen::Vector3d(0, 0, 1)) < 0) {
+            reordered_axes.col(2) *= -1;
+            reordered_axes.col(1) *= -1; // maintain right-handed system
+        }
+
+        // Get extents in correct order
+        Eigen::Vector3d final_extents;
+        final_extents.x() = extents[x_idx]; // width
+        final_extents.y() = extents[y_idx]; // length
+        final_extents.z() = extents[z_idx]; // thickness
+
+        // Build bounding box
+        open3d::geometry::OrientedBoundingBox obb;
+        obb.center_ = centroid;
+        obb.R_ = reordered_axes;
+        obb.extent_ = final_extents;
+
+        // Save the pair (bounding box, point cloud)
+        result.emplace_back(obb, cluster);
+    }
+
+    return result;
+}
+
+
+
 
 ////////////////////////////////////////
 // computeMinimalOrientedBoundingBoxes
@@ -1081,7 +1266,7 @@ void GeometryProcessor::visualizePlanesOnBoundingBoxes(
         Eigen::Vector3d center(current_x + width / 2.0, start_pos.y() + fixed_length / 2.0, start_pos.z());
 
         // Set half extents with width along x, length along y, and thickness along z
-        Eigen::Vector3d half_extents(width / 2.0, fixed_length / 2.0, 0.005);
+        Eigen::Vector3d half_extents(width / 2.0, fixed_length / 2.0, 0.0065);
 
         // Create oriented bounding box
         auto box = std::make_shared<open3d::geometry::OrientedBoundingBox>(
@@ -2016,24 +2201,27 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
 
         
 
-        // Step 1: Get reference shingle (last in previous row)
-        Eigen::Matrix3d last_R = last_selected_shingle->R_;  // Keep same rotation
-        Eigen::Vector3d last_center = last_selected_shingle->GetCenter();
+        // // Step 1: Get reference shingle (last in previous row)
+        // Eigen::Matrix3d last_R = last_selected_shingle->R_;  // Keep same rotation
+        // Eigen::Vector3d last_center = last_selected_shingle->GetCenter();
 
-        // Step 2: Compute X translation for the next shingle, ensuring a gap
-        double spacing = last_selected_shingle->extent_.x() / 2.0 + max_gap + candidate->extent_.x() / 2.0;
-        Eigen::Vector3d shift_x = spacing * last_R.col(0);  // Ensure translation only along X
+        // // Step 2: Compute X translation for the next shingle, ensuring a gap
+        // double spacing = last_selected_shingle->extent_.x() / 2.0 + max_gap + candidate->extent_.x() / 2.0;
+        // Eigen::Vector3d shift_x = spacing * last_R.col(0);  // Ensure translation only along X
 
-        // Step 3: Apply the X translation to the new shingle
-        auto next_shingle = std::make_shared<open3d::geometry::OrientedBoundingBox>(*candidate);
-        next_shingle->R_ = last_R;  // Keep the same rotation as the previous one
+        // // Step 3: Apply the X translation to the new shingle
+        // auto next_shingle = std::make_shared<open3d::geometry::OrientedBoundingBox>(*candidate);
+        // next_shingle->R_ = last_R;  // Keep the same rotation as the previous one
 
-        // Ensure that the shingle is translated along the positive X direction.
-        if (shift_x.x() < 0) {
-            shift_x = -shift_x;  // Reverse if the shift goes negative along X
-        }
+        // // Ensure that the shingle is translated along the positive X direction.
+        // if (shift_x.x() < 0) {
+        //     shift_x = -shift_x;  // Reverse if the shift goes negative along X
+        // }
 
-        next_shingle->Translate(last_center + shift_x - next_shingle->GetCenter());
+        // next_shingle->Translate(last_center + shift_x - next_shingle->GetCenter());
+
+        auto next_shingle = alignAndShiftNextBox(last_selected_shingle, candidate, max_gap);
+
 
         std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> current_visualization = second_row;
         current_visualization.push_back(next_shingle);
@@ -2121,8 +2309,6 @@ GeometryProcessor::findNextBestShinglesForMultipleRows(
     //arranged_rows.push_back(first_row_copy);
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> previous_row = first_row_copy;
 
-    // // Step 2: Make a copy of candidates to ensure it's not modified inside the loop
-    // std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> current_candidates = candidates;
 
     
     auto current_candidates_copy = copyBoundingBoxes(candidates);
@@ -2265,9 +2451,217 @@ std::shared_ptr<open3d::geometry::OrientedBoundingBox> GeometryProcessor::alignA
 //     return candidate;  // Return the transformed candidate (same object, no copy)
 // }
 
+std::shared_ptr<open3d::geometry::OrientedBoundingBox> GeometryProcessor::alignAndShiftNextBox(
+    const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& last_selected_shingle,
+    const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate,
+    double gap)
+{
+    auto aligned_candidate = std::make_shared<open3d::geometry::OrientedBoundingBox>(*candidate);
+
+    // Step 1: Get the rotation and apply it to the candidate
+    aligned_candidate->R_ = last_selected_shingle->R_; // Match orientation
+    Eigen::Matrix3d R = aligned_candidate->R_;
+
+    // Step 2: Compute bottom-right corner of last shingle
+    Eigen::Vector3d last_center = last_selected_shingle->GetCenter();
+    Eigen::Vector3d half_extent_last = last_selected_shingle->extent_ / 2.0;
+
+    Eigen::Vector3d bottom_right_last = last_center
+        + R.col(0) * half_extent_last.x()  // right
+        - R.col(1) * half_extent_last.y(); // bottom
+
+    // Step 3: Compute bottom-left corner of candidate
+    Eigen::Vector3d cand_center = aligned_candidate->GetCenter();
+    Eigen::Vector3d half_extent_cand = aligned_candidate->extent_ / 2.0;
+
+    Eigen::Vector3d bottom_left_cand = cand_center
+        - R.col(0) * half_extent_cand.x()  // left
+        - R.col(1) * half_extent_cand.y(); // bottom
+
+    // Step 4: Compute translation vector to align corners + apply gap in X direction
+    Eigen::Vector3d shift = (bottom_right_last + R.col(0) * gap) - bottom_left_cand;
+
+    aligned_candidate->Translate(shift);
+
+    return aligned_candidate;
+}
+
 
 
 ///////////////////////////////////////////////////////////////
+// std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> 
+// GeometryProcessor::arrangeShingleRow(
+//     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& reference_row,
+//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& target_row,
+//     double gap,
+//     double max_length,
+//     double rotation_angle,
+//     double vertical_overlap) { // New parameter for vertical shift
+
+//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arranged_bboxes;
+
+//     if (reference_row.empty() || target_row.empty()) {
+//         return arranged_bboxes;
+//     }
+
+//     // Step 1: Align the first box of the target row with the first box of the reference row
+//     auto first_box_target_row = target_row[0];  
+//     auto first_box_reference_row = reference_row[0];
+
+//     // Align first box of the target row to the first box of the reference row
+//     auto first_box_target_row_aligned = alignAndShiftFirstBox(reference_row[0], target_row[0], gap, max_length, rotation_angle);
+
+//     // Add the aligned first box of target row to the arranged list
+//     arranged_bboxes.push_back(first_box_target_row_aligned);
+
+//     // Step 2: Compute the X-direction (for horizontal alignment)
+//     Eigen::Vector3d reference_point_first_row = reference_row[0]->GetCenter();
+//     Eigen::Vector3d reference_point_second_row = reference_row[1]->GetCenter();
+//     Eigen::Vector3d x_direction = (reference_point_second_row - reference_point_first_row).normalized();
+
+//     // Step 3: Arrange the rest of the target row relative to the first box in the target row
+//     double total_length = first_box_target_row_aligned->extent_.x(); // Track row length
+    
+//     // // // 
+//     //bool min_length_reached = false;  // Flag to ensure we reach at least max_length
+
+//     for (size_t i = 1; i < target_row.size(); ++i) {
+//         auto& bbox = target_row[i];
+
+//         // Ensure orientation matches the reference row
+//         Eigen::Matrix3d rotation_fix = first_box_reference_row->R_ * bbox->R_.transpose();
+//         bbox->Rotate(rotation_fix, bbox->GetCenter());
+
+//         // Move relative to the last arranged box (ensuring positive X)
+//         double spacing = arranged_bboxes.back()->extent_.x() / 2.0 + gap + bbox->extent_.x() / 2.0;
+//         Eigen::Vector3d shift_x = spacing * x_direction;  
+
+//         // Apply translation to place it next to the last arranged box
+//         bbox->Translate(arranged_bboxes.back()->GetCenter() + shift_x - bbox->GetCenter());
+
+//         // Predict next position before placing
+//         double new_total_length = total_length + arranged_bboxes.back()->extent_.x() / 2.0 + gap + bbox->extent_.x() / 2.0;
+
+//         // // // 
+//         // Allow placing shingles until we reach at least max_length
+//         // if (min_length_reached && new_total_length > max_length) {
+//         //     break;  // Stop only after reaching at least max_length
+//         // }
+
+//         total_length = new_total_length;
+
+//         // // // 
+//         // // Mark that we have reached at least max_length
+//         // if (total_length >= max_length) {
+//         //     min_length_reached = true;
+//         // }
+
+//         arranged_bboxes.push_back(bbox);
+//     }
+
+//     // Step 4: Compute the Y-direction (for vertical alignment)
+//     Eigen::Vector3d y_direction = reference_row[0]->R_.col(1); // Local Y-axis of the reference row
+
+//     // Step 5: Apply vertical overlap shift using local Y direction
+//     Eigen::Vector3d vertical_shift = y_direction * vertical_overlap; 
+
+//     // Apply the vertical shift to each box in the target row
+//     for (auto& bbox : arranged_bboxes) {
+//         bbox->Translate(vertical_shift); // Correct vertical translation based on overlap
+//     }
+
+//     // Step 6: Stack the target row above the reference row by the thickness of the first box
+//     double thickness = reference_row[0]->extent_.z(); // Thickness of the first box in the reference row
+//     Eigen::Vector3d stack_shift = reference_row[0]->R_ * Eigen::Vector3d(0, 0, thickness);
+
+//     for (auto& bbox : arranged_bboxes) {
+//         bbox->Translate(stack_shift); // Stack them above reference row
+//     }
+
+//     // Print the number of shingles and total length
+//     std::cout << "[INFO] Number of shingles arranged in current row: " << arranged_bboxes.size() << std::endl;
+//     std::cout << "[INFO] Total current row length: " << total_length << " meters" << std::endl;
+
+//     return arranged_bboxes;
+// }
+
+
+// std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> 
+// GeometryProcessor::arrangeShingleRow(
+//     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& reference_row,
+//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& target_row,
+//     double gap,
+//     double max_length,
+//     double rotation_angle,
+//     double vertical_overlap) {
+
+//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arranged_bboxes;
+
+//     if (reference_row.empty() || target_row.empty()) {
+//         return arranged_bboxes;
+//     }
+
+//     // Align and place the first box in the target row
+//     auto first_box_aligned = alignAndShiftFirstBox(reference_row[0], target_row[0], gap, max_length, rotation_angle);
+//     arranged_bboxes.push_back(first_box_aligned);
+//     double total_length = first_box_aligned->extent_.x();
+
+//     for (size_t i = 1; i < target_row.size(); ++i) {
+//         auto& candidate = target_row[i];
+
+//         // Match orientation to the reference row
+//         Eigen::Matrix3d rotation_fix = reference_row[0]->R_ * candidate->R_.transpose();
+//         candidate->Rotate(rotation_fix, candidate->GetCenter());
+
+//         // Compute bottom-left corner of the last box
+//         auto& last_box = arranged_bboxes.back();
+//         Eigen::Vector3d last_bottom_left = last_box->GetCenter()
+//             - 0.5 * last_box->extent_.x() * last_box->R_.col(0)
+//             - 0.5 * last_box->extent_.y() * last_box->R_.col(1);
+
+//         // Compute bottom-left corner of the candidate
+//         Eigen::Vector3d candidate_bottom_left = candidate->GetCenter()
+//             - 0.5 * candidate->extent_.x() * candidate->R_.col(0)
+//             - 0.5 * candidate->extent_.y() * candidate->R_.col(1);
+
+//         // Shift to place the candidate to the right of the last box with the gap
+//         Eigen::Vector3d shift_direction = last_box->R_.col(0); // Local X direction
+//         Eigen::Vector3d target_position = last_bottom_left + (last_box->extent_.x() + gap) * shift_direction;
+
+//         Eigen::Vector3d shift = target_position - candidate_bottom_left;
+//         candidate->Translate(shift);
+
+//         // Update total length and check bounds
+//         double new_total_length = total_length + gap + candidate->extent_.x();
+//         if (new_total_length > max_length) {
+//             break;
+//         }
+
+//         total_length = new_total_length;
+//         arranged_bboxes.push_back(candidate);
+//     }
+
+//     // Vertical overlap shift (along local Y of reference box)
+//     Eigen::Vector3d y_direction = reference_row[0]->R_.col(1);
+//     Eigen::Vector3d vertical_shift = y_direction * vertical_overlap;
+//     for (auto& box : arranged_bboxes) {
+//         box->Translate(vertical_shift);
+//     }
+
+//     // Stack on top (along local Z of reference box)
+//     double thickness = reference_row[0]->extent_.z();
+//     Eigen::Vector3d z_shift = reference_row[0]->R_ * Eigen::Vector3d(0, 0, thickness);
+//     for (auto& box : arranged_bboxes) {
+//         box->Translate(z_shift);
+//     }
+
+//     std::cout << "[INFO] Number of shingles arranged in current row: " << arranged_bboxes.size() << std::endl;
+//     std::cout << "[INFO] Total current row length: " << total_length << " meters" << std::endl;
+
+//     return arranged_bboxes;
+// }
+
+
 std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> 
 GeometryProcessor::arrangeShingleRow(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& reference_row,
@@ -2275,7 +2669,7 @@ GeometryProcessor::arrangeShingleRow(
     double gap,
     double max_length,
     double rotation_angle,
-    double vertical_overlap) { // New parameter for vertical shift
+    double vertical_overlap) {
 
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arranged_bboxes;
 
@@ -2283,81 +2677,46 @@ GeometryProcessor::arrangeShingleRow(
         return arranged_bboxes;
     }
 
-    // Step 1: Align the first box of the target row with the first box of the reference row
-    auto first_box_target_row = target_row[0];  
-    auto first_box_reference_row = reference_row[0];
+    // Step 1: Align and place the first box
+    auto first_box_aligned = alignAndShiftFirstBox(reference_row[0], target_row[0], gap, max_length, rotation_angle);
+    arranged_bboxes.push_back(first_box_aligned);
+    double total_length = first_box_aligned->extent_.x();
 
-    // Align first box of the target row to the first box of the reference row
-    auto first_box_target_row_aligned = alignAndShiftFirstBox(reference_row[0], target_row[0], gap, max_length, rotation_angle);
-
-    // Add the aligned first box of target row to the arranged list
-    arranged_bboxes.push_back(first_box_target_row_aligned);
-
-    // Step 2: Compute the X-direction (for horizontal alignment)
-    Eigen::Vector3d reference_point_first_row = reference_row[0]->GetCenter();
-    Eigen::Vector3d reference_point_second_row = reference_row[1]->GetCenter();
-    Eigen::Vector3d x_direction = (reference_point_second_row - reference_point_first_row).normalized();
-
-    // Step 3: Arrange the rest of the target row relative to the first box in the target row
-    double total_length = first_box_target_row_aligned->extent_.x(); // Track row length
-    
-    // // // 
-    //bool min_length_reached = false;  // Flag to ensure we reach at least max_length
-
+    // Step 2: Use helper for remaining boxes
     for (size_t i = 1; i < target_row.size(); ++i) {
-        auto& bbox = target_row[i];
+        auto& candidate = target_row[i];
 
-        // Ensure orientation matches the reference row
-        Eigen::Matrix3d rotation_fix = first_box_reference_row->R_ * bbox->R_.transpose();
-        bbox->Rotate(rotation_fix, bbox->GetCenter());
+        // Align orientation to match the reference row
+        Eigen::Matrix3d rotation_fix = reference_row[0]->R_ * candidate->R_.transpose();
+        candidate->Rotate(rotation_fix, candidate->GetCenter());
 
-        // Move relative to the last arranged box (ensuring positive X)
-        double spacing = arranged_bboxes.back()->extent_.x() / 2.0 + gap + bbox->extent_.x() / 2.0;
-        Eigen::Vector3d shift_x = spacing * x_direction;  
+        // Use helper to align and place the box
+        auto aligned_candidate = alignAndShiftNextBox(arranged_bboxes.back(), candidate, gap);
 
-        // Apply translation to place it next to the last arranged box
-        bbox->Translate(arranged_bboxes.back()->GetCenter() + shift_x - bbox->GetCenter());
+        // Check length constraint
+        double new_total_length = total_length + gap + aligned_candidate->extent_.x();
+        if (new_total_length > max_length) {
+            break;
+        }
 
-        // Predict next position before placing
-        double new_total_length = total_length + arranged_bboxes.back()->extent_.x() / 2.0 + gap + bbox->extent_.x() / 2.0;
-
-        // // // 
-        // Allow placing shingles until we reach at least max_length
-        // if (min_length_reached && new_total_length > max_length) {
-        //     break;  // Stop only after reaching at least max_length
-        // }
-
+        arranged_bboxes.push_back(aligned_candidate);
         total_length = new_total_length;
-
-        // // // 
-        // // Mark that we have reached at least max_length
-        // if (total_length >= max_length) {
-        //     min_length_reached = true;
-        // }
-
-        arranged_bboxes.push_back(bbox);
     }
 
-    // Step 4: Compute the Y-direction (for vertical alignment)
-    Eigen::Vector3d y_direction = reference_row[0]->R_.col(1); // Local Y-axis of the reference row
-
-    // Step 5: Apply vertical overlap shift using local Y direction
-    Eigen::Vector3d vertical_shift = y_direction * vertical_overlap; 
-
-    // Apply the vertical shift to each box in the target row
-    for (auto& bbox : arranged_bboxes) {
-        bbox->Translate(vertical_shift); // Correct vertical translation based on overlap
+    // Step 3: Apply vertical overlap shift
+    Eigen::Vector3d y_direction = reference_row[0]->R_.col(1);
+    Eigen::Vector3d vertical_shift = y_direction * vertical_overlap;
+    for (auto& box : arranged_bboxes) {
+        box->Translate(vertical_shift);
     }
 
-    // Step 6: Stack the target row above the reference row by the thickness of the first box
-    double thickness = reference_row[0]->extent_.z(); // Thickness of the first box in the reference row
-    Eigen::Vector3d stack_shift = reference_row[0]->R_ * Eigen::Vector3d(0, 0, thickness);
-
-    for (auto& bbox : arranged_bboxes) {
-        bbox->Translate(stack_shift); // Stack them above reference row
+    // Step 4: Stack on top
+    double thickness = reference_row[0]->extent_.z();
+    Eigen::Vector3d z_shift = reference_row[0]->R_ * Eigen::Vector3d(0, 0, thickness);
+    for (auto& box : arranged_bboxes) {
+        box->Translate(z_shift);
     }
 
-    // Print the number of shingles and total length
     std::cout << "[INFO] Number of shingles arranged in current row: " << arranged_bboxes.size() << std::endl;
     std::cout << "[INFO] Total current row length: " << total_length << " meters" << std::endl;
 
@@ -2489,7 +2848,27 @@ GeometryProcessor::arrangeMultipleShingleRows(
     return arranged_rows;
 }
 
+///////////////////////////////
+std::vector<PC_o3d_ptr> GeometryProcessor::arrangePointCloudsWithBoundingBoxes(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& arranged_boxes,
+    const std::vector<std::pair<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr>>& box_cloud_pairs)
+{
+    std::vector<PC_o3d_ptr> transformed_clouds;
+    for (const auto& box : arranged_boxes) {
+        for (const auto& [original_box, cloud] : box_cloud_pairs) {
+            if ((box->extent_ - original_box.extent_).norm() < 1e-4) { // or a better matching criteria
+                // Clone the cloud and apply the box transformation
+                auto transformed = std::make_shared<open3d::geometry::PointCloud>(*cloud);
 
+                Eigen::Vector3d shift = box->GetCenter() - original_box.center_;
+                transformed->Translate(shift); // apply translation
+                transformed_clouds.push_back(transformed);
+                break;
+            }
+        }
+    }
+    return transformed_clouds;
+}
 
 
 ////////////////////////////////
@@ -2591,27 +2970,6 @@ void GeometryProcessor::visualize_bounding_boxes(
     // Use built-in coordinate frame for axes
     auto coordinate_frame = open3d::geometry::TriangleMesh::CreateCoordinateFrame(0.1);
     visualizer.AddGeometry(coordinate_frame);
-
-    // // Create global coordinate axes using lines
-    // auto axis_lines = std::make_shared<open3d::geometry::LineSet>();
-    // axis_lines->points_ = {
-    //     Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(1, 0, 0),  // X-axis (Red)
-    //     Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 1, 0),  // Y-axis (Green)
-    //     Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(0, 0, 1)   // Z-axis (Blue)
-    // };
-    // axis_lines->lines_ = {
-    //     Eigen::Vector2i(0, 1),  // X-axis
-    //     Eigen::Vector2i(2, 3),  // Y-axis
-    //     Eigen::Vector2i(4, 5)   // Z-axis
-    // };
-    // axis_lines->colors_ = {
-    //     Eigen::Vector3d(1, 0, 0),  // Red for X-axis
-    //     Eigen::Vector3d(0, 1, 0),  // Green for Y-axis
-    //     Eigen::Vector3d(0, 0, 1)   // Blue for Z-axis
-    // };
-
-    // // Add the global axes to the visualizer
-    // visualizer.AddGeometry(axis_lines);
 
     // Visualize bounding boxes and their axes
     for (const auto& bbox : bounding_boxes) {
@@ -2810,6 +3168,31 @@ void GeometryProcessor::visualizeShinglePlane(const std::shared_ptr<open3d::geom
 }
 
 
+////////////////////////////////////////////////
+void GeometryProcessor::visualizePointClouds(const std::vector<std::shared_ptr<open3d::geometry::PointCloud>>& clouds) {
+    // Create a Visualizer instance
+    open3d::visualization::Visualizer visualizer;
+    visualizer.CreateVisualizerWindow("PointClouds Visualization");
+
+    // Add each point cloud to the visualizer
+    for (const auto& cloud : clouds) {
+        visualizer.AddGeometry(cloud);
+    }
+
+    // Run the visualizer
+    visualizer.Run();
+    visualizer.DestroyVisualizerWindow();
+}
+
+
+
+
+
+
+
+
+
+
 
 /////////////////////////////////////////////
 std::shared_ptr<open3d::geometry::TriangleMesh> GeometryProcessor::CreateMeshFromOrientedBoundingBox(
@@ -2842,38 +3225,8 @@ std::shared_ptr<open3d::geometry::TriangleMesh> GeometryProcessor::CreateMeshFro
 
 
 
-// void GeometryProcessor::visualizeShingleMeshes(
-//     const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& combined_rows) {
 
-//     std::vector<std::shared_ptr<const open3d::geometry::Geometry>> all_geometries;
-
-//     // Define a color list for different rows (extend if more rows exist)
-//     std::vector<Eigen::Vector3d> row_colors = {
-//         {0, 0, 1},   // Blue for first row
-//         {1, 0, 0},   // Red for second row
-//         {0, 1, 0},   // Green for third row
-//         {1, 1, 0},   // Yellow for fourth row
-//         {1, 0, 1},   // Magenta for fifth row
-//         {0, 1, 1}    // Cyan for sixth row
-//     };
-
-//     for (size_t i = 0; i < combined_rows.size(); ++i) {
-//         Eigen::Vector3d color = row_colors[i % row_colors.size()]; // Cycle through colors
-
-//         for (const auto& bbox : combined_rows[i]) {
-//             auto mesh = CreateMeshFromOrientedBoundingBox(*bbox, color);
-//             all_geometries.push_back(mesh);
-//         }
-//     }
-
-//     // Add coordinate frame for reference
-//     auto coordinate_frame = open3d::geometry::TriangleMesh::CreateCoordinateFrame(0.1);
-//     all_geometries.push_back(coordinate_frame);
-
-//     // Visualize the meshes
-//     open3d::visualization::DrawGeometries(all_geometries);
-// }
-
+/////////////////////////////////////////////////
 void GeometryProcessor::visualizeShingleMeshes(
     const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& combined_rows,
     std::shared_ptr<open3d::geometry::PointCloud> point_cloud = nullptr) // Optional argument

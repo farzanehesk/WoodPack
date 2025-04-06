@@ -2849,25 +2849,54 @@ GeometryProcessor::arrangeMultipleShingleRows(
 }
 
 ///////////////////////////////
-std::vector<PC_o3d_ptr> GeometryProcessor::arrangePointCloudsWithBoundingBoxes(
-    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& arranged_boxes,
-    const std::vector<std::pair<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr>>& box_cloud_pairs)
+std::vector<PC_o3d_ptr> GeometryProcessor::alignPointCloudsToArrangedBoxes(
+    const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& arranged_boxes,
+    const std::vector<std::pair<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr>>& original_box_cloud_pairs)
 {
-    std::vector<PC_o3d_ptr> transformed_clouds;
-    for (const auto& box : arranged_boxes) {
-        for (const auto& [original_box, cloud] : box_cloud_pairs) {
-            if ((box->extent_ - original_box.extent_).norm() < 1e-4) { // or a better matching criteria
-                // Clone the cloud and apply the box transformation
-                auto transformed = std::make_shared<open3d::geometry::PointCloud>(*cloud);
+    std::vector<PC_o3d_ptr> aligned_clouds;
 
-                Eigen::Vector3d shift = box->GetCenter() - original_box.center_;
-                transformed->Translate(shift); // apply translation
-                transformed_clouds.push_back(transformed);
-                break;
+    for (const auto& row : arranged_boxes) {
+        for (const auto& arranged_box_ptr : row) {
+            const auto& arranged_box = *arranged_box_ptr;
+
+            // Find corresponding original box
+            auto it = std::find_if(
+                original_box_cloud_pairs.begin(),
+                original_box_cloud_pairs.end(),
+                [&arranged_box](const std::pair<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr>& pair) {
+                    const auto& orig_box = pair.first;
+                    return (orig_box.extent_ - arranged_box.extent_).norm() < 1e-4;
+                });
+
+            if (it == original_box_cloud_pairs.end()) {
+                std::cerr << "Warning: No matching box found for arranged box.\n";
+                continue;
             }
+
+            const auto& [original_box, cloud] = *it;
+
+            // Compute transformation from original box to arranged box
+            Eigen::Matrix3d R_src = original_box.R_;
+            Eigen::Vector3d t_src = original_box.center_;
+            Eigen::Matrix3d R_dst = arranged_box.R_;
+            Eigen::Vector3d t_dst = arranged_box.center_;
+
+            Eigen::Matrix3d R_align = R_dst * R_src.transpose();
+            Eigen::Vector3d t_align = t_dst - R_align * t_src;
+
+            Eigen::Matrix4d transform = Eigen::Matrix4d::Identity();
+            transform.block<3, 3>(0, 0) = R_align;
+            transform.block<3, 1>(0, 3) = t_align;
+
+            // Transform the cloud
+            auto aligned_cloud = std::make_shared<open3d::geometry::PointCloud>(*cloud);
+            aligned_cloud->Transform(transform);
+
+            aligned_clouds.push_back(aligned_cloud);
         }
     }
-    return transformed_clouds;
+
+    return aligned_clouds;
 }
 
 

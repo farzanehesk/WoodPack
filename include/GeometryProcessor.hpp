@@ -373,9 +373,9 @@ std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
 
 
     //
-    std::vector<PC_o3d_ptr> arrangePointCloudsWithBoundingBoxes(
-    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& arranged_boxes,
-    const std::vector<std::pair<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr>>& box_cloud_pairs);
+    std::vector<PC_o3d_ptr> alignPointCloudsToArrangedBoxes(
+    const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& arranged_boxes,
+    const std::vector<std::pair<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr>>& original_box_cloud_pairs);
 
 
     //

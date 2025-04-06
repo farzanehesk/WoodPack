@@ -53,18 +53,20 @@ int main() {
     std::vector <PC_o3d_ptr> clusters = perception.getClusters();
 
 
+    /// former method that worked
     // // instantiate geometryprocessor
     GeometryProcessor geom_processor;
     // auto shingles_bbx = geom_processor.computeOrientedBoundingBoxes(clusters);
     // geom_processor.VisualizeBoundingBoxesAxis(shingles_bbx);
+    ///
 
+/// new method
     auto box_cloud_pairs = geom_processor.computeOrientedBoundingBoxesWithClouds(clusters);
-
     // extract just the boxes for sorting/arranging
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> shingle_ptrs;
     for (const auto& [box, _] : box_cloud_pairs)
         shingle_ptrs.push_back(std::make_shared<open3d::geometry::OrientedBoundingBox>(box));
-
+/////
 
 
 
@@ -135,36 +137,28 @@ int main() {
     // std::cout << "Number of RECTANGLES in rect_third_and_forth_row: " << bbx_third_and_forth_row.size() << std::endl;
 
 
-    // //
+    /// former method that worked
     // // Convert std::vector<OrientedBoundingBox> to std::vector<std::shared_ptr<OrientedBoundingBox>>
     // std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> shingle_ptrs;
     // for (const auto& box : shingles_bbx) {
     // //     shingle_ptrs.push_back(std::make_shared<open3d::geometry::OrientedBoundingBox>(box));
     // }
     // geom_processor.visualize_bounding_boxes(shingle_ptrs);
+    ///
 
 
 
 
-
-    auto third_forth_row_sorted = geom_processor.findNextBestShinglesForMultipleRows(second_row_of_shingles , shingle_ptrs ,5  ,  0.03 , gap , max_length);
-    geom_processor.visualizeAllShingleRows(third_forth_row_sorted);
+    auto sorted_boxes = geom_processor.findNextBestShinglesForMultipleRows(second_row_of_shingles , shingle_ptrs ,5  ,  0.03 , gap , max_length);
+    geom_processor.visualizeAllShingleRows(sorted_boxes);
 
     //
-   auto arranged_boxes = geom_processor.arrangeMultipleShingleRows(second_row_of_shingles ,third_forth_row_sorted , gap , max_length , rotation_angle , 0.02 , -0.11 );
+   auto arranged_boxes = geom_processor.arrangeMultipleShingleRows(second_row_of_shingles ,sorted_boxes , gap , max_length , rotation_angle , 0.02 , -0.11 );
    std::cout << "Number of rows in third_forth_row_: " << arranged_boxes.size() << std::endl;
 
 
-    // Flatten the 2D vector of arranged boxes
-    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> flattened_arranged_boxes;
-    for (const auto& row : arranged_boxes) {
-        for (const auto& box : row) {
-            flattened_arranged_boxes.push_back(box);
-        }
-    }
-
-    // Now call the function
-    auto arranged_clouds = geom_processor.arrangePointCloudsWithBoundingBoxes(flattened_arranged_boxes, box_cloud_pairs);
+    ////////////////////////////////////
+    auto arranged_clouds = geom_processor.alignPointCloudsToArrangedBoxes(arranged_boxes, box_cloud_pairs);
     geom_processor.visualizePointClouds(arranged_clouds);
 
     ///////////////////////////////////////////////////////////////////////////////////////

@@ -102,7 +102,8 @@ class PointCloudVisualizer:  public virtual PointCloudProcessor
     void visualizerPointCloud();
     //
     
-    void visualizerClusters(const std::vector<PC_o3d_ptr>& clusters);  // Visualize clusters
+    //void visualizerClusters(const std::vector<PC_o3d_ptr>& clusters);  // Visualize clusters
+    void visualizerClusters(const std::vector<PC_o3d_ptr>& clusters, bool keep_original_color);
 
 
     //void visualizeMultiplePointClouds();

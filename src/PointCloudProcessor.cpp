@@ -285,7 +285,8 @@ bool PointCloudProcessor::loadPointCloud(const std::string& filename, bool flip_
     if (!pc_ptr_) {
         pc_ptr_ = std::make_shared<open3d::geometry::PointCloud>();
     }
-    std::string filepath = "data/" + filename;
+    //std::string filepath = "data/" + filename;
+    std::string filepath =  filename;
     
     if (open3d::io::ReadPointCloud(filepath, *pc_ptr_))
     {
@@ -451,34 +452,57 @@ void PointCloudVisualizer::visualizerPointCloud()
 
 
     // visualizerClusters
-void PointCloudVisualizer::visualizerClusters(const std::vector<PC_o3d_ptr>& clusters) {
-    // Visualize the clusters passed to the function
+// void PointCloudVisualizer::visualizerClusters(const std::vector<PC_o3d_ptr>& clusters) {
+//     // Visualize the clusters passed to the function
+//     std::vector<std::shared_ptr<const open3d::geometry::Geometry>> geometries;
+
+//     // Random color generator (you can use a different approach to assign specific colors)
+//     std::random_device rd;
+//     std::mt19937 gen(rd());
+//     std::uniform_real_distribution<double> dis(0.0, 1.0);  // RGB range between 0 and 1
+
+//     // Iterate over clusters and assign a random color to each one
+//     for (size_t i = 0; i < clusters.size(); i++) {
+//         auto cluster = clusters[i];
+        
+//         // Assign a single random color to each cluster
+//         Eigen::Vector3d color(dis(gen), dis(gen), dis(gen));  // Random RGB color
+        
+//         // Assign this color to all points in the cluster
+//         cluster->colors_.clear();  // Clear any existing colors
+//         cluster->colors_.resize(cluster->points_.size(), color);  // Assign color to all points in the cluster
+        
+//         // Add this cluster to the list of geometries to visualize
+//         geometries.push_back(cluster);
+//     }
+
+//     // Visualize all clusters with distinct colors
+//     open3d::visualization::DrawGeometries(geometries, "Clustered Point Cloud");
+// }
+
+
+void PointCloudVisualizer::visualizerClusters(const std::vector<PC_o3d_ptr>& clusters, bool keep_original_color) {
     std::vector<std::shared_ptr<const open3d::geometry::Geometry>> geometries;
 
-    // Random color generator (you can use a different approach to assign specific colors)
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<double> dis(0.0, 1.0);  // RGB range between 0 and 1
 
-    // Iterate over clusters and assign a random color to each one
     for (size_t i = 0; i < clusters.size(); i++) {
         auto cluster = clusters[i];
-        
-        // Assign a single random color to each cluster
-        Eigen::Vector3d color(dis(gen), dis(gen), dis(gen));  // Random RGB color
-        
-        // Assign this color to all points in the cluster
-        cluster->colors_.clear();  // Clear any existing colors
-        cluster->colors_.resize(cluster->points_.size(), color);  // Assign color to all points in the cluster
-        
-        // Add this cluster to the list of geometries to visualize
+
+        if (!keep_original_color || cluster->colors_.empty()) {
+            // Assign random color
+            Eigen::Vector3d color(dis(gen), dis(gen), dis(gen));
+            cluster->colors_.clear();
+            cluster->colors_.resize(cluster->points_.size(), color);
+        }
+
         geometries.push_back(cluster);
     }
 
-    // Visualize all clusters with distinct colors
     open3d::visualization::DrawGeometries(geometries, "Clustered Point Cloud");
 }
-
 
 
 ///////////////////////////////////////////////////////////
@@ -660,7 +684,7 @@ void PointCloudPerception::EuclideanClustering(bool debug) {
     log("Clustering completed. " + std::to_string(cluster_clouds.size()) + " clusters detected.");
 
     //     // Visualize clustered point cloud
-    visualizerClusters(cluster_clouds);
+    visualizerClusters(cluster_clouds , true);
 
     // Optional: Visualize all clusters separately
     if (debug)

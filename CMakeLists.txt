@@ -31,10 +31,20 @@ include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-# Add your source files
-add_executable(${PROJECT_NAME} src/main.cpp src/PointCloudProcessor.cpp src/GeometryProcessor.cpp)
+# Main executable
+add_executable(${PROJECT_NAME}
+    src/main.cpp 
+    src/PointCloudProcessor.cpp 
+    src/GeometryProcessor.cpp
+)
 
-# Link Open3D
 target_link_libraries(${PROJECT_NAME} PUBLIC Open3D::Open3D ${PCL_LIBRARIES})
 
+# Analysis executable in tools/
+add_executable(analyze_shingle_widths 
+    tools/analyze_shingle_widths.cpp 
+    src/PointCloudProcessor.cpp 
+    src/GeometryProcessor.cpp
+)
 
+target_link_libraries(analyze_shingle_widths PUBLIC Open3D::Open3D ${PCL_LIBRARIES})

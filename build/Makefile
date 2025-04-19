@@ -48,10 +48,10 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /snap/cmake/1457/bin/cmake
+CMAKE_COMMAND = /snap/cmake/1461/bin/cmake
 
 # The command to remove a file.
-RM = /snap/cmake/1457/bin/cmake -E rm -f
+RM = /snap/cmake/1461/bin/cmake -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
@@ -68,7 +68,7 @@ CMAKE_BINARY_DIR = /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optim
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running CMake cache editor..."
-	/snap/cmake/1457/bin/ccmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	/snap/cmake/1461/bin/ccmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -78,7 +78,7 @@ edit_cache/fast: edit_cache
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running CMake to regenerate build system..."
-	/snap/cmake/1457/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	/snap/cmake/1461/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : rebuild_cache
 
 # Special rule for the target rebuild_cache
@@ -129,12 +129,26 @@ Shingle_Optimization/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/build
 .PHONY : Shingle_Optimization/fast
 
+#=============================================================================
+# Target rules for targets named analyze_shingle_widths
+
+# Build rule for target.
+analyze_shingle_widths: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 analyze_shingle_widths
+.PHONY : analyze_shingle_widths
+
+# fast build rule for target.
+analyze_shingle_widths/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/analyze_shingle_widths.dir/build.make CMakeFiles/analyze_shingle_widths.dir/build
+.PHONY : analyze_shingle_widths/fast
+
 src/GeometryProcessor.o: src/GeometryProcessor.cpp.o
 .PHONY : src/GeometryProcessor.o
 
 # target to build an object file
 src/GeometryProcessor.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/src/GeometryProcessor.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/analyze_shingle_widths.dir/build.make CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.o
 .PHONY : src/GeometryProcessor.cpp.o
 
 src/GeometryProcessor.i: src/GeometryProcessor.cpp.i
@@ -143,6 +157,7 @@ src/GeometryProcessor.i: src/GeometryProcessor.cpp.i
 # target to preprocess a source file
 src/GeometryProcessor.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/src/GeometryProcessor.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/analyze_shingle_widths.dir/build.make CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.i
 .PHONY : src/GeometryProcessor.cpp.i
 
 src/GeometryProcessor.s: src/GeometryProcessor.cpp.s
@@ -151,6 +166,7 @@ src/GeometryProcessor.s: src/GeometryProcessor.cpp.s
 # target to generate assembly for a file
 src/GeometryProcessor.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/src/GeometryProcessor.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/analyze_shingle_widths.dir/build.make CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.s
 .PHONY : src/GeometryProcessor.cpp.s
 
 src/PointCloudProcessor.o: src/PointCloudProcessor.cpp.o
@@ -159,6 +175,7 @@ src/PointCloudProcessor.o: src/PointCloudProcessor.cpp.o
 # target to build an object file
 src/PointCloudProcessor.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/src/PointCloudProcessor.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/analyze_shingle_widths.dir/build.make CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.o
 .PHONY : src/PointCloudProcessor.cpp.o
 
 src/PointCloudProcessor.i: src/PointCloudProcessor.cpp.i
@@ -167,6 +184,7 @@ src/PointCloudProcessor.i: src/PointCloudProcessor.cpp.i
 # target to preprocess a source file
 src/PointCloudProcessor.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/src/PointCloudProcessor.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/analyze_shingle_widths.dir/build.make CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.i
 .PHONY : src/PointCloudProcessor.cpp.i
 
 src/PointCloudProcessor.s: src/PointCloudProcessor.cpp.s
@@ -175,6 +193,7 @@ src/PointCloudProcessor.s: src/PointCloudProcessor.cpp.s
 # target to generate assembly for a file
 src/PointCloudProcessor.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/src/PointCloudProcessor.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/analyze_shingle_widths.dir/build.make CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.s
 .PHONY : src/PointCloudProcessor.cpp.s
 
 src/main.o: src/main.cpp.o
@@ -201,6 +220,30 @@ src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
+tools/analyze_shingle_widths.o: tools/analyze_shingle_widths.cpp.o
+.PHONY : tools/analyze_shingle_widths.o
+
+# target to build an object file
+tools/analyze_shingle_widths.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/analyze_shingle_widths.dir/build.make CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.o
+.PHONY : tools/analyze_shingle_widths.cpp.o
+
+tools/analyze_shingle_widths.i: tools/analyze_shingle_widths.cpp.i
+.PHONY : tools/analyze_shingle_widths.i
+
+# target to preprocess a source file
+tools/analyze_shingle_widths.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/analyze_shingle_widths.dir/build.make CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.i
+.PHONY : tools/analyze_shingle_widths.cpp.i
+
+tools/analyze_shingle_widths.s: tools/analyze_shingle_widths.cpp.s
+.PHONY : tools/analyze_shingle_widths.s
+
+# target to generate assembly for a file
+tools/analyze_shingle_widths.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/analyze_shingle_widths.dir/build.make CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.s
+.PHONY : tools/analyze_shingle_widths.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -210,6 +253,7 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... Shingle_Optimization"
+	@echo "... analyze_shingle_widths"
 	@echo "... src/GeometryProcessor.o"
 	@echo "... src/GeometryProcessor.i"
 	@echo "... src/GeometryProcessor.s"
@@ -219,6 +263,9 @@ help:
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... tools/analyze_shingle_widths.o"
+	@echo "... tools/analyze_shingle_widths.i"
+	@echo "... tools/analyze_shingle_widths.s"
 .PHONY : help
 
 

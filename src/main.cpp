@@ -61,13 +61,27 @@ int main() {
     ///
 
 /// new method
-    auto box_cloud_pairs = geom_processor.computeOrientedBoundingBoxesWithClouds(clusters);
+    auto box_cloud_pairs = geom_processor.computeOrientedBoundingBoxesWithClouds(clusters , true);
     // extract just the boxes for sorting/arranging
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> shingle_ptrs;
     for (const auto& [box, _] : box_cloud_pairs)
         shingle_ptrs.push_back(std::make_shared<open3d::geometry::OrientedBoundingBox>(box));
+
 /////
 
+    std::vector<open3d::geometry::OrientedBoundingBox> boxes;
+    boxes.reserve(shingle_ptrs.size());
+
+    for (const auto& ptr : shingle_ptrs) {
+        if (ptr) {
+            boxes.push_back(*ptr);  // Dereference and copy the value
+        }
+    }
+
+    // Now pass it to the function
+    geom_processor.VisualizeBoundingBoxesAxis(boxes);
+
+/////
 
 
 
@@ -117,7 +131,7 @@ int main() {
     auto bbx_second_row = geom_processor.createBoundingBoxes(45 , 0.35, false );  // Create 10 random rectangles
     geom_processor.visualize_bounding_boxes(bbx_second_row);
     //
-    auto second_row_sorted = geom_processor.findNextBestShingles(first_row_of_shingles ,bbx_second_row , 0.03 , gap ,max_length);
+    auto second_row_sorted = geom_processor.findNextBestShingles(first_row_of_shingles ,bbx_second_row , 0.03 , gap ,max_length, true);
     //
     auto second_row_of_shingles = geom_processor.arrangeShingleRow(
         first_row_of_shingles,
@@ -159,7 +173,8 @@ int main() {
 
     ////////////////////////////////////
     auto arranged_clouds = geom_processor.alignPointCloudsToArrangedBoxes(arranged_boxes, box_cloud_pairs);
-    geom_processor.visualizePointClouds(arranged_clouds);
+    std::cout << "Number of arranged shingles: " << arranged_clouds.size() << std::endl;
+    geom_processor.visualizePointClouds(arranged_clouds , nullptr);
 
     ///////////////////////////////////////////////////////////////////////////////////////
     // 7 - 8 - 9 - 10: 
@@ -200,6 +215,8 @@ int main() {
 
     geom_processor.visualizeAllShingleRows(combined_rows);
     geom_processor.visualizeShingleMeshes(combined_rows ,sub_structure_pc);
+    geom_processor.visualizePointClouds(arranged_clouds ,sub_structure_pc );
+
 
 
 
@@ -212,8 +229,15 @@ int main() {
 
 
     // 4. check the angles based on the prototype built by craftspeople : done
-    // 5. use the actual shingles for arrangement
+    // 5. use the actual shingles for arrangement : done
+    // 
     // 6. import the substructure designed 3d model for the process
+    // 7. correct the thickness of shingles bbx to be consistent: done
+    // 8. check the length limit
+    // 9. see if we can get shorter shingles
+    
+
+    
 
 
     

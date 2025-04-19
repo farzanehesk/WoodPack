@@ -87,7 +87,7 @@ public:
 
     //
     std::vector<std::pair<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr>>
-    computeOrientedBoundingBoxesWithClouds(const std::vector<PC_o3d_ptr>& clusters);
+    computeOrientedBoundingBoxesWithClouds(const std::vector<PC_o3d_ptr>& clusters , bool debug);
 
 
     //
@@ -277,7 +277,8 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& candidates,
     double min_stagger,
     double max_gap,
-    double max_length);
+    double max_length,
+    bool vis_candidates);
 
     //
     Eigen::Vector3d updateRightEdge(
@@ -379,7 +380,8 @@ std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
 
 
     //
-    void visualizePointClouds(const std::vector<std::shared_ptr<open3d::geometry::PointCloud>>& clouds);
+    void visualizePointClouds(const std::vector<std::shared_ptr<open3d::geometry::PointCloud>>& clouds , 
+    std::shared_ptr<open3d::geometry::PointCloud> point_cloud);
 
 
 

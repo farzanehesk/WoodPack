@@ -2154,6 +2154,977 @@ std::vector<double> GeometryProcessor::calculateRightEdgeDistancesFromCandidate(
 // }
 
 
+// std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProcessor::findNextBestShingles(
+//     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
+//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& candidates,
+//     double min_stagger,
+//     double max_gap,
+//     double max_length,
+//     bool vis_candidates) 
+// {
+//     // Create a copy of the first row to avoid modifying the original
+//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> first_row_aligned;
+//     for (const auto& bbox : first_row) {
+//         auto bbox_copy = std::make_shared<open3d::geometry::OrientedBoundingBox>(*bbox);
+//         alignBoxToXYPlane(bbox_copy);
+//         first_row_aligned.push_back(bbox_copy);
+//     }
+
+//     // Get the left edge of the first box in the first row as our starting reference
+//     Eigen::Vector3d current_right_edge = first_row_aligned[0]->GetCenter() - 
+//                                          Eigen::Vector3d(first_row_aligned[0]->extent_.x() / 2.0, 0, 0);
+//     std::cout << "[DEBUG] Initial current right edge: " << current_right_edge.transpose() << std::endl;
+
+//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> second_row;
+//     double total_width = 0.0;
+
+//     // Find the maximum width among candidates
+//     double max_candidate_width = 0.0;
+//     for (const auto& candidate : candidates) {
+//         max_candidate_width = std::max(max_candidate_width, candidate->extent_.x());
+//     }
+
+//     // Calculate initial distances to the right edges of the first row
+//     std::vector<double> distances;
+//     for (const auto& bbox : first_row_aligned) {
+//         double distance = (bbox->GetCenter() - current_right_edge).x() + bbox->extent_.x() / 2.0;
+//         distances.push_back(distance);
+//         std::cout << "[DEBUG] Distance to right edge for current box: " << distance << std::endl;
+//     }
+
+//     // Step 1: Find the first valid shingle
+//     std::shared_ptr<open3d::geometry::OrientedBoundingBox> first_shingle = nullptr;
+
+//     for (size_t candidate_index = 0; candidate_index < candidates.size(); ++candidate_index) {
+//         auto candidate = candidates[candidate_index];
+
+//         std::cout << "[DEBUG] Checking candidate " << candidate_index << ", current total width: " << total_width << std::endl;
+
+//         // Iterate through distances to find the best fit
+//         for (size_t i = 0; i < distances.size(); ++i) {
+//             double distance = distances[i];
+
+//             // Remove invalid distances
+//             if (distance > max_candidate_width) {
+//                 distances.erase(distances.begin() + i);
+//                 --i;
+//                 continue;
+//             }
+
+//             // Transform candidate to match reference alignment
+//             auto candidate_aligned = alignAndShiftFirstBox(first_row_aligned[0], candidate ,max_gap, max_length, 0.0 );
+
+//             // --- Print candidate width ---
+//             std::cout << "[DEBUG] Candidate width: " << candidate_aligned->extent_.x() << std::endl;
+
+
+//             // Visualize the candidate
+//             if(vis_candidates)
+//             {visualizeShingleRows(first_row_aligned, {candidate_aligned});}
+            
+
+//             // Check if the candidate width is within the valid range
+//             if (candidate->extent_.x() > (distance + min_stagger) ||  
+//                 candidate->extent_.x() < (distance - min_stagger)) 
+
+//             {
+//                 first_shingle = candidate_aligned;
+//                 second_row.push_back(first_shingle);
+//                 std::cout << "first shingle found" << '\n';
+
+//                 // Visualize first shingle of second row
+//                 visualizeShingleRows(first_row_aligned, second_row);
+
+//                 // Update the right edge
+//                 current_right_edge = updateRightEdge(current_right_edge, first_shingle , max_gap);
+//                 // print current right edge
+//                 std::cout << "[DEBUG]  current right edge: " << current_right_edge.transpose() << std::endl;
+
+        
+//                 total_width += first_shingle->extent_.x();
+
+
+//                 // print it
+
+//                 // Remove the first shingle from the candidate list
+//                 candidates.erase(candidates.begin() + candidate_index);
+//                 --candidate_index;
+
+//                 // Update distances based on the new right edge
+//                 distances.clear();
+//                 for (const auto& bbox : first_row_aligned) {
+//                     double new_distance = (bbox->GetCenter() - current_right_edge).x() + bbox->extent_.x() / 2.0;
+//                     distances.push_back(new_distance);
+
+
+//                     // print them
+//                 }
+
+//                     // Remove invalid distances
+//             distances.erase(std::remove_if(distances.begin(), distances.end(),
+//             [&](double d) { return d > (max_candidate_width + 0.03) || d <  0; }), distances.end());
+
+
+//                 break;
+//             }
+//         }
+
+//         if (first_shingle) break;
+//     }
+
+//     if (!first_shingle) {
+//         std::cerr << "[ERROR] No valid first shingle found!\n";
+//         return second_row;
+//     }
+//     //////////
+//     // **Step 2: Continue placing additional shingles**
+//     double last_right_edge_first_row = first_row_aligned.back()->GetCenter().x() + first_row_aligned.back()->extent_.x() / 2.0;
+//     std::cout << "[DEBUG] Last right edge of first row: " << last_right_edge_first_row << std::endl;
+
+//     std::shared_ptr<open3d::geometry::OrientedBoundingBox> last_selected_shingle = first_shingle;
+
+//     int candidate_counter = 2;  // Counter to track number of shingles added to the second row
+//     for (size_t candidate_index = 0; candidate_index < candidates.size(); ++candidate_index) {
+//         auto candidate = candidates[candidate_index];
+
+//         double remaining_width = last_right_edge_first_row - current_right_edge.x();
+//         std::cout << "[DEBUG] Remaining width to match first row: " << remaining_width << std::endl;
+
+//         std::cout << "[DEBUG] Checking next candidate " << candidate_index 
+//                 << ", current total width: " << total_width << std::endl;
+//         // --- Print candidate width ---
+//         std::cout << "[DEBUG] Candidate width: " << candidate->extent_.x() << std::endl;
+
+//         std::cout << "[DEBUG] Valid distances after removal: ";
+//         for (const auto& dist : distances) {
+//             std::cout << dist << " ";
+//         }
+//         std::cout << std::endl;
+
+
+
+//         bool is_valid_for_all_distances = true;
+
+//         for (double distance : distances) {
+//             std::cout << "[DEBUG] Checking candidate width against distance: " << distance << std::endl;
+//             if (!(candidate->extent_.x() <= (distance - min_stagger) || 
+//                 candidate->extent_.x() >= (distance + min_stagger))) 
+//             {
+//                 is_valid_for_all_distances = false;
+//                 std::cout << "[DEBUG] Candidate width " << candidate->extent_.x() 
+//                         << " is within the invalid range (" << distance - min_stagger 
+//                         << " to " << distance + min_stagger << "). Rejecting." 
+//                         << std::endl;
+//                 break;  // Stop checking further distances if one fails
+//             }
+//         }
+
+
+        
+//     // Check if the only remaining distance matches the last right edge of the first row
+//     bool is_last_shingle = (distances.size() == 1) && (std::abs(distances[0] - (last_right_edge_first_row - current_right_edge.x())) < 0.01);
+
+//     if (is_last_shingle) {  
+//         std::cout << "[DEBUG] Identified last shingle of the row. Finding best-fit candidate.\n";
+
+//         auto best_fit = std::min_element(
+//             candidates.begin(), candidates.end(),
+//             [&](const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& a,
+//                 const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& b) {
+//                 return std::abs(a->extent_.x() - distances[0]) < std::abs(b->extent_.x() - distances[0]);
+//             });
+
+//         if (best_fit != candidates.end()) {
+//             candidate = *best_fit;
+//             std::cout << "[DEBUG] Best-fit last shingle width: " << candidate->extent_.x() << std::endl;
+//         }
+//     }
+
+
+
+//         // Debug message for the selected candidate
+//         std::cout << "[DEBUG] Candidate with width " << candidate->extent_.x() 
+//                 << " selected against valid distances: ";
+//         for (double distance : distances) {
+//             std::cout << distance << " ";
+//         }
+//         std::cout << " and min_stagger: " << min_stagger << std::endl;
+
+        
+
+//         // // Step 1: Get reference shingle (last in previous row)
+//         // Eigen::Matrix3d last_R = last_selected_shingle->R_;  // Keep same rotation
+//         // Eigen::Vector3d last_center = last_selected_shingle->GetCenter();
+
+//         // // Step 2: Compute X translation for the next shingle, ensuring a gap
+//         // double spacing = last_selected_shingle->extent_.x() / 2.0 + max_gap + candidate->extent_.x() / 2.0;
+//         // Eigen::Vector3d shift_x = spacing * last_R.col(0);  // Ensure translation only along X
+
+//         // // Step 3: Apply the X translation to the new shingle
+//         // auto next_shingle = std::make_shared<open3d::geometry::OrientedBoundingBox>(*candidate);
+//         // next_shingle->R_ = last_R;  // Keep the same rotation as the previous one
+
+//         // // Ensure that the shingle is translated along the positive X direction.
+//         // if (shift_x.x() < 0) {
+//         //     shift_x = -shift_x;  // Reverse if the shift goes negative along X
+//         // }
+
+//         // next_shingle->Translate(last_center + shift_x - next_shingle->GetCenter());
+
+//         auto next_shingle = alignAndShiftNextBox(last_selected_shingle, candidate, max_gap);
+
+
+//         std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> current_visualization = second_row;
+//         current_visualization.push_back(next_shingle);
+//         visualizeShingleRows(first_row_aligned, current_visualization);
+
+//         if (is_valid_for_all_distances) {
+//             std::cout << "[DEBUG] Candidate meets condition for ALL valid distances. Adding to second row.\n";
+
+//             second_row.push_back(next_shingle);
+//             std::cout << "Shingle " << candidate_counter << " found and added to the second row" << '\n';
+
+//             candidate_counter++;
+//             last_selected_shingle = next_shingle;
+//             current_right_edge = updateRightEdge(current_right_edge, next_shingle, max_gap);
+
+//             std::cout << "[DEBUG]  current right edge: " << current_right_edge.transpose() << std::endl;
+//             total_width += next_shingle->extent_.x();
+//             std::cout << "[DEBUG] Updated total width: " << total_width << std::endl;
+
+//             // Check if total width exceeds max_length and break if necessary
+//             if (total_width >= max_length) {
+//                 std::cout << "[DEBUG] Total width exceeds max_length, stopping placement." << std::endl;
+//                 break;
+//             }
+
+//             candidates.erase(std::remove(candidates.begin(), candidates.end(), candidate), candidates.end());
+//             --candidate_index;
+
+//             distances.clear();
+//             for (const auto& bbox : first_row_aligned) {
+//                 double new_distance = (bbox->GetCenter() - current_right_edge).x() + bbox->extent_.x() / 2.0;
+//                 distances.push_back(new_distance);
+//             }
+
+//             std::cout << "[DEBUG] Distances updated after adding shingle: ";
+//             for (const auto& dist : distances) {
+//                 std::cout << dist << " ";
+//             }
+//             std::cout << std::endl;
+
+//             distances.erase(std::remove_if(distances.begin(), distances.end(),
+//                 [&](double d) { return d > (max_candidate_width + 0.03) || d < 0; }), distances.end());
+//         }
+//     }
+//     // Final visualization for debugging
+//     visualizeShingleRows(first_row_aligned, second_row);
+
+//     std::cout << "[DEBUG] Number of shingles selected for second row: " << second_row.size() << std::endl;
+
+
+//     return second_row;
+// }
+
+
+
+
+//////////////////////////////////
+// std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProcessor::findNextBestShingles(
+//     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
+//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& candidates,
+//     double min_stagger,
+//     double max_gap,
+//     double max_length,
+//     bool vis_candidates) 
+// {
+//     std::cout << "[DEBUG] min_stagger: " << min_stagger * 1000.0 << " mm" << std::endl;
+//     // Create a copy of the first row to avoid modifying the original
+//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> first_row_aligned;
+//     for (const auto& bbox : first_row) {
+//         auto bbox_copy = std::make_shared<open3d::geometry::OrientedBoundingBox>(*bbox);
+//         alignBoxToXYPlane(bbox_copy);
+//         first_row_aligned.push_back(bbox_copy);
+//     }
+
+//     // Compute first row's total length
+//     double first_row_length = 0.0;
+//     for (const auto& bbox : first_row_aligned) {
+//         first_row_length = std::max(first_row_length, bbox->GetCenter().x() + bbox->extent_.x() / 2.0);
+//     }
+//     first_row_length -= first_row_aligned[0]->GetCenter().x() - first_row_aligned[0]->extent_.x() / 2.0;
+//     std::cout << "[DEBUG] First row length: " << first_row_length << std::endl;
+
+//     // Compute first-row gap positions (right edge + max_gap)
+//     std::vector<double> first_row_gap_positions;
+//     for (const auto& bbox : first_row_aligned) {
+//         double right_edge = bbox->GetCenter().x() + bbox->extent_.x() / 2.0;
+//         first_row_gap_positions.push_back(right_edge + max_gap);
+//     }
+
+//     // Get the left edge of the first box as the starting reference
+//     Eigen::Vector3d current_right_edge = first_row_aligned[0]->GetCenter() - 
+//                                          Eigen::Vector3d(first_row_aligned[0]->extent_.x() / 2.0, 0, 0);
+//     std::cout << "[DEBUG] Initial current right edge: " << current_right_edge.transpose() << std::endl;
+
+//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> second_row;
+//     double total_width = 0.0;
+
+//     // Find the maximum width among candidates
+//     double max_candidate_width = 0.0;
+//     for (const auto& candidate : candidates) {
+//         max_candidate_width = std::max(max_candidate_width, candidate->extent_.x());
+//     }
+
+//     // Scoring function with lookahead for global optimization
+//     // auto scoreCandidate = [&](const auto& candidate, const std::vector<double>& distances, 
+//     //                         double remaining_width, const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& remaining_candidates) {
+//     //     double score = 0.0;
+
+//     //     // Staggering
+//     //     for (double d : distances) {
+//     //         double offset = std::min(std::abs(candidate->extent_.x() - (d - min_stagger)),
+//     //                                 std::abs(candidate->extent_.x() - (d + min_stagger)));
+//     //         if (offset >= 0.03 && offset < 0.035) {
+//     //             score -= 20.0 * (0.035 - offset); // Weak penalty
+//     //         } else if (offset >= 0.035) {
+//     //             score += 5.0 * std::min(offset, 0.05);
+//     //         }
+//     //     }
+
+//     //     // Gap non-alignment
+//     //     double second_row_gap = current_right_edge.x() + candidate->extent_.x() + max_gap;
+//     //     for (double first_gap : first_row_gap_positions) {
+//     //         double gap_distance = std::abs(second_row_gap - first_gap);
+//     //         score += std::min(gap_distance, 0.05) * 5.0;
+//     //     }
+
+//     //     // Lookahead for width
+//     //     double new_total_width = total_width + candidate->extent_.x();
+//     //     double new_remaining_width = first_row_length - new_total_width;
+//     //     if (new_remaining_width < 0) {
+//     //         score -= 30.0 * std::abs(new_remaining_width);
+//     //     } else if (new_remaining_width > max_candidate_width) {
+//     //         score -= 30.0 * new_remaining_width;
+//     //     } else {
+//     //         bool can_fill = false;
+//     //         for (const auto& rem_candidate : remaining_candidates) {
+//     //             if (rem_candidate != candidate && rem_candidate->extent_.x() <= new_remaining_width + 0.03) {
+//     //                 can_fill = true;
+//     //                 score += 1.0;
+//     //             }
+//     //         }
+//     //         if (!can_fill) {
+//     //             score -= 5.0;
+//     //         }
+//     //     }
+
+//     //     // Final shingle
+//     //     if (remaining_width <= max_candidate_width) {
+//     //         if (new_remaining_width <= 0.03 && new_remaining_width >= -0.03) {
+//     //             score += 20.0; // Weak reward
+//     //         } else {
+//     //             score -= 50.0 * std::abs(new_remaining_width); // Weak penalty
+//     //         }
+//     //     }
+
+//     //     return score;
+//     // };
+
+// auto scoreCandidate = [&](const auto& candidate, const std::vector<double>& distances, 
+//                          double remaining_width, const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& remaining_candidates, 
+//                          double max_length) {
+//     double score = 0.0;
+//     double candidate_width = candidate->extent_.x();
+//     double new_total_width = total_width + candidate_width;
+//     double new_remaining_width = max_length - new_total_width; // Use max_length, not first_row_length
+
+//     // Determine if this is the final or second-to-last shingle
+//     double max_candidate_width = 0.0;
+//     for (const auto& rem_candidate : remaining_candidates) {
+//         if (rem_candidate != candidate) {
+//             max_candidate_width = std::max(max_candidate_width, rem_candidate->extent_.x());
+//         }
+//     }
+//     bool is_final_shingle = (remaining_width <= max_candidate_width);
+//     bool is_second_to_last = (remaining_width <= 2.0 * max_candidate_width && remaining_width > max_candidate_width);
+//     double min_stagger_local = is_final_shingle ? 0.025 : 0.03; // Relax stagger to 25 mm for final shingle (or 0.0 if acceptable)
+
+//     // Staggering
+//     for (double d : distances) {
+//         double offset = std::min(std::abs(candidate_width - (d - min_stagger_local)),
+//                                  std::abs(candidate_width - (d + min_stagger_local)));
+//         if (!is_final_shingle && offset >= 0.03 && offset < 0.035) {
+//             score -= 150.0 * (0.035 - offset); // Strong penalty for yellow shingles (30–35 mm)
+//         } else if (offset >= 0.035 || (is_final_shingle && offset >= 0.025)) {
+//             score += 25.0 * std::min(offset, 0.06); // Reward green or relaxed final shingle
+//         }
+//     }
+
+//     // Gap non-alignment
+//     double second_row_gap = current_right_edge.x() + candidate_width + max_gap;
+//     for (double first_gap : first_row_gap_positions) {
+//         double gap_distance = std::abs(second_row_gap - first_gap);
+//         score += std::min(gap_distance, 0.05) * 5.0;
+//     }
+
+//     // Lookahead for second-to-last shingle
+//     if (is_second_to_last) {
+//         bool can_fill = false;
+//         double best_fit_score = 0.0;
+//         for (const auto& rem_candidate : remaining_candidates) {
+//             if (rem_candidate != candidate) {
+//                 double next_width = rem_candidate->extent_.x();
+//                 double final_remaining = new_remaining_width - next_width;
+//                 if (final_remaining >= 0 && final_remaining <= 0.05) { // Enforce 0–50 mm overhang
+//                     can_fill = true;
+//                     best_fit_score += 300.0 * (0.05 - final_remaining); // Reward good fit
+//                     if (final_remaining <= 0.02) {
+//                         best_fit_score += 100.0 * (0.02 - final_remaining); // Extra reward for 0–20 mm
+//                     }
+//                 } else if (final_remaining < 0) {
+//                     best_fit_score -= 200.0 * std::abs(final_remaining); // Penalize overhang > 50 mm
+//                 } else {
+//                     best_fit_score -= 600.0 * final_remaining; // Penalize undercoverage
+//                 }
+//             }
+//         }
+//         score += best_fit_score;
+//         if (!can_fill) {
+//             score -= 100.0; // Penalize if no final shingle can fill
+//         }
+//     }
+
+//     // Lookahead for width (non-final, non-second-to-last)
+//     if (!is_final_shingle && !is_second_to_last) {
+//         if (new_remaining_width < 0) {
+//             score -= 150.0 * std::abs(new_remaining_width); // Penalize overhang
+//         } else if (new_remaining_width > max_candidate_width) {
+//             score -= 500.0 * new_remaining_width; // Penalize large undercoverage
+//         } else {
+//             bool can_fill = false;
+//             for (const auto& rem_candidate : remaining_candidates) {
+//                 if (rem_candidate != candidate && rem_candidate->extent_.x() <= new_remaining_width + 0.05) { // Allow up to 50 mm overhang
+//                     can_fill = true;
+//                     score += 10.0 * (1.0 - std::abs(rem_candidate->extent_.x() - new_remaining_width) / max_candidate_width);
+//                 }
+//             }
+//             if (!can_fill) {
+//                 score -= 50.0; // Penalize unfillable gaps
+//             }
+//         }
+//     }
+
+//     // Final shingle: Enforce full coverage, 0–50 mm overhang
+//     if (is_final_shingle) {
+//         if (new_remaining_width >= 0 && new_remaining_width <= 0.05) {
+//             score += 400.0 * (0.05 - new_remaining_width); // Reward 0–50 mm overhang
+//             if (new_remaining_width <= 0.02) {
+//                 score += 100.0 * (0.02 - new_remaining_width); // Extra reward for 0–20 mm
+//             }
+//         } else if (new_remaining_width > 0.05) {
+//             score -= 200.0 * (new_remaining_width - 0.05); // Penalize > 50 mm overhang
+//         } else { // Undercoverage
+//             score -= 2000.0 * std::abs(new_remaining_width); // Severe penalty for undercoverage
+//         }
+//     } else if (new_remaining_width <= max_candidate_width && new_remaining_width >= 0) {
+//         score += 150.0 * (0.05 - std::min(new_remaining_width, 0.05)); // Encourage small gaps
+//     } else if (new_remaining_width < 0) {
+//         score -= 150.0 * std::abs(new_remaining_width); // Penalize overhang
+//     } else {
+//         score -= 600.0 * new_remaining_width; // Penalize undercoverage
+//     }
+
+//     return score;
+// };
+
+
+
+//     // Calculate initial distances to the right edges of the first row
+//     std::vector<double> distances;
+//     for (const auto& bbox : first_row_aligned) {
+//         double distance = (bbox->GetCenter() - current_right_edge).x() + bbox->extent_.x() / 2.0;
+//         distances.push_back(distance);
+//         std::cout << "[DEBUG] Distance to right edge: " << distance << std::endl;
+//     }
+
+//     // Step 1: Find the first valid shingle
+// std::shared_ptr<open3d::geometry::OrientedBoundingBox> first_shingle = nullptr;
+//     double best_score = -std::numeric_limits<double>::max();
+//     size_t best_index = 0;
+
+//     std::cout << "[DEBUG] min_stagger: " << min_stagger * 1000.0 << " mm" << std::endl;
+//     for (size_t candidate_index = 0; candidate_index < candidates.size(); ++candidate_index) {
+//         auto candidate = candidates[candidate_index];
+//         std::cout << "[DEBUG] Checking candidate " << candidate_index << ", width: " << candidate->extent_.x() << std::endl;
+
+//         bool valid = true;
+//         // Compute stagger margin
+//         auto candidate_aligned = alignAndShiftFirstBox(first_row_aligned[0], candidate, max_gap, max_length, 0.0);
+//         double second_row_gap = current_right_edge.x() + candidate_aligned->extent_.x() + max_gap;
+//         double min_stagger_margin = std::numeric_limits<double>::max();
+//         for (double first_gap : first_row_gap_positions) {
+//             double stagger = std::abs(second_row_gap - first_gap);
+//             min_stagger_margin = std::min(min_stagger_margin, stagger);
+//         }
+//         if (min_stagger_margin < min_stagger) {
+//             std::cout << "[DEBUG] Candidate width " << candidate->extent_.x() << " invalid, stagger margin " 
+//                     << min_stagger_margin * 1000.0 << " mm < " << min_stagger * 1000.0 << " mm" << std::endl;
+//             valid = false;
+//         }
+
+//         if (valid) {
+//             double score = scoreCandidate(candidate, distances, first_row_length, candidates,max_length);
+//             if (score > best_score) {
+//                 best_score = score;
+//                 first_shingle = candidate;
+//                 best_index = candidate_index;
+//             }
+//         }
+//     }
+
+//     if (first_shingle) {
+//         auto candidate_aligned = alignAndShiftFirstBox(first_row_aligned[0], first_shingle, max_gap, max_length, 0.0);
+//         // Compute stagger margin
+//         double second_row_gap = current_right_edge.x() + candidate_aligned->extent_.x() + max_gap;
+//         double min_stagger_margin = std::numeric_limits<double>::max();
+//         for (double first_gap : first_row_gap_positions) {
+//             double stagger = std::abs(second_row_gap - first_gap);
+//             min_stagger_margin = std::min(min_stagger_margin, stagger);
+//         }
+//         std::cout << "[DEBUG] First shingle selected, width: " << candidate_aligned->extent_.x() 
+//                   << ", stagger margin: " << min_stagger_margin * 1000.0 << " mm" << std::endl;
+
+//         if (vis_candidates) {
+//             visualizeShingleRows(first_row_aligned, {candidate_aligned});
+//         }
+//         second_row.push_back(candidate_aligned);
+//         current_right_edge = updateRightEdge(current_right_edge, candidate_aligned, max_gap);
+//         total_width += candidate_aligned->extent_.x();
+//         candidates.erase(candidates.begin() + best_index);
+//     } else {
+//         std::cerr << "[ERROR] No valid first shingle found!\n";
+//         return second_row;
+//     }
+
+//     // Step 2: Continue placing additional shingles
+//     double last_right_edge_first_row = first_row_length + first_row_aligned[0]->GetCenter().x() - 
+//                                        first_row_aligned[0]->extent_.x() / 2.0;
+//     std::cout << "[DEBUG] Last right edge of first row: " << last_right_edge_first_row << std::endl;
+
+//     std::shared_ptr<open3d::geometry::OrientedBoundingBox> last_selected_shingle = first_shingle;
+//     int candidate_counter = 2;
+
+//     while (total_width < max_length && candidates.size() > 0) {
+//         double remaining_width = last_right_edge_first_row - current_right_edge.x();
+//         std::cout << "[DEBUG] Remaining width: " << remaining_width << std::endl;
+
+//         // Update distances
+//         distances.clear();
+//         for (const auto& bbox : first_row_aligned) {
+//             double new_distance = (bbox->GetCenter() - current_right_edge).x() + bbox->extent_.x() / 2.0;
+//             distances.push_back(new_distance);
+//         }
+//         distances.erase(std::remove_if(distances.begin(), distances.end(),
+//             [&](double d) { return d > max_candidate_width + 0.03 || d < 0; }), distances.end());
+
+//         // Find best candidate
+// std::shared_ptr<open3d::geometry::OrientedBoundingBox> best_candidate = nullptr;
+//         best_score = -std::numeric_limits<double>::max();
+//         best_index = 0;
+
+//         for (size_t i = 0; i < candidates.size(); ++i) {
+//             auto candidate = candidates[i];
+//             bool valid = true;
+//             // Compute stagger margin
+//             auto next_shingle = alignAndShiftNextBox(last_selected_shingle, candidate, max_gap);
+//             double second_row_gap = current_right_edge.x() + next_shingle->extent_.x() + max_gap;
+//             double min_stagger_margin = std::numeric_limits<double>::max();
+//             for (double first_gap : first_row_gap_positions) {
+//                 double stagger = std::abs(second_row_gap - first_gap);
+//                 min_stagger_margin = std::min(min_stagger_margin, stagger);
+//             }
+//             if (min_stagger_margin < min_stagger) {
+//                 std::cout << "[DEBUG] Candidate width " << candidate->extent_.x() << " invalid, stagger margin " 
+//                         << min_stagger_margin * 1000.0 << " mm < " << min_stagger * 1000.0 << " mm" << std::endl;
+//                 valid = false;
+//             }
+
+//             if (valid) {
+//                 double score = scoreCandidate(candidate, distances, remaining_width, candidates, max_length);
+//                 if (score > best_score) {
+//                     best_score = score;
+//                     best_candidate = candidate;
+//                     best_index = i;
+//                 }
+//             }
+//         }
+
+//         if (!best_candidate) {
+//             std::cout << "[DEBUG] No valid candidate found, stopping.\n";
+//             break;
+//         }
+
+//         // Align and place best candidate
+//         auto next_shingle = alignAndShiftNextBox(last_selected_shingle, best_candidate, max_gap);
+//         // Compute stagger margin
+//         double second_row_gap = current_right_edge.x() + next_shingle->extent_.x() + max_gap;
+//         double min_stagger_margin = std::numeric_limits<double>::max();
+//         for (double first_gap : first_row_gap_positions) {
+//             double stagger = std::abs(second_row_gap - first_gap);
+//             min_stagger_margin = std::min(min_stagger_margin, stagger);
+//         }
+//         std::cout << "[DEBUG] Shingle " << candidate_counter << " selected, width: " << next_shingle->extent_.x() 
+//                   << ", stagger margin: " << min_stagger_margin * 1000.0 << " mm" << std::endl;
+
+//         if (vis_candidates) {
+//             auto current_visualization = second_row;
+//             current_visualization.push_back(next_shingle);
+//             visualizeShingleRows(first_row_aligned, current_visualization);
+//         }
+
+//         second_row.push_back(next_shingle);
+//         candidate_counter++;
+//         last_selected_shingle = next_shingle;
+//         current_right_edge = updateRightEdge(current_right_edge, next_shingle, max_gap);
+//         total_width += next_shingle->extent_.x();
+//         candidates.erase(candidates.begin() + best_index);
+
+//         // Check length tolerance
+//         if (total_width >= first_row_length) {
+//             if (total_width > first_row_length + 0.02) {
+//                 std::cout << "[DEBUG] Overhang exceeds 2 cm: " << (total_width - first_row_length) << " m\n";
+//             }
+//             break;
+//         }
+//     }
+// // Check for undercoverage
+//     if (total_width < first_row_length) {
+//         std::cout << "[WARNING] Second row undercovers by: " << (first_row_length - total_width) << " m\n";
+//     }
+
+//     // Final visualization with color coding
+//     visualizeShingleRows(first_row_aligned, second_row, true);
+//     std::cout << "[DEBUG] Number of shingles selected: " << second_row.size() << std::endl;
+//     std::cout << "[DEBUG] Second row total width: " << total_width * 1000.0 << " mm, First row length: " 
+//               << first_row_length * 1000.0 << " mm, Difference: " << (total_width - first_row_length) * 1000.0 << " mm" << std::endl;
+
+//     return second_row;
+// }
+
+////////////////////////////////
+
+
+// std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProcessor::findNextBestShingles(
+//     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
+//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& candidates,
+//     double min_stagger,
+//     double max_gap,
+//     double max_length,
+//     bool vis_candidates) 
+// {
+//     std::cout << "[DEBUG] min_stagger: " << min_stagger * 1000.0 << " mm, max_length: " << max_length * 1000.0 << " mm" << std::endl;
+
+//     // Create a copy of the first row to avoid modifying the original
+//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> first_row_aligned;
+//     for (const auto& bbox : first_row) {
+//         auto bbox_copy = std::make_shared<open3d::geometry::OrientedBoundingBox>(*bbox);
+//         alignBoxToXYPlane(bbox_copy);
+//         first_row_aligned.push_back(bbox_copy);
+//     }
+
+//     // Compute first row's gap positions (right edge + max_gap)
+//     std::vector<double> first_row_gap_positions;
+//     for (const auto& bbox : first_row_aligned) {
+//         double right_edge = bbox->GetCenter().x() + bbox->extent_.x() / 2.0;
+//         first_row_gap_positions.push_back(right_edge + max_gap);
+//     }
+
+//     // Get the left edge of the first box as the starting reference
+//     Eigen::Vector3d current_right_edge = first_row_aligned[0]->GetCenter() - 
+//                                          Eigen::Vector3d(first_row_aligned[0]->extent_.x() / 2.0, 0, 0);
+//     std::cout << "[DEBUG] Initial current right edge: " << current_right_edge.transpose() << std::endl;
+
+//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> second_row;
+//     double total_width = 0.0;
+
+//     // Find the maximum and minimum candidate widths
+//     double max_candidate_width = 0.0;
+//     double min_candidate_width = std::numeric_limits<double>::max();
+//     for (const auto& candidate : candidates) {
+//         max_candidate_width = std::max(max_candidate_width, candidate->extent_.x());
+//         min_candidate_width = std::min(min_candidate_width, candidate->extent_.x());
+//     }
+
+//     // Scoring function
+//     auto scoreCandidate = [&](const auto& candidate, const std::vector<double>& distances, 
+//                              double remaining_width, const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& remaining_candidates, 
+//                              double max_length) {
+//         double score = 0.0;
+//         double candidate_width = candidate->extent_.x();
+//         double new_total_width = total_width + candidate_width;
+//         double new_remaining_width = max_length - new_total_width;
+
+//         // Determine if this is the final or second-to-last shingle
+//         bool is_final_shingle = (new_remaining_width <= 0.05 && new_total_width >= max_length);
+//         bool is_second_to_last = (remaining_width <= 2.0 * max_candidate_width && remaining_width > max_candidate_width);
+
+//         // Staggering
+//         for (double d : distances) {
+//             double offset = std::min(std::abs(candidate_width - (d - min_stagger)),
+//                                      std::abs(candidate_width - (d + min_stagger)));
+//             if (!is_final_shingle && offset >= min_stagger && offset < 0.035) {
+//                 score -= 800.0 * (0.035 - offset); // Stronger penalty for yellow shingles
+//             } else if (offset >= 0.035 || is_final_shingle) {
+//                 score += 200.0 * std::min(offset, 0.06); // Stronger reward for green
+//             }
+//         }
+
+//         // Gap non-alignment
+//         double second_row_gap = current_right_edge.x() + candidate_width + max_gap;
+//         for (double first_gap : first_row_gap_positions) {
+//             double gap_distance = std::abs(second_row_gap - first_gap);
+//             score += std::min(gap_distance, 0.05) * 10.0;
+//         }
+
+//         // Lookahead for second-to-last shingle
+//         if (is_second_to_last && !is_final_shingle) {
+//             bool can_fill = false;
+//             double best_fit_score = 0.0;
+//             for (const auto& rem_candidate : remaining_candidates) {
+//                 if (rem_candidate != candidate) {
+//                     double next_width = rem_candidate->extent_.x();
+//                     double final_remaining = new_remaining_width - next_width;
+//                     if (final_remaining >= 0 && final_remaining <= 0.05) {
+//                         can_fill = true;
+//                         best_fit_score += 2000.0 * (0.05 - final_remaining); // Increased reward
+//                         if (final_remaining <= 0.02) {
+//                             best_fit_score += 1000.0 * (0.02 - final_remaining);
+//                         }
+//                     } else if (final_remaining < 0) {
+//                         best_fit_score -= 4000.0 * std::abs(final_remaining); // Stronger penalty
+//                     } else {
+//                         best_fit_score -= 3000.0 * final_remaining;
+//                     }
+//                 }
+//             }
+//             score += best_fit_score;
+//             if (!can_fill) {
+//                 score -= 1000.0; // Stronger penalty
+//             }
+//         }
+
+//         // Width constraints
+//         if (is_final_shingle) {
+//             if (new_remaining_width >= 0 && new_remaining_width <= 0.05) {
+//                 score += 2000.0 * (0.05 - new_remaining_width); // Increased reward
+//                 if (new_remaining_width <= 0.02) {
+//                     score += 1000.0 * (0.02 - new_remaining_width);
+//                 }
+//             } else if (new_remaining_width > 0.05) {
+//                 score -= 4000.0 * (new_remaining_width - 0.05); // Stronger penalty
+//             } else {
+//                 score -= 8000.0 * std::abs(new_remaining_width); // Much stronger penalty
+//             }
+//         } else if (new_remaining_width <= max_candidate_width && new_remaining_width >= 0) {
+//             score += 1000.0 * (0.05 - std::min(new_remaining_width, 0.05)); // Increased reward
+//             bool can_fill = false;
+//             for (const auto& rem_candidate : remaining_candidates) {
+//                 if (rem_candidate != candidate && rem_candidate->extent_.x() <= new_remaining_width + 0.05) {
+//                     can_fill = true;
+//                     score += 150.0 * (1.0 - std::abs(rem_candidate->extent_.x() - new_remaining_width) / max_candidate_width);
+//                 }
+//             }
+//             if (!can_fill) {
+//                 score -= 600.0;
+//             }
+//         } else if (new_remaining_width < 0) {
+//             score -= 4000.0 * std::abs(new_remaining_width); // Stronger penalty
+//         } else {
+//             score -= 3000.0 * new_remaining_width;
+//         }
+
+//         return score;
+//     };
+
+//     // Calculate initial distances to the right edges of the first row
+//     std::vector<double> distances;
+//     for (const auto& bbox : first_row_aligned) {
+//         double distance = (bbox->GetCenter() - current_right_edge).x() + bbox->extent_.x() / 2.0;
+//         distances.push_back(distance);
+//         std::cout << "[DEBUG] Distance to right edge: " << distance << std::endl;
+//     }
+
+//     // Step 1: Find the first valid shingle
+//     std::shared_ptr<open3d::geometry::OrientedBoundingBox> first_shingle = nullptr;
+//     double best_score = -std::numeric_limits<double>::max();
+//     size_t best_index = 0;
+
+//     for (size_t candidate_index = 0; candidate_index < candidates.size(); ++candidate_index) {
+//         auto candidate = candidates[candidate_index];
+//         std::cout << "[DEBUG] Checking candidate " << candidate_index << ", width: " << candidate->extent_.x() << std::endl;
+
+//         bool valid = true;
+//         auto candidate_aligned = alignAndShiftFirstBox(first_row_aligned[0], candidate, max_gap, max_length, 0.0);
+//         double second_row_gap = current_right_edge.x() + candidate_aligned->extent_.x() + max_gap;
+//         double min_stagger_margin = std::numeric_limits<double>::max();
+//         for (double first_gap : first_row_gap_positions) {
+//             double stagger = std::abs(second_row_gap - first_gap);
+//             min_stagger_margin = std::min(min_stagger_margin, stagger);
+//         }
+//         if (min_stagger_margin < min_stagger) {
+//             std::cout << "[DEBUG] Candidate width " << candidate->extent_.x() << " invalid, stagger margin " 
+//                       << min_stagger_margin * 1000.0 << " mm < " << min_stagger * 1000.0 << " mm" << std::endl;
+//             valid = false;
+//         }
+
+//         if (valid) {
+//             double score = scoreCandidate(candidate, distances, max_length - total_width, candidates, max_length);
+//             if (score > best_score) {
+//                 best_score = score;
+//                 first_shingle = candidate;
+//                 best_index = candidate_index;
+//             }
+//         }
+//     }
+
+//     if (first_shingle) {
+//         auto candidate_aligned = alignAndShiftFirstBox(first_row_aligned[0], first_shingle, max_gap, max_length, 0.0);
+//         double second_row_gap = current_right_edge.x() + candidate_aligned->extent_.x() + max_gap;
+//         double min_stagger_margin = std::numeric_limits<double>::max();
+//         for (double first_gap : first_row_gap_positions) {
+//             double stagger = std::abs(second_row_gap - first_gap);
+//             min_stagger_margin = std::min(min_stagger_margin, stagger);
+//         }
+//         std::cout << "[DEBUG] First shingle selected, width: " << candidate_aligned->extent_.x() 
+//                   << ", stagger margin: " << min_stagger_margin * 1000.0 << " mm" << std::endl;
+
+//         if (vis_candidates) {
+//             visualizeShingleRows(first_row_aligned, {candidate_aligned});
+//         }
+//         second_row.push_back(candidate_aligned);
+//         current_right_edge = updateRightEdge(current_right_edge, candidate_aligned, max_gap);
+//         total_width += candidate_aligned->extent_.x();
+//         candidates.erase(candidates.begin() + best_index);
+//     } else {
+//         std::cerr << "[ERROR] No valid first shingle found!\n";
+//         return second_row;
+//     }
+
+//     // Step 2: Continue placing additional shingles
+//     std::shared_ptr<open3d::geometry::OrientedBoundingBox> last_selected_shingle = first_shingle;
+//     int candidate_counter = 2;
+
+//     while (total_width < max_length && candidates.size() > 0) {
+//         double remaining_width = max_length - total_width;
+//         std::cout << "[DEBUG] Remaining width: " << remaining_width << std::endl;
+
+//         // Update distances
+//         distances.clear();
+//         for (const auto& bbox : first_row_aligned) {
+//             double new_distance = (bbox->GetCenter() - current_right_edge).x() + bbox->extent_.x() / 2.0;
+//             distances.push_back(new_distance);
+//         }
+//         distances.erase(std::remove_if(distances.begin(), distances.end(),
+//             [&](double d) { return d > max_candidate_width + 0.05 || d < 0; }), distances.end());
+
+//         // Find best candidate
+//         std::shared_ptr<open3d::geometry::OrientedBoundingBox> best_candidate = nullptr;
+//         best_score = -std::numeric_limits<double>::max();
+//         best_index = 0;
+//         bool valid_candidate_found = false;
+
+//         for (size_t i = 0; i < candidates.size(); ++i) {
+//             auto candidate = candidates[i];
+//             bool valid = true;
+//             bool is_final_shingle = (remaining_width <= max_candidate_width && total_width + candidate->extent_.x() >= max_length);
+//             double local_min_stagger = is_final_shingle ? 0.0 : min_stagger;
+
+//             auto next_shingle = alignAndShiftNextBox(last_selected_shingle, candidate, max_gap);
+//             double second_row_gap = current_right_edge.x() + next_shingle->extent_.x() + max_gap;
+//             double min_stagger_margin = std::numeric_limits<double>::max();
+//             for (double first_gap : first_row_gap_positions) {
+//                 double stagger = std::abs(second_row_gap - first_gap);
+//                 min_stagger_margin = std::min(min_stagger_margin, stagger);
+//             }
+//             if (min_stagger_margin < local_min_stagger) {
+//                 std::cout << "[DEBUG] Candidate width " << candidate->extent_.x() << " invalid, stagger margin " 
+//                           << min_stagger_margin * 1000.0 << " mm < " << local_min_stagger * 1000.0 << " mm" << std::endl;
+//                 valid = false;
+//             }
+
+//             // Additional check for final shingle to ensure overhang <= 50 mm
+//             if (is_final_shingle) {
+//                 double overhang = total_width + candidate->extent_.x() - max_length;
+//                 if (overhang > 0.05) {
+//                     valid = false; // Reject candidates causing >50 mm overhang
+//                     std::cout << "[DEBUG] Candidate width " << candidate->extent_.x() << " invalid, overhang " 
+//                               << overhang * 1000.0 << " mm > 50 mm" << std::endl;
+//                 }
+//             }
+
+//             if (valid) {
+//                 valid_candidate_found = true;
+//                 double score = scoreCandidate(candidate, distances, remaining_width, candidates, max_length);
+//                 if (score > best_score) {
+//                     best_score = score;
+//                     best_candidate = candidate;
+//                     best_index = i;
+//                 }
+//             }
+//         }
+
+//         if (!best_candidate) {
+//             std::cout << "[DEBUG] No valid candidate found, stopping.\n";
+//             break;
+//         }
+
+//         auto next_shingle = alignAndShiftNextBox(last_selected_shingle, best_candidate, max_gap);
+//         double second_row_gap = current_right_edge.x() + next_shingle->extent_.x() + max_gap;
+//         double min_stagger_margin = std::numeric_limits<double>::max();
+//         for (double first_gap : first_row_gap_positions) {
+//             double stagger = std::abs(second_row_gap - first_gap);
+//             min_stagger_margin = std::min(min_stagger_margin, stagger);
+//         }
+//         std::cout << "[DEBUG] Shingle " << candidate_counter << " selected, width: " << next_shingle->extent_.x() 
+//                   << ", stagger margin: " << min_stagger_margin * 1000.0 << " mm" << std::endl;
+
+//         if (vis_candidates) {
+//             auto current_visualization = second_row;
+//             current_visualization.push_back(next_shingle);
+//             visualizeShingleRows(first_row_aligned, current_visualization);
+//         }
+
+//         second_row.push_back(next_shingle);
+//         candidate_counter++;
+//         last_selected_shingle = next_shingle;
+//         current_right_edge = updateRightEdge(current_right_edge, next_shingle, max_gap);
+//         total_width += next_shingle->extent_.x();
+//         candidates.erase(candidates.begin() + best_index);
+
+//         // Check length tolerance
+//         if (total_width >= max_length) {
+//             if (total_width > max_length + 0.05) {
+//                 std::cout << "[DEBUG] Overhang exceeds 5 cm: " << (total_width - max_length) * 1000.0 << " mm\n";
+//             }
+//             break;
+//         }
+//     }
+
+//     // Check for undercoverage
+//     if (total_width < max_length) {
+//         std::cout << "[WARNING] Second row undercovers by: " << (max_length - total_width) * 1000.0 << " mm\n";
+//     }
+
+//     // Final visualization
+//     visualizeShingleRows(first_row_aligned, second_row, true);
+//     std::cout << "[DEBUG] Number of shingles selected: " << second_row.size() << std::endl;
+//     std::cout << "[DEBUG] Second row total width: " << total_width * 1000.0 << " mm, max_length: " 
+//               << max_length * 1000.0 << " mm, Difference: " << (total_width - max_length) * 1000.0 << " mm" << std::endl;
+
+//     return second_row;
+// }
+
 std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProcessor::findNextBestShingles(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& candidates,
@@ -2162,6 +3133,8 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
     double max_length,
     bool vis_candidates) 
 {
+    std::cout << "[DEBUG] min_stagger: " << min_stagger * 1000.0 << " mm, max_length: " << max_length * 1000.0 << " mm" << std::endl;
+
     // Create a copy of the first row to avoid modifying the original
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> first_row_aligned;
     for (const auto& bbox : first_row) {
@@ -2170,7 +3143,14 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
         first_row_aligned.push_back(bbox_copy);
     }
 
-    // Get the left edge of the first box in the first row as our starting reference
+    // Compute first row's gap positions (right edge + max_gap)
+    std::vector<double> first_row_gap_positions;
+    for (const auto& bbox : first_row_aligned) {
+        double right_edge = bbox->GetCenter().x() + bbox->extent_.x() / 2.0;
+        first_row_gap_positions.push_back(right_edge + max_gap);
+    }
+
+    // Get the left edge of the first box as the starting reference
     Eigen::Vector3d current_right_edge = first_row_aligned[0]->GetCenter() - 
                                          Eigen::Vector3d(first_row_aligned[0]->extent_.x() / 2.0, 0, 0);
     std::cout << "[DEBUG] Initial current right edge: " << current_right_edge.transpose() << std::endl;
@@ -2178,257 +3158,350 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> second_row;
     double total_width = 0.0;
 
-    // Find the maximum width among candidates
+    // Find the maximum and minimum candidate widths
     double max_candidate_width = 0.0;
+    double min_candidate_width = std::numeric_limits<double>::max();
     for (const auto& candidate : candidates) {
         max_candidate_width = std::max(max_candidate_width, candidate->extent_.x());
+        min_candidate_width = std::min(min_candidate_width, candidate->extent_.x());
     }
+
+    // Scoring function
+    auto scoreCandidate = [&](const auto& candidate, const std::vector<double>& distances, 
+                             double remaining_width, const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& remaining_candidates, 
+                             double max_length) {
+        double score = 0.0;
+        double candidate_width = candidate->extent_.x();
+        double new_total_width = total_width + candidate_width;
+        double new_remaining_width = max_length - new_total_width;
+
+        // Determine if this is the final or second-to-last shingle
+        bool is_final_shingle = (new_remaining_width <= 0.05 && new_total_width >= max_length) || 
+                                (remaining_width <= max_candidate_width);
+        bool is_second_to_last = (remaining_width <= 2.0 * max_candidate_width && remaining_width > max_candidate_width);
+
+        // Staggering
+        for (double d : distances) {
+            double offset = std::min(std::abs(candidate_width - (d - min_stagger)),
+                                     std::abs(candidate_width - (d + min_stagger)));
+            if (!is_final_shingle && offset >= min_stagger && offset < 0.035) {
+                score -= 1000.0 * (0.035 - offset); // Stronger penalty for yellow shingles
+            } else if (offset >= 0.035 || is_final_shingle) {
+                score += 250.0 * std::min(offset, 0.06); // Stronger reward for green
+            }
+        }
+
+        // Gap non-alignment
+        double second_row_gap = current_right_edge.x() + candidate_width + max_gap;
+        for (double first_gap : first_row_gap_positions) {
+            double gap_distance = std::abs(second_row_gap - first_gap);
+            score += std::min(gap_distance, 0.05) * 10.0;
+        }
+
+        // Lookahead for second-to-last shingle
+        if (is_second_to_last && !is_final_shingle) {
+            bool can_fill = false;
+            double best_fit_score = 0.0;
+            for (const auto& rem_candidate : remaining_candidates) {
+                if (rem_candidate != candidate) {
+                    double next_width = rem_candidate->extent_.x();
+                    double final_remaining = new_remaining_width - next_width;
+                    if (final_remaining >= 0 && final_remaining <= 0.05) {
+                        can_fill = true;
+                        best_fit_score += 2500.0 * (0.05 - final_remaining); // Increased reward
+                        if (final_remaining <= 0.02) {
+                            best_fit_score += 1500.0 * (0.02 - final_remaining);
+                        }
+                    } else if (final_remaining < 0) {
+                        best_fit_score -= 5000.0 * std::abs(final_remaining); // Stronger penalty
+                    } else {
+                        best_fit_score -= 4000.0 * final_remaining;
+                    }
+                }
+            }
+            score += best_fit_score;
+            if (!can_fill) {
+                score -= 1500.0; // Stronger penalty
+            }
+        }
+
+        // Width constraints
+        if (is_final_shingle) {
+            if (new_remaining_width >= 0 && new_remaining_width <= 0.05) {
+                score += 2500.0 * (0.05 - new_remaining_width); // Increased reward
+                if (new_remaining_width <= 0.02) {
+                    score += 1500.0 * (0.02 - new_remaining_width);
+                }
+            } else if (new_remaining_width > 0.05) {
+                score -= 5000.0 * (new_remaining_width - 0.05); // Stronger penalty
+            } else {
+                score -= 10000.0 * std::abs(new_remaining_width); // Much stronger penalty
+            }
+        } else if (new_remaining_width <= max_candidate_width && new_remaining_width >= 0) {
+            score += 1500.0 * (0.05 - std::min(new_remaining_width, 0.05)); // Increased reward
+            bool can_fill = false;
+            for (const auto& rem_candidate : remaining_candidates) {
+                if (rem_candidate != candidate && rem_candidate->extent_.x() <= new_remaining_width + 0.05) {
+                    can_fill = true;
+                    score += 200.0 * (1.0 - std::abs(rem_candidate->extent_.x() - new_remaining_width) / max_candidate_width);
+                }
+            }
+            if (!can_fill) {
+                score -= 800.0;
+            }
+        } else if (new_remaining_width < 0) {
+            score -= 5000.0 * std::abs(new_remaining_width); // Stronger penalty
+            if (new_total_width > max_length + 0.05) {
+                score -= 10000.0 * (new_total_width - (max_length + 0.05)); // Additional penalty for large overhang
+            }
+        } else {
+            score -= 4000.0 * new_remaining_width;
+        }
+
+        return score;
+    };
 
     // Calculate initial distances to the right edges of the first row
     std::vector<double> distances;
     for (const auto& bbox : first_row_aligned) {
         double distance = (bbox->GetCenter() - current_right_edge).x() + bbox->extent_.x() / 2.0;
         distances.push_back(distance);
-        std::cout << "[DEBUG] Distance to right edge for current box: " << distance << std::endl;
+        std::cout << "[DEBUG] Distance to right edge: " << distance << std::endl;
     }
 
     // Step 1: Find the first valid shingle
     std::shared_ptr<open3d::geometry::OrientedBoundingBox> first_shingle = nullptr;
+    double best_score = -std::numeric_limits<double>::max();
+    size_t best_index = 0;
 
     for (size_t candidate_index = 0; candidate_index < candidates.size(); ++candidate_index) {
         auto candidate = candidates[candidate_index];
+        std::cout << "[DEBUG] Checking candidate " << candidate_index << ", width: " << candidate->extent_.x() << std::endl;
 
-        std::cout << "[DEBUG] Checking candidate " << candidate_index << ", current total width: " << total_width << std::endl;
-
-        // Iterate through distances to find the best fit
-        for (size_t i = 0; i < distances.size(); ++i) {
-            double distance = distances[i];
-
-            // Remove invalid distances
-            if (distance > max_candidate_width) {
-                distances.erase(distances.begin() + i);
-                --i;
-                continue;
-            }
-
-            // Transform candidate to match reference alignment
-            auto candidate_aligned = alignAndShiftFirstBox(first_row_aligned[0], candidate ,max_gap, max_length, 0.0 );
-
-            // --- Print candidate width ---
-            std::cout << "[DEBUG] Candidate width: " << candidate_aligned->extent_.x() << std::endl;
-
-
-            // Visualize the candidate
-            if(vis_candidates)
-            {visualizeShingleRows(first_row_aligned, {candidate_aligned});}
-            
-
-            // Check if the candidate width is within the valid range
-            if (candidate->extent_.x() > (distance + min_stagger) ||  
-                candidate->extent_.x() < (distance - min_stagger)) 
-
-            {
-                first_shingle = candidate_aligned;
-                second_row.push_back(first_shingle);
-                std::cout << "first shingle found" << '\n';
-
-                // Visualize first shingle of second row
-                visualizeShingleRows(first_row_aligned, second_row);
-
-                // Update the right edge
-                current_right_edge = updateRightEdge(current_right_edge, first_shingle , max_gap);
-                // print current right edge
-                std::cout << "[DEBUG]  current right edge: " << current_right_edge.transpose() << std::endl;
-
-        
-                total_width += first_shingle->extent_.x();
-
-
-                // print it
-
-                // Remove the first shingle from the candidate list
-                candidates.erase(candidates.begin() + candidate_index);
-                --candidate_index;
-
-                // Update distances based on the new right edge
-                distances.clear();
-                for (const auto& bbox : first_row_aligned) {
-                    double new_distance = (bbox->GetCenter() - current_right_edge).x() + bbox->extent_.x() / 2.0;
-                    distances.push_back(new_distance);
-
-
-                    // print them
-                }
-
-                    // Remove invalid distances
-            distances.erase(std::remove_if(distances.begin(), distances.end(),
-            [&](double d) { return d > (max_candidate_width + 0.03) || d <  0; }), distances.end());
-
-
-                break;
-            }
+        bool valid = true;
+        auto candidate_aligned = alignAndShiftFirstBox(first_row_aligned[0], candidate, max_gap, max_length, 0.0);
+        double second_row_gap = current_right_edge.x() + candidate_aligned->extent_.x() + max_gap;
+        double min_stagger_margin = std::numeric_limits<double>::max();
+        for (double first_gap : first_row_gap_positions) {
+            double stagger = std::abs(second_row_gap - first_gap);
+            min_stagger_margin = std::min(min_stagger_margin, stagger);
+        }
+        if (min_stagger_margin < min_stagger) {
+            std::cout << "[DEBUG] Candidate width " << candidate->extent_.x() << " invalid, stagger margin " 
+                      << min_stagger_margin * 1000.0 << " mm < " << min_stagger * 1000.0 << " mm" << std::endl;
+            valid = false;
         }
 
-        if (first_shingle) break;
+        if (valid) {
+            double score = scoreCandidate(candidate, distances, max_length - total_width, candidates, max_length);
+            if (score > best_score) {
+                best_score = score;
+                first_shingle = candidate;
+                best_index = candidate_index;
+            }
+        }
     }
 
-    if (!first_shingle) {
+    if (first_shingle) {
+        auto candidate_aligned = alignAndShiftFirstBox(first_row_aligned[0], first_shingle, max_gap, max_length, 0.0);
+        double second_row_gap = current_right_edge.x() + candidate_aligned->extent_.x() + max_gap;
+        double min_stagger_margin = std::numeric_limits<double>::max();
+        for (double first_gap : first_row_gap_positions) {
+            double stagger = std::abs(second_row_gap - first_gap);
+            min_stagger_margin = std::min(min_stagger_margin, stagger);
+        }
+        std::cout << "[DEBUG] First shingle selected, width: " << candidate_aligned->extent_.x() 
+                  << ", stagger margin: " << min_stagger_margin * 1000.0 << " mm" << std::endl;
+
+        if (vis_candidates) {
+            visualizeShingleRows(first_row_aligned, {candidate_aligned});
+        }
+        second_row.push_back(candidate_aligned);
+        current_right_edge = updateRightEdge(current_right_edge, candidate_aligned, max_gap);
+        total_width += candidate_aligned->extent_.x();
+        candidates.erase(candidates.begin() + best_index);
+    } else {
         std::cerr << "[ERROR] No valid first shingle found!\n";
         return second_row;
     }
-    //////////
-    // **Step 2: Continue placing additional shingles**
-    double last_right_edge_first_row = first_row_aligned.back()->GetCenter().x() + first_row_aligned.back()->extent_.x() / 2.0;
-    std::cout << "[DEBUG] Last right edge of first row: " << last_right_edge_first_row << std::endl;
 
+    // Step 2: Continue placing additional shingles
     std::shared_ptr<open3d::geometry::OrientedBoundingBox> last_selected_shingle = first_shingle;
+    int candidate_counter = 2;
 
-    int candidate_counter = 2;  // Counter to track number of shingles added to the second row
-    for (size_t candidate_index = 0; candidate_index < candidates.size(); ++candidate_index) {
-        auto candidate = candidates[candidate_index];
+    while (total_width < max_length && candidates.size() > 0) {
+        double remaining_width = max_length - total_width;
+        std::cout << "[DEBUG] Remaining width: " << remaining_width << std::endl;
 
-        double remaining_width = last_right_edge_first_row - current_right_edge.x();
-        std::cout << "[DEBUG] Remaining width to match first row: " << remaining_width << std::endl;
-
-        std::cout << "[DEBUG] Checking next candidate " << candidate_index 
-                << ", current total width: " << total_width << std::endl;
-        // --- Print candidate width ---
-        std::cout << "[DEBUG] Candidate width: " << candidate->extent_.x() << std::endl;
-
-        std::cout << "[DEBUG] Valid distances after removal: ";
-        for (const auto& dist : distances) {
-            std::cout << dist << " ";
+        // Update distances
+        distances.clear();
+        for (const auto& bbox : first_row_aligned) {
+            double new_distance = (bbox->GetCenter() - current_right_edge).x() + bbox->extent_.x() / 2.0;
+            distances.push_back(new_distance);
         }
-        std::cout << std::endl;
+        distances.erase(std::remove_if(distances.begin(), distances.end(),
+            [&](double d) { return d > max_candidate_width + 0.05 || d < 0; }), distances.end());
 
+        // Find best candidate
+        std::shared_ptr<open3d::geometry::OrientedBoundingBox> best_candidate = nullptr;
+        best_score = -std::numeric_limits<double>::max();
+        best_index = 0;
+        bool valid_candidate_found = false;
 
+        for (size_t i = 0; i < candidates.size(); ++i) {
+            auto candidate = candidates[i];
+            bool valid = true;
+            bool is_final_shingle = (remaining_width <= max_candidate_width);
+            double local_min_stagger = is_final_shingle ? 0.0 : min_stagger;
 
-        bool is_valid_for_all_distances = true;
+            auto next_shingle = alignAndShiftNextBox(last_selected_shingle, candidate, max_gap);
+            double second_row_gap = current_right_edge.x() + next_shingle->extent_.x() + max_gap;
+            double min_stagger_margin = std::numeric_limits<double>::max();
+            for (double first_gap : first_row_gap_positions) {
+                double stagger = std::abs(second_row_gap - first_gap);
+                min_stagger_margin = std::min(min_stagger_margin, stagger);
+            }
+            if (min_stagger_margin < local_min_stagger) {
+                std::cout << "[DEBUG] Candidate width " << candidate->extent_.x() << " invalid, stagger margin " 
+                          << min_stagger_margin * 1000.0 << " mm < " << local_min_stagger * 1000.0 << " mm" << std::endl;
+                valid = false;
+            }
 
-        for (double distance : distances) {
-            std::cout << "[DEBUG] Checking candidate width against distance: " << distance << std::endl;
-            if (!(candidate->extent_.x() <= (distance - min_stagger) || 
-                candidate->extent_.x() >= (distance + min_stagger))) 
-            {
-                is_valid_for_all_distances = false;
-                std::cout << "[DEBUG] Candidate width " << candidate->extent_.x() 
-                        << " is within the invalid range (" << distance - min_stagger 
-                        << " to " << distance + min_stagger << "). Rejecting." 
-                        << std::endl;
-                break;  // Stop checking further distances if one fails
+            // Additional check for final shingle to ensure overhang <= 50 mm
+            if (is_final_shingle) {
+                double overhang = total_width + candidate->extent_.x() - max_length;
+                if (overhang > 0.05 || overhang < -0.05) {
+                    valid = false;
+                    std::cout << "[DEBUG] Candidate width " << candidate->extent_.x() << " invalid, overhang " 
+                              << overhang * 1000.0 << " mm not in [-50, 50] mm" << std::endl;
+                }
+            }
+
+            if (valid) {
+                valid_candidate_found = true;
+                double score = scoreCandidate(candidate, distances, remaining_width, candidates, max_length);
+                if (score > best_score) {
+                    best_score = score;
+                    best_candidate = candidate;
+                    best_index = i;
+                }
             }
         }
 
+        if (!best_candidate) {
+            std::cout << "[DEBUG] No valid candidate found, stopping.\n";
+            break;
+        }
 
-        
-    // Check if the only remaining distance matches the last right edge of the first row
-    bool is_last_shingle = (distances.size() == 1) && (std::abs(distances[0] - (last_right_edge_first_row - current_right_edge.x())) < 0.01);
+        auto next_shingle = alignAndShiftNextBox(last_selected_shingle, best_candidate, max_gap);
+        double second_row_gap = current_right_edge.x() + next_shingle->extent_.x() + max_gap;
+        double min_stagger_margin = std::numeric_limits<double>::max();
+        for (double first_gap : first_row_gap_positions) {
+            double stagger = std::abs(second_row_gap - first_gap);
+            min_stagger_margin = std::min(min_stagger_margin, stagger);
+        }
+        std::cout << "[DEBUG] Shingle " << candidate_counter << " selected, width: " << next_shingle->extent_.x() 
+                  << ", stagger margin: " << min_stagger_margin * 1000.0 << " mm" << std::endl;
 
-    if (is_last_shingle) {  
-        std::cout << "[DEBUG] Identified last shingle of the row. Finding best-fit candidate.\n";
+        if (vis_candidates) {
+            auto current_visualization = second_row;
+            current_visualization.push_back(next_shingle);
+            visualizeShingleRows(first_row_aligned, current_visualization);
+        }
 
-        auto best_fit = std::min_element(
-            candidates.begin(), candidates.end(),
-            [&](const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& a,
-                const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& b) {
-                return std::abs(a->extent_.x() - distances[0]) < std::abs(b->extent_.x() - distances[0]);
-            });
+        second_row.push_back(next_shingle);
+        candidate_counter++;
+        last_selected_shingle = next_shingle;
+        current_right_edge = updateRightEdge(current_right_edge, next_shingle, max_gap);
+        total_width += next_shingle->extent_.x();
+        candidates.erase(candidates.begin() + best_index);
 
-        if (best_fit != candidates.end()) {
-            candidate = *best_fit;
-            std::cout << "[DEBUG] Best-fit last shingle width: " << candidate->extent_.x() << std::endl;
+        // Check length tolerance
+        if (total_width >= max_length) {
+            if (total_width > max_length + 0.05) {
+                std::cout << "[DEBUG] Overhang exceeds 5 cm: " << (total_width - max_length) * 1000.0 << " mm\n";
+            }
+            break;
         }
     }
 
-
-
-        // Debug message for the selected candidate
-        std::cout << "[DEBUG] Candidate with width " << candidate->extent_.x() 
-                << " selected against valid distances: ";
-        for (double distance : distances) {
-            std::cout << distance << " ";
-        }
-        std::cout << " and min_stagger: " << min_stagger << std::endl;
-
-        
-
-        // // Step 1: Get reference shingle (last in previous row)
-        // Eigen::Matrix3d last_R = last_selected_shingle->R_;  // Keep same rotation
-        // Eigen::Vector3d last_center = last_selected_shingle->GetCenter();
-
-        // // Step 2: Compute X translation for the next shingle, ensuring a gap
-        // double spacing = last_selected_shingle->extent_.x() / 2.0 + max_gap + candidate->extent_.x() / 2.0;
-        // Eigen::Vector3d shift_x = spacing * last_R.col(0);  // Ensure translation only along X
-
-        // // Step 3: Apply the X translation to the new shingle
-        // auto next_shingle = std::make_shared<open3d::geometry::OrientedBoundingBox>(*candidate);
-        // next_shingle->R_ = last_R;  // Keep the same rotation as the previous one
-
-        // // Ensure that the shingle is translated along the positive X direction.
-        // if (shift_x.x() < 0) {
-        //     shift_x = -shift_x;  // Reverse if the shift goes negative along X
-        // }
-
-        // next_shingle->Translate(last_center + shift_x - next_shingle->GetCenter());
-
-        auto next_shingle = alignAndShiftNextBox(last_selected_shingle, candidate, max_gap);
-
-
-        std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> current_visualization = second_row;
-        current_visualization.push_back(next_shingle);
-        visualizeShingleRows(first_row_aligned, current_visualization);
-
-        if (is_valid_for_all_distances) {
-            std::cout << "[DEBUG] Candidate meets condition for ALL valid distances. Adding to second row.\n";
-
-            second_row.push_back(next_shingle);
-            std::cout << "Shingle " << candidate_counter << " found and added to the second row" << '\n';
-
-            candidate_counter++;
-            last_selected_shingle = next_shingle;
-            current_right_edge = updateRightEdge(current_right_edge, next_shingle, max_gap);
-
-            std::cout << "[DEBUG]  current right edge: " << current_right_edge.transpose() << std::endl;
-            total_width += next_shingle->extent_.x();
-            std::cout << "[DEBUG] Updated total width: " << total_width << std::endl;
-
-            // Check if total width exceeds max_length and break if necessary
-            if (total_width >= max_length) {
-                std::cout << "[DEBUG] Total width exceeds max_length, stopping placement." << std::endl;
-                break;
-            }
-
-            candidates.erase(std::remove(candidates.begin(), candidates.end(), candidate), candidates.end());
-            --candidate_index;
-
-            distances.clear();
-            for (const auto& bbox : first_row_aligned) {
-                double new_distance = (bbox->GetCenter() - current_right_edge).x() + bbox->extent_.x() / 2.0;
-                distances.push_back(new_distance);
-            }
-
-            std::cout << "[DEBUG] Distances updated after adding shingle: ";
-            for (const auto& dist : distances) {
-                std::cout << dist << " ";
-            }
-            std::cout << std::endl;
-
-            distances.erase(std::remove_if(distances.begin(), distances.end(),
-                [&](double d) { return d > (max_candidate_width + 0.03) || d < 0; }), distances.end());
-        }
+    // Check for undercoverage
+    if (total_width < max_length) {
+        std::cout << "[WARNING] Second row undercovers by: " << (max_length - total_width) * 1000.0 << " mm\n";
     }
-    // Final visualization for debugging
-    visualizeShingleRows(first_row_aligned, second_row);
 
-    std::cout << "[DEBUG] Number of shingles selected for second row: " << second_row.size() << std::endl;
-
+    // Final visualization
+    visualizeShingleRows(first_row_aligned, second_row, true);
+    std::cout << "[DEBUG] Number of shingles selected: " << second_row.size() << std::endl;
+    std::cout << "[DEBUG] Second row total width: " << total_width * 1000.0 << " mm, max_length: " 
+              << max_length * 1000.0 << " mm, Difference: " << (total_width - max_length) * 1000.0 << " mm" << std::endl;
 
     return second_row;
 }
 
 
+///////////////////////////////////
+void GeometryProcessor::visualizeShingleRows(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row,
+    bool color_code) 
+{
+    open3d::visualization::Visualizer vis;
+    vis.CreateVisualizerWindow("Shingle Rows", 1280, 720);
 
+    // Add first row (blue)
+    for (const auto& bbox : first_row) {
+        auto mesh = open3d::geometry::TriangleMesh::CreateFromOrientedBoundingBox(*bbox);
+        mesh->PaintUniformColor(Eigen::Vector3d(0.0, 0.0, 1.0)); // Blue
+        vis.AddGeometry(mesh);
+    }
 
+    // Compute total width and length fit
+    double total_width = 0.0;
+    for (const auto& bbox : second_row) {
+        total_width += bbox->extent_.x();
+    }
+    double first_row_length = 0.0;
+    for (const auto& bbox : first_row) {
+        first_row_length = std::max(first_row_length, bbox->GetCenter().x() + bbox->extent_.x() / 2.0);
+    }
+    first_row_length -= first_row[0]->GetCenter().x() - first_row[0]->extent_.x() / 2.0;
+
+    // Add second row with color coding
+    std::vector<double> first_row_right_edges;
+    for (const auto& bbox : first_row) {
+        first_row_right_edges.push_back(bbox->GetCenter().x() + bbox->extent_.x() / 2.0);
+    }
+
+    for (size_t i = 0; i < second_row.size(); ++i) {
+        auto bbox = second_row[i];
+        auto mesh = open3d::geometry::TriangleMesh::CreateFromOrientedBoundingBox(*bbox);
+        
+        if (color_code) {
+            // Compute minimum stagger margin
+            double right_edge = bbox->GetCenter().x() + bbox->extent_.x() / 2.0;
+            double min_margin = std::numeric_limits<double>::max();
+            for (double first_edge : first_row_right_edges) {
+                min_margin = std::min(min_margin, std::abs(right_edge - first_edge));
+            }
+            // Color based on margin and length fit
+            bool length_ok = total_width >= first_row_length && total_width <= first_row_length + 0.03;
+            if (min_margin > 0.035 && length_ok) {
+                mesh->PaintUniformColor(Eigen::Vector3d(0.0, 1.0, 0.0)); // Green: Stagger > 35 mm, good length
+            } else if (min_margin >= 0.03 && length_ok) {
+                mesh->PaintUniformColor(Eigen::Vector3d(1.0, 1.0, 0.0)); // Yellow: Stagger 30–35 mm, good length
+            } else {
+                mesh->PaintUniformColor(Eigen::Vector3d(1.0, 0.0, 0.0)); // Red: Stagger < 30 mm or bad length
+            }
+        } else {
+            mesh->PaintUniformColor(Eigen::Vector3d(1.0, 0.0, 0.0)); // Red: No color coding
+        }
+        vis.AddGeometry(mesh);
+    }
+
+    vis.Run();
+    vis.DestroyVisualizerWindow();
+}
 
 
 
@@ -2472,7 +3545,7 @@ GeometryProcessor::findNextBestShinglesForMultipleRows(
         std::cout << "[DEBUG] Number of candidates at the beginning of row " << i + 1 << ": " << current_candidates_copy.size() << std::endl;
 
         // Step 3: Call findNextBestShingles without modifying original candidates
-        auto next_row = findNextBestShingles(previous_row, current_candidates_copy, min_stagger, max_gap, max_length, false);
+        auto next_row = findNextBestShingles(previous_row, current_candidates_copy, min_stagger, max_gap, max_length, true);
         std::cout << "[DEBUG] Candidates AFTER arranging row " << i + 1 << ": " << current_candidates_copy.size() << "\n";
 
 

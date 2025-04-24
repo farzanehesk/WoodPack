@@ -9,11 +9,11 @@
 
 int main() {
 
-
+    
     PointCloudProcessor processor;
 
     // Provide the path relative to the current directory
-    std::string ply_file = "./data/scans/shingle_rows/row1.ply";  // Modify this path as needed
+    std::string ply_file = "../data/scans/shingle_rows/row1.ply";  // Modify this path as needed
     
     // Load the point cloud
     bool success = processor.loadPointCloud(ply_file, true);  // Flip Z-axis if necessary
@@ -23,19 +23,19 @@ int main() {
         return 1;
     }
 
-    
-    
-    // Count the number of points in the loaded point cloud
-    size_t num_points = processor.getPointCloud()->points_.size();
-    
-    std::cout << "Loaded point cloud contains " << num_points << " points." << std::endl;
 
 
-
+    // After loading, print the number of points in the point cloud using the getter
+    auto point_cloud = processor.getPointCloud();
+    if (point_cloud && !point_cloud->IsEmpty()) {
+        std::cout << "Number of points in the point cloud: " << point_cloud->points_.size() << std::endl;
+    } else {
+        std::cerr << "Point cloud is empty or not loaded properly.\n";
+    }
 
 
     return 0;
-
+    // /Shingle_Optimization/build$ ./analyze_shingle_widths
 
     
 }

@@ -208,7 +208,8 @@ analyze_shingle_widths: /usr/lib/x86_64-linux-gnu/libboost_system.so.1.74.0
 analyze_shingle_widths: /usr/lib/x86_64-linux-gnu/libboost_iostreams.so.1.74.0
 analyze_shingle_widths: /usr/lib/x86_64-linux-gnu/libboost_filesystem.so.1.74.0
 analyze_shingle_widths: /usr/lib/x86_64-linux-gnu/libboost_serialization.so.1.74.0
-analyze_shingle_widths: /usr/lib/x86_64-linux-gnu/libqhull_r.so.8.0.2
+analyze_shingle_widths: /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so
+analyze_shingle_widths: /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so
 analyze_shingle_widths: CMakeFiles/analyze_shingle_widths.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable analyze_shingle_widths"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/analyze_shingle_widths.dir/link.txt --verbose=$(VERBOSE)

@@ -399,6 +399,14 @@ std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
     double max_length,
     double rotation_angle,
     double vertical_overlap)  ;
+
+
+
+    //
+    void visualizeShingleRows(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row,
+    bool color_code)  ;
     
 
     //

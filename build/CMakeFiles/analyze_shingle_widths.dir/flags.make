@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = -DBOOST_ALL_NO_LIB -DBOOST_FILESYSTEM_DYN_LINK -DBOOST_IOSTREAMS_DYN_LINK -DBOOST_SERIALIZATION_DYN_LINK -DBOOST_SYSTEM_DYN_LINK -DFMT_HEADER_ONLY=0 -DFMT_STRING_ALIAS=1 -DFMT_USE_WINDOWS_H=0 -D_GLIBCXX_USE_CXX11_ABI=1 -Dkiss_fft_scalar=double
 
-CXX_INCLUDES = -I/usr/lib/x86_64-linux-gnu/openmpi/include -I/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -isystem /usr/include/eigen3 -isystem /usr/local/include/pcl-1.14 -isystem /usr/include/ni -isystem /usr/include/openni2 -isystem /usr/local/include/open3d/3rdparty -isystem /usr/local/include/vtk-9.1 -isystem /usr/local/include/vtk-9.1/vtkfreetype/include
+CXX_INCLUDES = -isystem /usr/include/eigen3 -isystem /usr/lib/x86_64-linux-gnu/openmpi/include -isystem /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -isystem /usr/local/include/pcl-1.14 -isystem /usr/include/ni -isystem /usr/include/openni2 -isystem /usr/local/include/open3d/3rdparty -isystem /usr/local/include/vtk-9.1 -isystem /usr/local/include/vtk-9.1/vtkfreetype/include
 
 CXX_FLAGS = -std=gnu++17 -msse4.2 -mfpmath=sse -march=native -mavx2 -fopenmp
 

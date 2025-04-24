@@ -200,7 +200,7 @@ int main() {
 
 
         // Load the point cloud
-    auto sub_structure = perception.loadPointCloud("scans/substructure.ply" , false);
+    auto sub_structure = perception.loadPointCloud("data/scans/substructure.ply" , false);
 
     if (sub_structure) {
         // Visualize the stored point cloud

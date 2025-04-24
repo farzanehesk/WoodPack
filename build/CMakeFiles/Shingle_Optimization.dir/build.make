@@ -208,7 +208,8 @@ Shingle_Optimization: /usr/lib/x86_64-linux-gnu/libboost_system.so.1.74.0
 Shingle_Optimization: /usr/lib/x86_64-linux-gnu/libboost_iostreams.so.1.74.0
 Shingle_Optimization: /usr/lib/x86_64-linux-gnu/libboost_filesystem.so.1.74.0
 Shingle_Optimization: /usr/lib/x86_64-linux-gnu/libboost_serialization.so.1.74.0
-Shingle_Optimization: /usr/lib/x86_64-linux-gnu/libqhull_r.so.8.0.2
+Shingle_Optimization: /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so
+Shingle_Optimization: /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so
 Shingle_Optimization: CMakeFiles/Shingle_Optimization.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable Shingle_Optimization"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/Shingle_Optimization.dir/link.txt --verbose=$(VERBOSE)

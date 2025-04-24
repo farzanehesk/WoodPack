@@ -607,8 +607,20 @@ PNG_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libpng.so
 //Path to a file.
 PNG_PNG_INCLUDE_DIR:PATH=/usr/include
 
+//Path to a library.
+QHULL_LIBRARY_DEBUG:FILEPATH=QHULL_LIBRARY_DEBUG-NOTFOUND
+
+//Path to a library.
+QHULL_LIBRARY_DEBUG_STATIC:FILEPATH=QHULL_LIBRARY_DEBUG_STATIC-NOTFOUND
+
+//Path to a library.
+QHULL_LIBRARY_SHARED:FILEPATH=QHULL_LIBRARY_SHARED-NOTFOUND
+
+//Path to a library.
+QHULL_LIBRARY_STATIC:FILEPATH=QHULL_LIBRARY_STATIC-NOTFOUND
+
 //The directory containing a CMake configuration file for Qhull.
-Qhull_DIR:PATH=/usr/lib/x86_64-linux-gnu/cmake/Qhull
+Qhull_DIR:PATH=Qhull_DIR-NOTFOUND
 
 //Value Computed by CMake
 Shingle_Optimization_BINARY_DIR:STATIC=/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build
@@ -1280,7 +1292,7 @@ FIND_PACKAGE_MESSAGE_DETAILS_OpenNI:INTERNAL=[/usr/lib/libOpenNI.so;libusb::libu
 //Details about finding OpenNI2
 FIND_PACKAGE_MESSAGE_DETAILS_OpenNI2:INTERNAL=[/usr/lib/x86_64-linux-gnu/libOpenNI2.so;libusb::libusb][/usr/include/openni2][v2.2.0.33()]
 //Details about finding PCL
-FIND_PACKAGE_MESSAGE_DETAILS_PCL:INTERNAL=[pcl_common;pcl_kdtree;pcl_octree;pcl_search;pcl_sample_consensus;pcl_filters;pcl_io_ply;pcl_io;pcl_features;pcl_ml;pcl_segmentation;pcl_visualization;pcl_surface;pcl_registration;pcl_keypoints;pcl_tracking;pcl_recognition;pcl_stereo;pcl_outofcore;pcl_people;Boost::system;Boost::iostreams;Boost::filesystem;Boost::serialization;/usr/lib/libOpenNI.so;libusb::libusb;/usr/lib/x86_64-linux-gnu/libOpenNI2.so;libusb::libusb;VTK::ChartsCore;VTK::CommonColor;VTK::CommonComputationalGeometry;VTK::CommonCore;VTK::CommonDataModel;VTK::CommonExecutionModel;VTK::CommonMath;VTK::CommonMisc;VTK::CommonTransforms;VTK::FiltersCore;VTK::FiltersExtraction;VTK::FiltersGeneral;VTK::FiltersGeometry;VTK::FiltersModeling;VTK::FiltersSources;VTK::ImagingCore;VTK::ImagingSources;VTK::InteractionImage;VTK::InteractionStyle;VTK::InteractionWidgets;VTK::IOCore;VTK::IOGeometry;VTK::IOImage;VTK::IOLegacy;VTK::IOPLY;VTK::RenderingAnnotation;VTK::RenderingCore;VTK::RenderingContext2D;VTK::RenderingLOD;VTK::RenderingFreeType;VTK::ViewsCore;VTK::ViewsContext2D;VTK::RenderingOpenGL2;VTK::RenderingContextOpenGL2;FLANN::FLANN;QHULL::QHULL][/usr/local/include/pcl-1.14;/usr/include/eigen3;/usr/include/ni;/usr/include/openni2;/usr/include][v(1.14)]
+FIND_PACKAGE_MESSAGE_DETAILS_PCL:INTERNAL=[pcl_common;pcl_kdtree;pcl_octree;pcl_search;pcl_sample_consensus;pcl_filters;pcl_io_ply;pcl_io;pcl_features;pcl_ml;pcl_segmentation;pcl_visualization;pcl_surface;pcl_registration;pcl_keypoints;pcl_tracking;pcl_recognition;pcl_stereo;pcl_outofcore;pcl_people;Boost::system;Boost::iostreams;Boost::filesystem;Boost::serialization;/usr/lib/libOpenNI.so;libusb::libusb;/usr/lib/x86_64-linux-gnu/libOpenNI2.so;libusb::libusb;VTK::ChartsCore;VTK::CommonColor;VTK::CommonComputationalGeometry;VTK::CommonCore;VTK::CommonDataModel;VTK::CommonExecutionModel;VTK::CommonMath;VTK::CommonMisc;VTK::CommonTransforms;VTK::FiltersCore;VTK::FiltersExtraction;VTK::FiltersGeneral;VTK::FiltersGeometry;VTK::FiltersModeling;VTK::FiltersSources;VTK::ImagingCore;VTK::ImagingSources;VTK::InteractionImage;VTK::InteractionStyle;VTK::InteractionWidgets;VTK::IOCore;VTK::IOGeometry;VTK::IOImage;VTK::IOLegacy;VTK::IOPLY;VTK::RenderingAnnotation;VTK::RenderingCore;VTK::RenderingContext2D;VTK::RenderingLOD;VTK::RenderingFreeType;VTK::ViewsCore;VTK::ViewsContext2D;VTK::RenderingOpenGL2;VTK::RenderingContextOpenGL2;FLANN::FLANN][/usr/local/include/pcl-1.14;/usr/include/eigen3;/usr/include/ni;/usr/include/openni2;/usr/include][v(1.14)]
 //Details about finding PCL_2D
 FIND_PACKAGE_MESSAGE_DETAILS_PCL_2D:INTERNAL=[/usr/local/include/pcl-1.14][v()]
 //Details about finding PCL_COMMON
@@ -1750,6 +1762,8 @@ PNG_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
 PNG_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: PNG_PNG_INCLUDE_DIR
 PNG_PNG_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//QHull header
+QHULL_HEADER:INTERNAL=QHULL_HEADER-NOTFOUND
 //ADVANCED property for variable: X11_ICE_INCLUDE_PATH
 X11_ICE_INCLUDE_PATH-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: X11_ICE_LIB

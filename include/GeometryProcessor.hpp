@@ -417,6 +417,14 @@ std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> copyBoundingBoxes(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& input_boxes);
 
+    //
+    void debugShingleRow(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row,
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row_aligned,
+    const std::vector<double>& first_row_gap_positions,
+    double max_gap) const ;
+
+
 
 
 

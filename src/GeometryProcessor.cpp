@@ -6,6 +6,7 @@
 #include <Eigen/Dense>
 #include <random>
 #include <chrono>
+#include <iomanip>
 
 
 
@@ -3125,6 +3126,58 @@ std::vector<double> GeometryProcessor::calculateRightEdgeDistancesFromCandidate(
 //     return second_row;
 // }
 
+
+/////////////////////////////////
+// Helper function to format shingle debug message
+    void GeometryProcessor::debugShingleRow(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row,
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row_aligned,
+    const std::vector<double>& first_row_gap_positions,
+    double max_gap) const {
+    if (!second_row.empty()) {
+        Eigen::Vector3d debug_right_edge = first_row_aligned[0]->GetCenter() - 
+                                           Eigen::Vector3d(first_row_aligned[0]->extent_.x() / 2.0, 0, 0);
+        for (size_t i = 0; i < second_row.size(); ++i) {
+            auto& bbox = second_row[i];
+            double width_mm = bbox->extent_.x() * 1000.0;
+            
+            // Compute stagger margin
+            double second_row_gap = debug_right_edge.x() + bbox->extent_.x() + max_gap;
+            double min_stagger_margin = std::numeric_limits<double>::max();
+            for (double first_gap : first_row_gap_positions) {
+                double stagger = std::abs(second_row_gap - first_gap);
+                min_stagger_margin = std::min(min_stagger_margin, stagger);
+            }
+            double stagger_mm = min_stagger_margin * 1000.0;
+
+            // Determine final/non-final and color
+            bool is_final = (i == second_row.size() - 1);
+            std::string final_status = is_final ? "final" : "non-final";
+            std::string min_stagger_required = is_final ? "any" : "30";
+            std::string color = is_final ? "green" : (min_stagger_margin >= 0.035 ? "green" : "yellow");
+
+            // Print debug message
+            std::cout << "Shingle " << (i + 1) << ": Width " << width_mm << " mm, Stagger " 
+                      << stagger_mm << " mm (✓ " << final_status << ", ≥" << min_stagger_required 
+                      << " mm, " << color << ")." << std::endl;
+
+            // Update right edge for next shingle
+            debug_right_edge.x() += bbox->extent_.x() + max_gap;
+        }
+    }
+}
+
+////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
 std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProcessor::findNextBestShingles(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& candidates,
@@ -3435,6 +3488,12 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
     std::cout << "[DEBUG] Number of shingles selected: " << second_row.size() << std::endl;
     std::cout << "[DEBUG] Second row total width: " << total_width * 1000.0 << " mm, max_length: " 
               << max_length * 1000.0 << " mm, Difference: " << (total_width - max_length) * 1000.0 << " mm" << std::endl;
+
+
+    ///////////////
+    // 
+    // Debug output for all selected shingles
+    debugShingleRow(second_row, first_row_aligned, first_row_gap_positions, max_gap);
 
     return second_row;
 }

@@ -309,9 +309,16 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
     // void visualizeShingleMeshes(
     // const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& combined_rows);
 
+    // void visualizeShingleMeshes(
+    // const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& combined_rows,
+    // std::shared_ptr<open3d::geometry::PointCloud> point_cloud );
+
+    //
     void visualizeShingleMeshes(
     const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& combined_rows,
-    std::shared_ptr<open3d::geometry::PointCloud> point_cloud );
+    std::shared_ptr<open3d::geometry::PointCloud> point_cloud = nullptr, // Optional argument
+    bool save_png = false, // New parameter to control PNG export
+    const std::string& output_path = "output/visualization.png");
 
 
     //
@@ -425,7 +432,19 @@ std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
     double max_gap) const ;
 
 
+    //
+        // void exportShingleWidths(
+        // const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row) const;
 
+    //
+    void exportShingleData(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row,
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row_aligned,
+    const std::vector<double>& first_row_gap_positions,
+    double max_gap) const;
+
+    //
+    
 
 
 };

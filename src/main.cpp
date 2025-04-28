@@ -83,7 +83,17 @@ int main() {
 
 /////
 
+        // Load the point cloud
+    auto sub_structure = perception.loadPointCloud("data/scans/substructure.ply" , false);
 
+    if (sub_structure) {
+        // Visualize the stored point cloud
+        perception.visualizerPointCloud();
+    } else {
+        std::cerr << "Failed to load or process point cloud." << std::endl;
+    }
+    auto sub_structure_pc = perception.getPointCloud();
+    ////////////////////////////////////////
 
 
     // //geom_processor.visualizeBoundingBoxes(clusters, bounding_boxes);
@@ -163,7 +173,7 @@ int main() {
 
 
 
-    auto sorted_boxes = geom_processor.findNextBestShinglesForMultipleRows(second_row_of_shingles , shingle_ptrs ,5  ,  0.03 , gap , max_length);
+    auto sorted_boxes = geom_processor.findNextBestShinglesForMultipleRows(second_row_of_shingles , shingle_ptrs ,8  ,  0.03 , gap , max_length);
     geom_processor.visualizeAllShingleRows(sorted_boxes);
 
     //
@@ -193,28 +203,17 @@ int main() {
         combined_rows.push_back(row);
     }
 
-    // for (const auto& row : third_forth_row_sorted) {
-    //     combined_rows.push_back(row);
-    // }
 
 
 
-        // Load the point cloud
-    auto sub_structure = perception.loadPointCloud("data/scans/substructure.ply" , false);
 
-    if (sub_structure) {
-        // Visualize the stored point cloud
-        perception.visualizerPointCloud();
-    } else {
-        std::cerr << "Failed to load or process point cloud." << std::endl;
-    }
-    auto sub_structure_pc = perception.getPointCloud();
 
 
     std::cout << "Number of rows in combined_rows: " << combined_rows.size() << std::endl;
 
     geom_processor.visualizeAllShingleRows(combined_rows);
-    geom_processor.visualizeShingleMeshes(combined_rows ,sub_structure_pc);
+    //geom_processor.visualizeShingleMeshes(combined_rows ,sub_structure_pc  );
+    geom_processor.visualizeShingleMeshes(combined_rows, sub_structure_pc, true, "output/my_shingles_visualization.png");
     geom_processor.visualizePointClouds(arranged_clouds ,sub_structure_pc );
 
 

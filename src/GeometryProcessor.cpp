@@ -7,6 +7,17 @@
 #include <random>
 #include <chrono>
 #include <iomanip>
+#include <open3d/geometry/BoundingVolume.h>
+#include <Eigen/Core>
+#include <vector>
+#include <memory>
+#include <limits>
+#include <string>
+#include <fstream>
+// #include <open3d/visualization/Visualizer.h>
+// #include <open3d/visualization/RenderOption.h>
+// #include <open3d/visualization/ViewControl.h>
+#include <open3d/visualization/visualizer/Visualizer.h> // Possible alternative path
 
 
 
@@ -3168,15 +3179,102 @@ std::vector<double> GeometryProcessor::calculateRightEdgeDistancesFromCandidate(
 }
 
 ////////////////////////////////////////
+    // void GeometryProcessor::exportShingleWidths(
+    //     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row) const {
+    //     if (second_row.empty()) {
+    //         std::cout << "[DEBUG] No shingles to export." << std::endl;
+    //         return;
+    //     }
+
+    //     // Console output
+    //     std::cout << "[DEBUG] Shingle widths:" << std::endl;
+    //     for (size_t i = 0; i < second_row.size(); ++i) {
+    //         double width_mm = second_row[i]->extent_.x() * 1000.0;
+    //         std::cout << "Shingle " << (i + 1) << ": Width " 
+    //                   << std::fixed << std::setprecision(3) << width_mm << " mm" << std::endl;
+    //     }
+
+    //     // CSV file output with unique filename
+    //     static int file_counter = 0;
+    //     ++file_counter;
+    //     std::string filename = "output/shingle_widths_" + std::to_string(file_counter) + ".csv";
+    //     std::ofstream file(filename);
+    //     if (!file.is_open()) {
+    //         std::cerr << "[ERROR] Failed to open file: " << filename << std::endl;
+    //         return;
+    //     }
+
+    //     // Write CSV header
+    //     file << "Shingle,Width_mm\n";
+
+    //     // Write shingle widths
+    //     for (size_t i = 0; i < second_row.size(); ++i) {
+    //         double width_mm = second_row[i]->extent_.x() * 1000.0;
+    //         file << (i + 1) << "," << std::fixed << std::setprecision(3) << width_mm << "\n";
+    //     }
+
+    //     file.close();
+    //     std::cout << "[DEBUG] Exported shingle widths to " << filename << std::endl;
+    // }
+
+/////////////////////////////////////////
+void GeometryProcessor::exportShingleData(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row,
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row_aligned,
+    const std::vector<double>& first_row_gap_positions,
+    double max_gap) const {
+    if (second_row.empty()) {
+        std::cout << "[DEBUG] No shingles to export." << std::endl;
+        return;
+    }
+
+    // Generate a unique filename
+    static int file_counter = 0;
+    ++file_counter;
+    std::string filename = "output/shingle_data_" + std::to_string(file_counter) + ".csv";
+    std::ofstream file(filename);
+    if (!file.is_open()) {
+        std::cerr << "[ERROR] Failed to open file: " << filename << std::endl;
+        return;
+    }
+
+    // Write CSV header
+    file << "Shingle,Width_mm,Stagger_mm\n";
+
+    // Initialize the right edge (same as in debugShingleRow)
+    Eigen::Vector3d debug_right_edge = first_row_aligned[0]->GetCenter() -
+                                       Eigen::Vector3d(first_row_aligned[0]->extent_.x() / 2.0, 0, 0);
+
+    // Process each shingle
+    for (size_t i = 0; i < second_row.size(); ++i) {
+        auto& bbox = second_row[i];
+        double width_mm = bbox->extent_.x() * 1000.0; // Convert to millimeters
+
+        // Compute stagger margin (same as in debugShingleRow)
+        double second_row_gap = debug_right_edge.x() + bbox->extent_.x() + max_gap;
+        double min_stagger_margin = std::numeric_limits<double>::max();
+        for (double first_gap : first_row_gap_positions) {
+            double stagger = std::abs(second_row_gap - first_gap);
+            min_stagger_margin = std::min(min_stagger_margin, stagger);
+        }
+        double stagger_mm = min_stagger_margin * 1000.0; // Convert to millimeters
+
+        // Write to CSV
+        file << (i + 1) << "," << std::fixed << std::setprecision(3) << width_mm << ","
+             << stagger_mm << "\n";
+
+        // Update right edge for the next shingle
+        debug_right_edge.x() += bbox->extent_.x() + max_gap;
+    }
+
+    file.close();
+    std::cout << "[DEBUG] Exported shingle data to " << filename << std::endl;
+}
 
 
 
 
-
-
-
-
-
+//////////////////////////////////////////
 
 std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProcessor::findNextBestShingles(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
@@ -3494,6 +3592,9 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
     // 
     // Debug output for all selected shingles
     debugShingleRow(second_row, first_row_aligned, first_row_gap_positions, max_gap);
+
+    // Export shingle widths
+    exportShingleData(second_row , first_row_aligned,first_row_gap_positions , max_gap );
 
     return second_row;
 }
@@ -4520,9 +4621,53 @@ std::shared_ptr<open3d::geometry::TriangleMesh> GeometryProcessor::CreateMeshFro
 
 
 /////////////////////////////////////////////////
+// void GeometryProcessor::visualizeShingleMeshes(
+//     const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& combined_rows,
+//     std::shared_ptr<open3d::geometry::PointCloud> point_cloud = nullptr) // Optional argument
+// {
+//     std::vector<std::shared_ptr<const open3d::geometry::Geometry>> all_geometries;
+
+//     // Define a color list for different rows (extend if more rows exist)
+//     std::vector<Eigen::Vector3d> row_colors = {
+//         {0, 0, 1},   // Blue for first row
+//         {1, 0, 0},   // Red for second row
+//         {0, 1, 0},   // Green for third row
+//         {1, 1, 0},   // Yellow for fourth row
+//         {1, 0, 1},   // Magenta for fifth row
+//         {0, 1, 1}    // Cyan for sixth row
+//     };
+
+//     for (size_t i = 0; i < combined_rows.size(); ++i) {
+//         Eigen::Vector3d color = row_colors[i % row_colors.size()]; // Cycle through colors
+
+//         for (const auto& bbox : combined_rows[i]) {
+//             auto mesh = CreateMeshFromOrientedBoundingBox(*bbox, color);
+//             all_geometries.push_back(mesh);
+//         }
+//     }
+
+//     // If a point cloud is provided, add it to the visualization
+//     if (point_cloud && !point_cloud->IsEmpty()) {
+//         point_cloud->PaintUniformColor(Eigen::Vector3d(0.5, 0.5, 0.5)); // Gray color for point cloud
+//         all_geometries.push_back(point_cloud);
+//     }
+
+//     // Add coordinate frame for reference
+//     auto coordinate_frame = open3d::geometry::TriangleMesh::CreateCoordinateFrame(0.1);
+//     all_geometries.push_back(coordinate_frame);
+
+//     // Visualize the meshes and point cloud
+//     open3d::visualization::DrawGeometries(all_geometries);
+// }
+
+
+
+///////////////////////////////////////
 void GeometryProcessor::visualizeShingleMeshes(
     const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& combined_rows,
-    std::shared_ptr<open3d::geometry::PointCloud> point_cloud = nullptr) // Optional argument
+    std::shared_ptr<open3d::geometry::PointCloud> point_cloud , // Optional argument
+    bool save_png , // New parameter to control PNG export
+    const std::string& output_path) // Default output path
 {
     std::vector<std::shared_ptr<const open3d::geometry::Geometry>> all_geometries;
 
@@ -4545,6 +4690,9 @@ void GeometryProcessor::visualizeShingleMeshes(
         }
     }
 
+    //
+    Eigen::Vector3d scene_center(0.0, 0.0, 0.0);
+
     // If a point cloud is provided, add it to the visualization
     if (point_cloud && !point_cloud->IsEmpty()) {
         point_cloud->PaintUniformColor(Eigen::Vector3d(0.5, 0.5, 0.5)); // Gray color for point cloud
@@ -4555,8 +4703,38 @@ void GeometryProcessor::visualizeShingleMeshes(
     auto coordinate_frame = open3d::geometry::TriangleMesh::CreateCoordinateFrame(0.1);
     all_geometries.push_back(coordinate_frame);
 
-    // Visualize the meshes and point cloud
-    open3d::visualization::DrawGeometries(all_geometries);
+    if (save_png) {
+        // Create a visualizer
+        open3d::visualization::Visualizer visualizer;
+        visualizer.CreateVisualizerWindow("Shingle Visualization", 1600, 1200); // Set window size for high-res
+
+        // Add geometries
+        for (const auto& geom : all_geometries) {
+            visualizer.AddGeometry(geom);
+        }
+
+        // Optional: Adjust view for better perspective
+        auto& view_control = visualizer.GetViewControl();
+        //view_control.SetFront(Eigen::Vector3d(0.0, 0.0, 1.0)); // Direction camera looks
+        view_control.SetFront(Eigen::Vector3d(0.5, 0.2, 0.3).normalized());
+        view_control.SetLookat(Eigen::Vector3d(0.5, 0.5, 0)); // Center of the scene
+        view_control.SetUp(Eigen::Vector3d(0, 0, 1));     // Up direction
+        view_control.SetZoom(0.5);                        // Zoom level
+
+        //
+
+
+        // Render and capture the image
+        visualizer.PollEvents();
+        visualizer.UpdateRender();
+        visualizer.CaptureScreenImage(output_path);
+
+        // Close the visualizer
+        visualizer.DestroyVisualizerWindow();
+    } else {
+        // Default visualization without saving
+        open3d::visualization::DrawGeometries(all_geometries);
+    }
 }
 
 

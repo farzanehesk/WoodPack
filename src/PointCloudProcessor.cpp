@@ -429,24 +429,61 @@ PointCloudVisualizer::~PointCloudVisualizer()
 
 // Visualize a single point cloud
 
+// void PointCloudVisualizer::visualizerPointCloud()
+// {
+//     auto pc = getPointCloud();
+//     if (pc && !pc->IsEmpty())
+//     {
+//         std::shared_ptr <open3d::visualization::Visualizer> vis =
+//             std::make_shared <open3d::visualization::Visualizer>();
+//         vis->CreateVisualizerWindow("Open3D Point Cloud Viewer", 840, 680, 50, 50);
+//         vis->AddGeometry(pc, true);
+//         vis->GetRenderOption().background_color_ = Eigen::Vector3d(1.0, 1.0, 1.0); // Set white background
+//         vis->GetRenderOption().point_size_ = 2.0; // Set point size
+//         vis->Run();
+//         vis->DestroyVisualizerWindow();
+//     }
+//     else
+//     {
+//         std::cerr << "Point cloud is empty or null. Cannot visualize."<< '\n';
+
+//     }
+// }
+
 void PointCloudVisualizer::visualizerPointCloud()
 {
     auto pc = getPointCloud();
     if (pc && !pc->IsEmpty())
     {
-        std::shared_ptr <open3d::visualization::Visualizer> vis =
-            std::make_shared <open3d::visualization::Visualizer>();
+        std::shared_ptr<open3d::visualization::Visualizer> vis =
+            std::make_shared<open3d::visualization::Visualizer>();
         vis->CreateVisualizerWindow("Open3D Point Cloud Viewer", 840, 680, 50, 50);
         vis->AddGeometry(pc, true);
-        vis->GetRenderOption().background_color_ = Eigen::Vector3d(1.0, 1.0, 1.0); // Set white background
-        vis->GetRenderOption().point_size_ = 2.0; // Set point size
+
+        // Set options
+        vis->GetRenderOption().background_color_ = Eigen::Vector3d(1.0, 1.0, 1.0); // white background
+        vis->GetRenderOption().point_size_ = 2.0; // point size
+
+        // Set view control
+        auto& view_control = vis->GetViewControl();
+        view_control.SetFront(Eigen::Vector3d(0.5, 0.5, 0.7).normalized());
+        view_control.SetUp(Eigen::Vector3d(0.0, 0.0, 1.0));
+        view_control.SetLookat(pc->GetCenter());
+        view_control.SetZoom(0.5);
+
+        // Run the visualizer
+        vis->PollEvents();  // Needed to update the view
+        vis->UpdateRender(); // Update rendering
+
+        // Save screenshot
+        vis->CaptureScreenImage("output/point_cloud_screenshot.png"); // Save in output folder
+
         vis->Run();
         vis->DestroyVisualizerWindow();
     }
     else
     {
-        std::cerr << "Point cloud is empty or null. Cannot visualize."<< '\n';
-
+        std::cerr << "Point cloud is empty or null. Cannot visualize." << '\n';
     }
 }
 

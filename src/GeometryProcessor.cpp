@@ -1907,17 +1907,24 @@ GeometryProcessor::arrangeFirstShingleRow(
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arranged_bboxes;
     Eigen::Vector3d current_position(0, 0, 0);
     double previous_half_width = 0;
+    bool is_first = true;
+
 
     for (auto& bbox : best_combination) {
         double current_half_width = bbox->extent_.x() / 2.0;
+    if (is_first) {
+        current_position.x() += current_half_width;
+        is_first = false;
+    } else {
         current_position.x() += previous_half_width + gap + current_half_width;
-
-        Eigen::Vector3d translation = current_position - bbox->GetCenter();
-        transform_bounding_box(bbox, translation, Eigen::Vector3d(0, 1, 0), 0, Eigen::Vector3d(0, 0, 0), true);
-
-        arranged_bboxes.push_back(bbox);
-        previous_half_width = current_half_width;
     }
+
+    Eigen::Vector3d translation = current_position - bbox->GetCenter();
+    transform_bounding_box(bbox, translation, Eigen::Vector3d(0, 1, 0), 0, Eigen::Vector3d(0, 0, 0), true);
+
+    arranged_bboxes.push_back(bbox);
+    previous_half_width = current_half_width;
+}
 
     // Apply rotation if needed
     double rotation_radians = rotation_angle * M_PI / 180.0;
@@ -1926,10 +1933,19 @@ GeometryProcessor::arrangeFirstShingleRow(
                                -rotation_radians, bbox->GetCenter(), true);
     }
 
-    std::cout << "[Info] Optimized row arranged with total length: "
-              << best_total_length << " meters" << std::endl;
+    // Compute actual length from the x-position of the first and last box
+    auto first_bbox = arranged_bboxes.front();
+    auto last_bbox = arranged_bboxes.back();
 
-    exportFirstRowData(arranged_bboxes ,best_total_length );
+    double first_left = first_bbox->GetCenter().x() - first_bbox->extent_.x() / 2.0;
+    double last_right = last_bbox->GetCenter().x() + last_bbox->extent_.x() / 2.0;
+
+    double actual_total_length = last_right - first_left;
+
+std::cout << "[Info] Target total length (ideal): " << best_total_length
+          << " m, Actual arranged length: " << actual_total_length << " m" << std::endl;
+
+    exportFirstRowData(arranged_bboxes ,actual_total_length );
 
     return arranged_bboxes;
 }
@@ -3325,7 +3341,7 @@ void GeometryProcessor::exportFirstRowData(
 
     // Verify total length by summing widths and gaps (assuming gap = 0.002 m from context)
     double computed_total_length = 0.0;
-    double gap = 0.002; // 2 mm, adjust if different
+    double gap = 0.003; // 3 mm, adjust if different
     for (size_t i = 0; i < arranged_bboxes.size(); ++i) {
         computed_total_length += arranged_bboxes[i]->extent_.x();
         if (i < arranged_bboxes.size() - 1) {

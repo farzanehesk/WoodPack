@@ -1337,28 +1337,164 @@ void GeometryProcessor::visualizePlanesOnBoundingBoxes(
 
 
 
-/////////////////////////////////
-// Function to generate a random number between min and max
-    double GeometryProcessor::getRandomWidth(double min, double max ) {
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_real_distribution<> dis(min, max);
-        return dis(gen);
+///////////////////////////////
+// // Function to generate a random number between min and max
+//     double GeometryProcessor::getRandomWidth(double min, double max ) {
+//         std::random_device rd;
+//         std::mt19937 gen(rd());
+//         std::uniform_real_distribution<> dis(min, max);
+//         return dis(gen);
+//     }
+
+//     // Function to create 'n' bounding boxes and place them next to each other
+//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProcessor::createBoundingBoxes(int n , double fixed_length , bool debug = false) {
+//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> boxes;
+
+//     double min_width = 0.08;
+//     double max_width = 0.20;
+
+//     // Start position for the first box
+//     Eigen::Vector3d start_pos(-0.5, 0.3, 0.0);
+//     double current_x = start_pos.x();
+
+//     for (int i = 0; i < n; ++i) {
+//         double width = getRandomWidth(min_width, max_width);
+
+//         // Define center of bounding box
+//         Eigen::Vector3d center(current_x + width / 2.0, start_pos.y() + fixed_length / 2.0, start_pos.z());
+
+//         // Set half extents with width along x, length along y, and thickness along z
+//         Eigen::Vector3d half_extents(width / 2.0, fixed_length / 2.0, 0.0065);
+
+//         // Create oriented bounding box
+//         auto box = std::make_shared<open3d::geometry::OrientedBoundingBox>(
+//             center, Eigen::Matrix3d::Identity(), half_extents * 2);
+
+//         // Set color
+//         box->color_ = Eigen::Vector3d(1, 0, 0); // Red
+
+//         // Add to list
+//         boxes.push_back(box);
+
+//         // Compute actual dimensions
+//         double computed_width = box->extent_.x();  // Width along x-axis
+//         double computed_length = box->extent_.y(); // Length along y-axis
+
+//         // Print bounding box dimensions
+//         if(debug)
+//         {
+//             std::cout << "Bounding Box " << i + 1 << ": Width = " 
+//             << computed_width << "m, Expected Length = " 
+//             << fixed_length << "m, Computed Length = " 
+//             << computed_length << "m" << std::endl;
+
+//             // Print the center and extents of the bounding box before and after translation/rotation
+//             std::cout << "Center: " << box->GetCenter().transpose() << std::endl;
+//             std::cout << "Half Extents: " << box->extent_.transpose() << std::endl;
+//         }
+
+
+//         // Update position for next box (move in x-direction)
+//         current_x += width + 0.005; // Maintain 5mm gap
+//     }
+
+//     return boxes;
+// }
+
+
+// Function to generate a random width with up to 2 uses per width
+double GeometryProcessor::getRandomWidth(double min, double max, std::map<double, int>& width_counts, double min_variation = 0.001, int max_attempts = 100, double precision = 0.00001) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis(min, max);
+
+    for (int attempt = 0; attempt < max_attempts; ++attempt) {
+        double width = dis(gen);
+        bool valid = true;
+
+        // Round width to precision for counting (e.g., 0.1243 ≈ 0.1243)
+        double rounded_width = std::round(width / precision) * precision;
+
+        // Check if width can be used (≤ 2 uses)
+        if (width_counts[rounded_width] >= 2) {
+            valid = false;
+        } else {
+            // Check variation from existing widths
+            for (const auto& [existing_width, count] : width_counts) {
+                if (std::abs(width - existing_width) < min_variation && std::abs(width - existing_width) > precision) {
+                    valid = false;
+                    break;
+                }
+            }
+        }
+
+        if (valid) {
+            width_counts[rounded_width]++;
+            return width;
+        }
     }
 
-    // Function to create 'n' bounding boxes and place them next to each other
-    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProcessor::createBoundingBoxes(int n , double fixed_length , bool debug = false) {
-    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> boxes;
+    // Fallback: Try incremental widths
+    double new_width = min;
+    while (new_width <= max) {
+        double rounded_width = std::round(new_width / precision) * precision;
+        bool valid = true;
 
-    double min_width = 0.08;
-    double max_width = 0.2;
+        if (width_counts[rounded_width] >= 2) {
+            valid = false;
+        } else {
+            for (const auto& [existing_width, count] : width_counts) {
+                if (std::abs(new_width - existing_width) < min_variation && std::abs(new_width - existing_width) > precision) {
+                    valid = false;
+                    break;
+                }
+            }
+        }
+
+        if (valid) {
+            width_counts[rounded_width]++;
+            return new_width;
+        }
+        new_width += min_variation;
+    }
+
+    // If no valid width is found, return -1
+    std::cerr << "[ERROR] Could not generate a width with up to 2 uses and minimum variation of " << min_variation * 1000.0 << " mm." << std::endl;
+    return -1.0;
+}
+
+// Function to create 'n' bounding boxes with random widths (up to 2 uses per width)
+std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProcessor::createBoundingBoxes(
+    int n, double fixed_length, bool debug = false) {
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> boxes;
+    std::map<double, int> width_counts; // Tracks number of uses per width
+
+    double min_width = 0.08;  // 8 cm
+    double max_width = 0.20;  // 20 cm
+    double min_variation = 0.001;  // 0.1 cm
+    double precision = 0.00001;  // 0.001 cm for considering widths "similar"
+
+    // Check if n is feasible
+    double width_range = max_width - min_width;
+    int max_unique_widths = static_cast<int>(width_range / min_variation) + 1;
+    int max_possible_boxes = max_unique_widths * 2; // Up to 2 uses per width
+    if (n > max_possible_boxes) {
+        std::cerr << "[ERROR] Requested " << n << " boxes, but only " << max_possible_boxes
+                  << " boxes are possible with " << min_variation * 1000.0 << " mm variation and 2 uses per width." << std::endl;
+        return boxes;
+    }
 
     // Start position for the first box
     Eigen::Vector3d start_pos(-0.5, 0.3, 0.0);
     double current_x = start_pos.x();
 
     for (int i = 0; i < n; ++i) {
-        double width = getRandomWidth(min_width, max_width);
+        // Generate a width
+        double width = getRandomWidth(min_width, max_width, width_counts, min_variation, 100, precision);
+        if (width < 0) {
+            std::cerr << "[ERROR] Failed to generate width for box " << i + 1 << ". Stopping." << std::endl;
+            return boxes;
+        }
 
         // Define center of bounding box
         Eigen::Vector3d center(current_x + width / 2.0, start_pos.y() + fixed_length / 2.0, start_pos.z());
@@ -1381,18 +1517,14 @@ void GeometryProcessor::visualizePlanesOnBoundingBoxes(
         double computed_length = box->extent_.y(); // Length along y-axis
 
         // Print bounding box dimensions
-        if(debug)
-        {
+        if (debug) {
             std::cout << "Bounding Box " << i + 1 << ": Width = " 
-            << computed_width << "m, Expected Length = " 
-            << fixed_length << "m, Computed Length = " 
-            << computed_length << "m" << std::endl;
-
-            // Print the center and extents of the bounding box before and after translation/rotation
+                      << computed_width << "m, Expected Length = " 
+                      << fixed_length << "m, Computed Length = " 
+                      << computed_length << "m" << std::endl;
             std::cout << "Center: " << box->GetCenter().transpose() << std::endl;
             std::cout << "Half Extents: " << box->extent_.transpose() << std::endl;
         }
-
 
         // Update position for next box (move in x-direction)
         current_x += width + 0.005; // Maintain 5mm gap
@@ -1400,6 +1532,7 @@ void GeometryProcessor::visualizePlanesOnBoundingBoxes(
 
     return boxes;
 }
+
 
 
 
@@ -1638,10 +1771,6 @@ void GeometryProcessor::transform_bounding_box_to_plane(
 //         // std::cout << "  Around Z: " << angle_z << " radians (" << angle_z_degrees << " degrees)" << std::endl;
 //     }
 
-//     // Debug: First row top face
-//     Eigen::Vector3d first_row_top_face = arranged_bboxes[0]->GetCenter();
-//     first_row_top_face.z() += (arranged_bboxes[0]->extent_.z() / 2.0);
-//     std::cout << "[DEBUG] First row top face (final): " << first_row_top_face.transpose() << std::endl;
 
 //     return arranged_bboxes;
 // }
@@ -1651,188 +1780,166 @@ void GeometryProcessor::transform_bounding_box_to_plane(
 //     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& bounding_boxes,
 //     double gap,
 //     double max_length,
-//     double rotation_angle) {  // Rotation for the entire row
+//     double rotation_angle) {
 
-//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arranged_bboxes;
-//     Eigen::Vector3d current_position(0, 0, 0);  // Start at the origin
+//     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> best_arrangement;
+//     double best_total_length = std::numeric_limits<double>::max();
+//     double target_max = max_length + 0.02;  // Allow up to 2cm overhang
 
-//     double previous_half_width = 0;  // Keeps track of half the previous box's width
-//     double total_length = 0;  // Keeps track of the total accumulated length
+//     for (size_t start = 0; start < bounding_boxes.size(); ++start) {
+//         std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> temp_arrangement;
+//         Eigen::Vector3d position(0, 0, 0);
+//         double total = 0;
+//         double prev_half_width = 0;
 
-//     Eigen::Vector3d last_box_right_edge(0, 0, 0);  // Stores the rightmost edge position
-//     bool min_length_reached = false;  // Flag to check if we reached at least max_length
+//         for (size_t i = start; i < bounding_boxes.size(); ++i) {
+//             auto bbox = bounding_boxes[i];
+//             Eigen::Vector3d extent = bbox->extent_;
 
-
-//     for (size_t i = 0; i < bounding_boxes.size(); ++i) {
-//     auto& bbox = bounding_boxes[i];
-
-//     // Compute the bounding box's extent
-//     Eigen::Vector3d extent = bbox->extent_;
-//     double current_half_width = extent.x() / 2.0;  // Half of the width after rotation
-
-//     // Predict total length if this box is added
-//     double new_total_length = total_length + previous_half_width + gap + current_half_width;
-
-//     // **Check if adding this box significantly exceeds 1m**
-//     if (min_length_reached && new_total_length > max_length) {
-//         // Find a better alternative (smallest overshoot or closest to 1m)
-//         double best_fit_length = new_total_length;
-//         size_t best_fit_index = i;  // Default to current box
-
-//         for (size_t j = i + 1; j < bounding_boxes.size(); ++j) {
-//             auto& alternative_bbox = bounding_boxes[j];
-//             double alt_half_width = alternative_bbox->extent_.x() / 2.0;
-//             double alt_new_total_length = total_length + previous_half_width + gap + alt_half_width;
-
-//             // Choose the box that minimizes the overshoot
-//             if (alt_new_total_length >= max_length && alt_new_total_length < best_fit_length) {
-//                 best_fit_length = alt_new_total_length;
-//                 best_fit_index = j;
+//             // Identify the longest axis
+//             int longest_axis = 0;
+//             if (extent.y() > extent.x() && extent.y() > extent.z()) {
+//                 longest_axis = 1;
+//             } else if (extent.z() > extent.x() && extent.z() > extent.y()) {
+//                 longest_axis = 2;
 //             }
+
+//             if (longest_axis == 2) {
+//                 transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0),
+//                                        Eigen::Vector3d(0, 1, 0), M_PI_2,
+//                                        bbox->GetCenter(), true);
+//             }
+
+//             extent = bbox->extent_;  // Refresh after rotation
+//             double curr_half_width = extent.x() / 2.0;
+//             double new_total = total + prev_half_width + gap + curr_half_width;
+
+//             if (new_total > target_max)
+//                 break;
+
+//             position.x() += prev_half_width + gap + curr_half_width;
+//             Eigen::Vector3d translation = position - bbox->GetCenter();
+//             transform_bounding_box(bbox, translation,
+//                                    Eigen::Vector3d(0, 1, 0), 0,
+//                                    Eigen::Vector3d(0, 0, 0), true);
+
+//             temp_arrangement.push_back(bbox);
+//             total = new_total;
+//             prev_half_width = curr_half_width;
 //         }
 
-//         // If a better option was found, use it
-//         if (best_fit_index != i) {
-//             std::swap(bounding_boxes[i], bounding_boxes[best_fit_index]);
-//             bbox = bounding_boxes[i];  // Update bbox reference
-//             current_half_width = bbox->extent_.x() / 2.0;
-//             new_total_length = total_length + previous_half_width + gap + current_half_width;
+//         if (total >= max_length && total <= target_max) {
+//             // Ideal case
+//             std::cout << "[INFO] Ideal row length found: " << total << " meters\n";
+//             best_arrangement = temp_arrangement;
+//             break;
+//         } else if (total >= max_length &&
+//                    std::abs(total - target_max) < std::abs(best_total_length - target_max)) {
+//             // Save best fallback above max_length
+//             best_arrangement = temp_arrangement;
+//             best_total_length = total;
 //         }
-
-//         // If still exceeding, break out after ensuring at least 1m is reached
-//         if (new_total_length > max_length) break;
 //     }
 
-//     // Update position
-//     current_position.x() += previous_half_width + gap + current_half_width;
+//     // Apply rotation around X to entire row
+//     double rotation_radians = rotation_angle * M_PI / 180.0;
+//     for (auto& bbox : best_arrangement) {
+//         transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0),
+//                                Eigen::Vector3d(1, 0, 0), -rotation_radians,
+//                                bbox->GetCenter(), true);
+//     }
 
-//     // Translate the bounding box to align along X-axis
-//     Eigen::Vector3d translation = current_position - bbox->GetCenter();
-//     transform_bounding_box(bbox, translation, Eigen::Vector3d(0, 1, 0), 0, Eigen::Vector3d(0, 0, 0), true);
+//     if (!best_arrangement.empty()) {
+//         Eigen::Vector3d final_right = best_arrangement.back()->GetCenter();
+//         final_right.x() += best_arrangement.back()->extent_.x() / 2.0;
+//         std::cout << "Total row length: " << final_right.x() << " meters" << std::endl;
 
-//     // Store rightmost edge position
-//     last_box_right_edge = bbox->GetCenter() + Eigen::Vector3d(current_half_width, 0, 0);
+//         Eigen::Vector3d top_face = best_arrangement[0]->GetCenter();
+//         top_face.z() += (best_arrangement[0]->extent_.z() / 2.0);
+//         std::cout << "[DEBUG] First row top face (final): " << top_face.transpose() << std::endl;
+//     } else {
+//         std::cerr << "[WARNING] No valid row arrangement found.\n";
+//     }
 
-//     // Add the bounding box to the list
-//     arranged_bboxes.push_back(bbox);
-
-//     // Update tracking variables
-//     previous_half_width = current_half_width;
-//     total_length = new_total_length;
-
-//     // Mark that at least 1m has been reached
-//     if (total_length >= max_length) min_length_reached = true;
+//     return best_arrangement;
 // }
 
-//     // **Convert degrees to radians** (rotation_angle is in degrees)
-//     double rotation_radians = rotation_angle * M_PI / 180.0;  // Convert to radians
 
-//     // Debug print: Rotation angle in both degrees and radians
-//     std::cout << "Applying rotation: " << rotation_angle << " degrees (" 
-//           << rotation_radians << " radians)" << std::endl;
-
-//     // **Apply the correct rotation to the entire row** (rotate each box around its center)
-//     Eigen::Vector3d rotation_center(0, 0, 0);  // Rotation center at the origin (can be adjusted if needed)
-
-//     // Apply a x-degree rotation around the Y-axis to make the longer edge align with the global X-axis
-//     for (auto& bbox : arranged_bboxes) {
-//         // Rotate the bounding box around its center
-//         transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(1, 0, 0), -rotation_radians, bbox->GetCenter(), true);
-//     }
-
-//     // Debug print: Total length of the row from (0,0,0) to rightmost edge
-//     std::cout << "Total first row length: " << last_box_right_edge.x() << " meters" << std::endl;
-
-//     // Debugging bounding box rotation
-//     for (auto& bbox : arranged_bboxes) {
-//         Eigen::Matrix3d rotation_matrix = bbox->R_;  // Get the rotation matrix
-
-//         // Extract rotation angles (Euler angles)
-//         double angle_x = std::atan2(rotation_matrix(2, 1), rotation_matrix(2, 2));  // Rotation around X
-//         double angle_y = std::atan2(-rotation_matrix(2, 0),
-//                                     std::sqrt(rotation_matrix(2, 1) * rotation_matrix(2, 1) + 
-//                                               rotation_matrix(2, 2) * rotation_matrix(2, 2)));  // Rotation around Y
-//         double angle_z = std::atan2(rotation_matrix(1, 0), rotation_matrix(0, 0));  // Rotation around Z
-
-//         // Convert to degrees
-//         double angle_x_degrees = angle_x * 180.0 / M_PI;
-//         double angle_y_degrees = angle_y * 180.0 / M_PI;
-//         double angle_z_degrees = angle_z * 180.0 / M_PI;
-
-//         // std::cout << "Bounding Box Rotation Angles:" << std::endl;
-//         // std::cout << "  Around X: " << angle_x << " radians (" << angle_x_degrees << " degrees)" << std::endl;
-//         // std::cout << "  Around Y: " << angle_y << " radians (" << angle_y_degrees << " degrees)" << std::endl;
-//         // std::cout << "  Around Z: " << angle_z << " radians (" << angle_z_degrees << " degrees)" << std::endl;
-//     }
-
-//     // Debug: First row top face
-//     Eigen::Vector3d first_row_top_face = arranged_bboxes[0]->GetCenter();
-//     first_row_top_face.z() += (arranged_bboxes[0]->extent_.z() / 2.0);
-//     std::cout << "[DEBUG] First row top face (final): " << first_row_top_face.transpose() << std::endl;
-
-//     return arranged_bboxes;
-// }
-
-std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProcessor::arrangeFirstShingleRow(
+std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> 
+GeometryProcessor::arrangeFirstShingleRow(
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& bounding_boxes,
     double gap,
     double max_length,
-    double rotation_angle) {
+    double rotation_angle)
+{
+    double overhang_allowed = 0.02;
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> best_combination;
+    double best_total_length = std::numeric_limits<double>::max();
 
-    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arranged_bboxes;
-    Eigen::Vector3d current_position(0, 0, 0);
+    // Generate all combinations
+    size_t n = bounding_boxes.size();
+    for (size_t mask = 1; mask < (1 << n); ++mask) {
+        std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> combination;
+        double total_length = 0;
+        for (size_t i = 0; i < n; ++i) {
+            if (mask & (1 << i)) {
+                combination.push_back(bounding_boxes[i]);
+                total_length += bounding_boxes[i]->extent_.x();
+            }
+        }
+        total_length += gap * (combination.size() - 1); // Gaps between boxes
 
-    double previous_half_width = 0;
-    double total_length = 0;
-    Eigen::Vector3d last_box_right_edge(0, 0, 0);
-    const double threshold = 0.02;  // 2 cm tolerance
-
-    for (size_t i = 0; i < bounding_boxes.size(); ++i) {
-        auto& bbox = bounding_boxes[i];
-        Eigen::Vector3d extent = bbox->extent_;
-        double current_half_width = extent.x() / 2.0;
-
-        double predicted_total = total_length + previous_half_width + gap + current_half_width;
-
-        // Allow adding if we haven't yet reached max_length
-        // Or if this box keeps us within the allowed tolerance
-        if (predicted_total <= max_length || predicted_total <= (max_length + threshold)) {
-            current_position.x() += previous_half_width + gap + current_half_width;
-
-            Eigen::Vector3d translation = current_position - bbox->GetCenter();
-            transform_bounding_box(bbox, translation, Eigen::Vector3d(0, 1, 0), 0, Eigen::Vector3d(0, 0, 0), true);
-
-            last_box_right_edge = bbox->GetCenter() + Eigen::Vector3d(current_half_width, 0, 0);
-            arranged_bboxes.push_back(bbox);
-
-            previous_half_width = current_half_width;
-            total_length = predicted_total;
-        } else {
-            break;  // would exceed max + threshold
+        if (total_length >= max_length && total_length <= max_length + overhang_allowed) {
+            if (total_length < best_total_length) {
+                best_total_length = total_length;
+                best_combination = combination;
+            }
         }
     }
 
-    // Apply rotation to entire row
-    double rotation_radians = rotation_angle * M_PI / 180.0;
-    std::cout << "Applying rotation: " << rotation_angle << " degrees (" 
-              << rotation_radians << " radians)" << std::endl;
-
-    for (auto& bbox : arranged_bboxes) {
-        transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0),
-                               Eigen::Vector3d(1, 0, 0), -rotation_radians,
-                               bbox->GetCenter(), true);
+    if (best_combination.empty()) {
+        std::cerr << "[Warning] No valid shingle combination found for target length: "
+                  << max_length << "m with allowed overhang: " << overhang_allowed << "m" << std::endl;
+        return {};
     }
 
-    std::cout << "Total first row length: " << last_box_right_edge.x() << " meters" << std::endl;
+    // Placement logic
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> arranged_bboxes;
+    Eigen::Vector3d current_position(0, 0, 0);
+    double previous_half_width = 0;
 
-    Eigen::Vector3d first_row_top_face = arranged_bboxes[0]->GetCenter();
-    first_row_top_face.z() += (arranged_bboxes[0]->extent_.z() / 2.0);
-    std::cout << "[DEBUG] First row top face (final): " << first_row_top_face.transpose() << std::endl;
+    for (auto& bbox : best_combination) {
+        double current_half_width = bbox->extent_.x() / 2.0;
+        current_position.x() += previous_half_width + gap + current_half_width;
+
+        Eigen::Vector3d translation = current_position - bbox->GetCenter();
+        transform_bounding_box(bbox, translation, Eigen::Vector3d(0, 1, 0), 0, Eigen::Vector3d(0, 0, 0), true);
+
+        arranged_bboxes.push_back(bbox);
+        previous_half_width = current_half_width;
+    }
+
+    // Apply rotation if needed
+    double rotation_radians = rotation_angle * M_PI / 180.0;
+    for (auto& bbox : arranged_bboxes) {
+        transform_bounding_box(bbox, Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(1, 0, 0),
+                               -rotation_radians, bbox->GetCenter(), true);
+    }
+
+    std::cout << "[Info] Optimized row arranged with total length: "
+              << best_total_length << " meters" << std::endl;
+
+    exportFirstRowData(arranged_bboxes ,best_total_length );
 
     return arranged_bboxes;
 }
 
 
+
+
+
+
+/////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////
 
@@ -3178,6 +3285,64 @@ std::vector<double> GeometryProcessor::calculateRightEdgeDistancesFromCandidate(
     }
 }
 
+
+///////////////////////////////////
+
+// exportFirstRowData function
+void GeometryProcessor::exportFirstRowData(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& arranged_bboxes,
+    double total_length) {
+
+    // Debug: Log received total_length
+    std::cout << "[DEBUG] exportFirstRowData received total_length: " << total_length * 1000.0 << " mm" << std::endl;
+
+    // Generate timestamp-based filename
+    std::time_t now = std::time(nullptr);
+    std::tm* local_time = std::localtime(&now);
+    std::stringstream filename;
+    filename << "output/first_row_" << std::put_time(local_time, "%Y-%m-%d_%H-%M-%S") << ".txt";
+
+    // Open file
+    std::ofstream out_file(filename.str());
+    if (!out_file.is_open()) {
+        std::cerr << "[ERROR] Failed to open file: " << filename.str() << std::endl;
+        return;
+    }
+
+    // Write shingle widths in centimeters
+    out_file << "widths = [";
+    for (size_t i = 0; i < arranged_bboxes.size(); ++i) {
+        double width_cm = arranged_bboxes[i]->extent_.x() * 100.0; // Convert meters to cm
+        out_file << std::fixed << std::setprecision(0) << width_cm;
+        if (i < arranged_bboxes.size() - 1) {
+            out_file << ",";
+        }
+    }
+    out_file << "]" << std::endl;
+
+    // Write total length in meters
+    out_file << "total length = [" << std::fixed << std::setprecision(6) << total_length << "]" << std::endl;
+
+    // Verify total length by summing widths and gaps (assuming gap = 0.002 m from context)
+    double computed_total_length = 0.0;
+    double gap = 0.002; // 2 mm, adjust if different
+    for (size_t i = 0; i < arranged_bboxes.size(); ++i) {
+        computed_total_length += arranged_bboxes[i]->extent_.x();
+        if (i < arranged_bboxes.size() - 1) {
+            computed_total_length += gap;
+        }
+    }
+    std::cout << "[DEBUG] exportFirstRowData computed total length: " << computed_total_length * 1000.0 << " mm" << std::endl;
+    if (std::abs(computed_total_length - total_length) > 1e-6) {
+        std::cerr << "[ERROR] Mismatch in exportFirstRowData: received total_length = " << total_length * 1000.0
+                  << " mm, computed = " << computed_total_length * 1000.0 << " mm" << std::endl;
+    }
+
+    // Close file
+    out_file.close();
+    std::cout << "[INFO] Exported first row data to: " << filename.str() << std::endl;
+}
+
 ////////////////////////////////////////
     // void GeometryProcessor::exportShingleWidths(
     //     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row) const {
@@ -3218,6 +3383,58 @@ std::vector<double> GeometryProcessor::calculateRightEdgeDistancesFromCandidate(
     // }
 
 /////////////////////////////////////////
+// void GeometryProcessor::exportShingleData(
+//     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row,
+//     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row_aligned,
+//     const std::vector<double>& first_row_gap_positions,
+//     double max_gap) const {
+//     if (second_row.empty()) {
+//         std::cout << "[DEBUG] No shingles to export." << std::endl;
+//         return;
+//     }
+
+//     // Generate a unique filename
+//     static int file_counter = 0;
+//     ++file_counter;
+//     std::string filename = "output/shingle_data_" + std::to_string(file_counter) + ".csv";
+//     std::ofstream file(filename);
+//     if (!file.is_open()) {
+//         std::cerr << "[ERROR] Failed to open file: " << filename << std::endl;
+//         return;
+//     }
+
+//     // Write CSV header
+//     file << "Shingle,Width_mm,Stagger_mm\n";
+
+//     // Initialize the right edge (same as in debugShingleRow)
+//     Eigen::Vector3d debug_right_edge = first_row_aligned[0]->GetCenter() -
+//                                        Eigen::Vector3d(first_row_aligned[0]->extent_.x() / 2.0, 0, 0);
+
+//     // Process each shingle
+//     for (size_t i = 0; i < second_row.size(); ++i) {
+//         auto& bbox = second_row[i];
+//         double width_mm = bbox->extent_.x() * 1000.0; // Convert to millimeters
+
+//         // Compute stagger margin (same as in debugShingleRow)
+//         double second_row_gap = debug_right_edge.x() + bbox->extent_.x() + max_gap;
+//         double min_stagger_margin = std::numeric_limits<double>::max();
+//         for (double first_gap : first_row_gap_positions) {
+//             double stagger = std::abs(second_row_gap - first_gap);
+//             min_stagger_margin = std::min(min_stagger_margin, stagger);
+//         }
+//         double stagger_mm = min_stagger_margin * 1000.0; // Convert to millimeters
+
+//         // Write to CSV
+//         file << (i + 1) << "," << std::fixed << std::setprecision(3) << width_mm << ","
+//              << stagger_mm << "\n";
+
+//         // Update right edge for the next shingle
+//         debug_right_edge.x() += bbox->extent_.x() + max_gap;
+//     }
+
+//     file.close();
+//     std::cout << "[DEBUG] Exported shingle data to " << filename << std::endl;
+// }
 void GeometryProcessor::exportShingleData(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row,
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row_aligned,
@@ -3228,27 +3445,49 @@ void GeometryProcessor::exportShingleData(
         return;
     }
 
-    // Generate a unique filename
+    // Generate unique filenames using a static counter
     static int file_counter = 0;
     ++file_counter;
-    std::string filename = "output/shingle_data_" + std::to_string(file_counter) + ".csv";
-    std::ofstream file(filename);
-    if (!file.is_open()) {
-        std::cerr << "[ERROR] Failed to open file: " << filename << std::endl;
+    std::string csv_filename = "output/shingle_data_" + std::to_string(file_counter) + ".csv";
+    std::string txt_filename = "output/shingle_data_" + std::to_string(file_counter) + ".txt";
+
+    // --- CSV Export (Unchanged) ---
+    std::ofstream csv_file(csv_filename);
+    if (!csv_file.is_open()) {
+        std::cerr << "[ERROR] Failed to open CSV file: " << csv_filename << std::endl;
         return;
     }
 
     // Write CSV header
-    file << "Shingle,Width_mm,Stagger_mm\n";
+    csv_file << "Shingle,Width_mm,Stagger_mm\n";
 
-    // Initialize the right edge (same as in debugShingleRow)
+    // --- Text File Export ---
+    std::ofstream txt_file(txt_filename);
+    if (!txt_file.is_open()) {
+        std::cerr << "[ERROR] Failed to open text file: " << txt_filename << std::endl;
+        csv_file.close();
+        return;
+    }
+
+    // Initialize right edge (same as in debugShingleRow)
     Eigen::Vector3d debug_right_edge = first_row_aligned[0]->GetCenter() -
                                        Eigen::Vector3d(first_row_aligned[0]->extent_.x() / 2.0, 0, 0);
+
+    // Collect widths, staggers, and compute total length
+    std::vector<double> widths;
+    std::vector<double> staggers;
+    double total_length_mm = 0.0; // Total length in millimeters
 
     // Process each shingle
     for (size_t i = 0; i < second_row.size(); ++i) {
         auto& bbox = second_row[i];
         double width_mm = bbox->extent_.x() * 1000.0; // Convert to millimeters
+        total_length_mm += width_mm; // Add width to total length
+
+        // Add gap to total length (except for the last shingle)
+        if (i < second_row.size() - 1) {
+            total_length_mm += max_gap * 1000.0; // Convert gap to millimeters
+        }
 
         // Compute stagger margin (same as in debugShingleRow)
         double second_row_gap = debug_right_edge.x() + bbox->extent_.x() + max_gap;
@@ -3260,17 +3499,45 @@ void GeometryProcessor::exportShingleData(
         double stagger_mm = min_stagger_margin * 1000.0; // Convert to millimeters
 
         // Write to CSV
-        file << (i + 1) << "," << std::fixed << std::setprecision(3) << width_mm << ","
-             << stagger_mm << "\n";
+        csv_file << (i + 1) << "," << std::fixed << std::setprecision(3) << width_mm << ","
+                 << stagger_mm << "\n";
 
-        // Update right edge for the next shingle
+        // Store for text file
+        widths.push_back(width_mm);
+        staggers.push_back(stagger_mm);
+
+        // Update right edge for next shingle
         debug_right_edge.x() += bbox->extent_.x() + max_gap;
     }
 
-    file.close();
-    std::cout << "[DEBUG] Exported shingle data to " << filename << std::endl;
-}
+    csv_file.close();
+    std::cout << "[DEBUG] Exported shingle data to " << csv_filename << std::endl;
 
+    // Write to text file in the requested format
+    txt_file << "row" << file_counter << "_s=[";
+    for (size_t i = 0; i < staggers.size(); ++i) {
+        txt_file << std::fixed << std::setprecision(3) << staggers[i];
+        if (i < staggers.size() - 1) {
+            txt_file << ", ";
+        }
+    }
+    txt_file << "] \n";
+
+    txt_file << "row" << file_counter << "=[";
+    for (size_t i = 0; i < widths.size(); ++i) {
+        txt_file << std::fixed << std::setprecision(3) << widths[i];
+        if (i < widths.size() - 1) {
+            txt_file << ", ";
+        }
+    }
+    txt_file << "] \n";
+
+    // Add total length line
+    txt_file << "row" << file_counter << "_length=[" << std::fixed << std::setprecision(3) << total_length_mm << "]\n";
+
+    txt_file.close();
+    std::cout << "[DEBUG] Exported shingle data to " << txt_filename << std::endl;
+}
 
 
 
@@ -3318,9 +3585,102 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
     }
 
     // Scoring function
-    auto scoreCandidate = [&](const auto& candidate, const std::vector<double>& distances, 
-                             double remaining_width, const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& remaining_candidates, 
-                             double max_length) {
+    // auto scoreCandidate = [&](const auto& candidate, const std::vector<double>& distances, 
+    //                          double remaining_width, const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& remaining_candidates, 
+    //                          double max_length) {
+    //     double score = 0.0;
+    //     double candidate_width = candidate->extent_.x();
+    //     double new_total_width = total_width + candidate_width;
+    //     double new_remaining_width = max_length - new_total_width;
+
+    //     // Determine if this is the final or second-to-last shingle
+    //     bool is_final_shingle = (new_remaining_width <= 0.05 && new_total_width >= max_length) || 
+    //                             (remaining_width <= max_candidate_width);
+    //     bool is_second_to_last = (remaining_width <= 2.0 * max_candidate_width && remaining_width > max_candidate_width);
+
+    //     // Staggering
+    //     for (double d : distances) {
+    //         double offset = std::min(std::abs(candidate_width - (d - min_stagger)),
+    //                                  std::abs(candidate_width - (d + min_stagger)));
+    //         if (!is_final_shingle && offset >= min_stagger && offset < 0.035) {
+    //             score -= 1000.0 * (0.035 - offset); // Stronger penalty for yellow shingles
+    //         } else if (offset >= 0.035 || is_final_shingle) {
+    //             score += 250.0 * std::min(offset, 0.06); // Stronger reward for green
+    //         }
+    //     }
+
+    //     // Gap non-alignment
+    //     double second_row_gap = current_right_edge.x() + candidate_width + max_gap;
+    //     for (double first_gap : first_row_gap_positions) {
+    //         double gap_distance = std::abs(second_row_gap - first_gap);
+    //         score += std::min(gap_distance, 0.05) * 10.0;
+    //     }
+
+    //     // Lookahead for second-to-last shingle
+    //     if (is_second_to_last && !is_final_shingle) {
+    //         bool can_fill = false;
+    //         double best_fit_score = 0.0;
+    //         for (const auto& rem_candidate : remaining_candidates) {
+    //             if (rem_candidate != candidate) {
+    //                 double next_width = rem_candidate->extent_.x();
+    //                 double final_remaining = new_remaining_width - next_width;
+    //                 if (final_remaining >= 0 && final_remaining <= 0.05) {
+    //                     can_fill = true;
+    //                     best_fit_score += 2500.0 * (0.05 - final_remaining); // Increased reward
+    //                     if (final_remaining <= 0.02) {
+    //                         best_fit_score += 1500.0 * (0.02 - final_remaining);
+    //                     }
+    //                 } else if (final_remaining < 0) {
+    //                     best_fit_score -= 5000.0 * std::abs(final_remaining); // Stronger penalty
+    //                 } else {
+    //                     best_fit_score -= 4000.0 * final_remaining;
+    //                 }
+    //             }
+    //         }
+    //         score += best_fit_score;
+    //         if (!can_fill) {
+    //             score -= 1500.0; // Stronger penalty
+    //         }
+    //     }
+
+    //     // Width constraints
+    //     if (is_final_shingle) {
+    //         if (new_remaining_width >= 0 && new_remaining_width <= 0.05) {
+    //             score += 2500.0 * (0.05 - new_remaining_width); // Increased reward
+    //             if (new_remaining_width <= 0.02) {
+    //                 score += 1500.0 * (0.02 - new_remaining_width);
+    //             }
+    //         } else if (new_remaining_width > 0.05) {
+    //             score -= 5000.0 * (new_remaining_width - 0.05); // Stronger penalty
+    //         } else {
+    //             score -= 10000.0 * std::abs(new_remaining_width); // Much stronger penalty
+    //         }
+    //     } else if (new_remaining_width <= max_candidate_width && new_remaining_width >= 0) {
+    //         score += 1500.0 * (0.05 - std::min(new_remaining_width, 0.05)); // Increased reward
+    //         bool can_fill = false;
+    //         for (const auto& rem_candidate : remaining_candidates) {
+    //             if (rem_candidate != candidate && rem_candidate->extent_.x() <= new_remaining_width + 0.05) {
+    //                 can_fill = true;
+    //                 score += 200.0 * (1.0 - std::abs(rem_candidate->extent_.x() - new_remaining_width) / max_candidate_width);
+    //             }
+    //         }
+    //         if (!can_fill) {
+    //             score -= 800.0;
+    //         }
+    //     } else if (new_remaining_width < 0) {
+    //         score -= 5000.0 * std::abs(new_remaining_width); // Stronger penalty
+    //         if (new_total_width > max_length + 0.05) {
+    //             score -= 10000.0 * (new_total_width - (max_length + 0.05)); // Additional penalty for large overhang
+    //         }
+    //     } else {
+    //         score -= 4000.0 * new_remaining_width;
+    //     }
+
+    //     return score;
+    // };
+        auto scoreCandidate = [&](const auto& candidate, const std::vector<double>& distances, 
+                            double remaining_width, const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& remaining_candidates, 
+                            double max_length) {
         double score = 0.0;
         double candidate_width = candidate->extent_.x();
         double new_total_width = total_width + candidate_width;
@@ -3334,11 +3694,15 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
         // Staggering
         for (double d : distances) {
             double offset = std::min(std::abs(candidate_width - (d - min_stagger)),
-                                     std::abs(candidate_width - (d + min_stagger)));
+                                    std::abs(candidate_width - (d + min_stagger)));
             if (!is_final_shingle && offset >= min_stagger && offset < 0.035) {
-                score -= 1000.0 * (0.035 - offset); // Stronger penalty for yellow shingles
+                score -= 1000.0 * (0.035 - offset); // Penalty for yellow shingles
             } else if (offset >= 0.035 || is_final_shingle) {
-                score += 250.0 * std::min(offset, 0.06); // Stronger reward for green
+                score += 250.0 * std::min(offset, 0.06); // Reward for green shingles
+                // Bonus for staggers close to 50 mm (within ±5 mm)
+                if (!is_final_shingle && offset >= 0.050 && offset <= 0.070) {
+                    score += 500.0; // Extra reward for ~50 mm stagger
+                }
             }
         }
 
@@ -3359,12 +3723,12 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
                     double final_remaining = new_remaining_width - next_width;
                     if (final_remaining >= 0 && final_remaining <= 0.05) {
                         can_fill = true;
-                        best_fit_score += 2500.0 * (0.05 - final_remaining); // Increased reward
+                        best_fit_score += 2500.0 * (0.05 - final_remaining);
                         if (final_remaining <= 0.02) {
                             best_fit_score += 1500.0 * (0.02 - final_remaining);
                         }
                     } else if (final_remaining < 0) {
-                        best_fit_score -= 5000.0 * std::abs(final_remaining); // Stronger penalty
+                        best_fit_score -= 5000.0 * std::abs(final_remaining);
                     } else {
                         best_fit_score -= 4000.0 * final_remaining;
                     }
@@ -3372,24 +3736,24 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
             }
             score += best_fit_score;
             if (!can_fill) {
-                score -= 1500.0; // Stronger penalty
+                score -= 1500.0;
             }
         }
 
         // Width constraints
         if (is_final_shingle) {
             if (new_remaining_width >= 0 && new_remaining_width <= 0.05) {
-                score += 2500.0 * (0.05 - new_remaining_width); // Increased reward
+                score += 2500.0 * (0.05 - new_remaining_width);
                 if (new_remaining_width <= 0.02) {
                     score += 1500.0 * (0.02 - new_remaining_width);
                 }
             } else if (new_remaining_width > 0.05) {
-                score -= 5000.0 * (new_remaining_width - 0.05); // Stronger penalty
+                score -= 5000.0 * (new_remaining_width - 0.05);
             } else {
-                score -= 10000.0 * std::abs(new_remaining_width); // Much stronger penalty
+                score -= 10000.0 * std::abs(new_remaining_width);
             }
         } else if (new_remaining_width <= max_candidate_width && new_remaining_width >= 0) {
-            score += 1500.0 * (0.05 - std::min(new_remaining_width, 0.05)); // Increased reward
+            score += 1500.0 * (0.05 - std::min(new_remaining_width, 0.05));
             bool can_fill = false;
             for (const auto& rem_candidate : remaining_candidates) {
                 if (rem_candidate != candidate && rem_candidate->extent_.x() <= new_remaining_width + 0.05) {
@@ -3401,9 +3765,9 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
                 score -= 800.0;
             }
         } else if (new_remaining_width < 0) {
-            score -= 5000.0 * std::abs(new_remaining_width); // Stronger penalty
+            score -= 5000.0 * std::abs(new_remaining_width);
             if (new_total_width > max_length + 0.05) {
-                score -= 10000.0 * (new_total_width - (max_length + 0.05)); // Additional penalty for large overhang
+                score -= 10000.0 * (new_total_width - (max_length + 0.05));
             }
         } else {
             score -= 4000.0 * new_remaining_width;
@@ -4716,7 +5080,7 @@ void GeometryProcessor::visualizeShingleMeshes(
         // Optional: Adjust view for better perspective
         auto& view_control = visualizer.GetViewControl();
         //view_control.SetFront(Eigen::Vector3d(0.0, 0.0, 1.0)); // Direction camera looks
-        view_control.SetFront(Eigen::Vector3d(0.5, 0.2, 0.3).normalized());
+        view_control.SetFront(Eigen::Vector3d(0.5, 0.4, 0.5).normalized());
         view_control.SetLookat(Eigen::Vector3d(0.5, 0.5, 0)); // Center of the scene
         view_control.SetUp(Eigen::Vector3d(0, 0, 1));     // Up direction
         view_control.SetZoom(0.5);                        // Zoom level

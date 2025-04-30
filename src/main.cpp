@@ -173,7 +173,7 @@ int main() {
 
 
 
-    auto sorted_boxes = geom_processor.findNextBestShinglesForMultipleRows(second_row_of_shingles , shingle_ptrs ,8  ,  0.03 , gap , max_length);
+    auto sorted_boxes = geom_processor.findNextBestShinglesForMultipleRows(second_row_of_shingles , shingle_ptrs ,7  ,  0.03 , gap , max_length);
     geom_processor.visualizeAllShingleRows(sorted_boxes);
 
     //

@@ -596,7 +596,7 @@ bool PointCloudPerception::refinePointCloud()
 
         // Visualize the refined point cloud
         log("Visualizing the refined point cloud...");
-        visualizerPointCloud();
+        //visualizerPointCloud();
 
         return true;
     }
@@ -631,11 +631,11 @@ void PointCloudPerception::segmentAndRemovePlane() {  // Make sure this matches
 
     logPointCloudSize("Plane (removed)", plane_pc);
     logPointCloudSize("Remaining after plane removal", non_plane_pc);
-    open3d::visualization::DrawGeometries({plane_pc}, "Segmented Plane");
+    //open3d::visualization::DrawGeometries({plane_pc}, "Segmented Plane");
 
     // Step 3: Update the class member with the processed point cloud
     setPointCloud(non_plane_pc);
-    visualizerPointCloud();
+    //visualizerPointCloud();
 }
 
 
@@ -721,7 +721,7 @@ void PointCloudPerception::EuclideanClustering(bool debug) {
     log("Clustering completed. " + std::to_string(cluster_clouds.size()) + " clusters detected.");
 
     //     // Visualize clustered point cloud
-    visualizerClusters(cluster_clouds , true);
+    //visualizerClusters(cluster_clouds , true);
 
     // Optional: Visualize all clusters separately
     if (debug)

@@ -190,8 +190,7 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
 
 
     // Function to generate a random number between min and max
-    double getRandomWidth(double min, double max) ;
-    
+double getRandomWidth(double min, double max, std::map<double, int>& width_counts, double min_variation , int max_attempts , double precision );
 
     //
     // 22.transform_bounding_box
@@ -444,6 +443,10 @@ std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
     double max_gap) const;
 
     //
+
+    void exportFirstRowData(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& arranged_bboxes,
+    double total_length);
     
 
 

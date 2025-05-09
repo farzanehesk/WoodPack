@@ -3558,7 +3558,8 @@ void GeometryProcessor::exportShingleData(
 
 
 //////////////////////////////////////////
-
+// ///////////////////////////////////////
+// this is the main function that works well
 std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProcessor::findNextBestShingles(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& candidates,
@@ -3601,99 +3602,6 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
     }
 
     // Scoring function
-    // auto scoreCandidate = [&](const auto& candidate, const std::vector<double>& distances, 
-    //                          double remaining_width, const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& remaining_candidates, 
-    //                          double max_length) {
-    //     double score = 0.0;
-    //     double candidate_width = candidate->extent_.x();
-    //     double new_total_width = total_width + candidate_width;
-    //     double new_remaining_width = max_length - new_total_width;
-
-    //     // Determine if this is the final or second-to-last shingle
-    //     bool is_final_shingle = (new_remaining_width <= 0.05 && new_total_width >= max_length) || 
-    //                             (remaining_width <= max_candidate_width);
-    //     bool is_second_to_last = (remaining_width <= 2.0 * max_candidate_width && remaining_width > max_candidate_width);
-
-    //     // Staggering
-    //     for (double d : distances) {
-    //         double offset = std::min(std::abs(candidate_width - (d - min_stagger)),
-    //                                  std::abs(candidate_width - (d + min_stagger)));
-    //         if (!is_final_shingle && offset >= min_stagger && offset < 0.035) {
-    //             score -= 1000.0 * (0.035 - offset); // Stronger penalty for yellow shingles
-    //         } else if (offset >= 0.035 || is_final_shingle) {
-    //             score += 250.0 * std::min(offset, 0.06); // Stronger reward for green
-    //         }
-    //     }
-
-    //     // Gap non-alignment
-    //     double second_row_gap = current_right_edge.x() + candidate_width + max_gap;
-    //     for (double first_gap : first_row_gap_positions) {
-    //         double gap_distance = std::abs(second_row_gap - first_gap);
-    //         score += std::min(gap_distance, 0.05) * 10.0;
-    //     }
-
-    //     // Lookahead for second-to-last shingle
-    //     if (is_second_to_last && !is_final_shingle) {
-    //         bool can_fill = false;
-    //         double best_fit_score = 0.0;
-    //         for (const auto& rem_candidate : remaining_candidates) {
-    //             if (rem_candidate != candidate) {
-    //                 double next_width = rem_candidate->extent_.x();
-    //                 double final_remaining = new_remaining_width - next_width;
-    //                 if (final_remaining >= 0 && final_remaining <= 0.05) {
-    //                     can_fill = true;
-    //                     best_fit_score += 2500.0 * (0.05 - final_remaining); // Increased reward
-    //                     if (final_remaining <= 0.02) {
-    //                         best_fit_score += 1500.0 * (0.02 - final_remaining);
-    //                     }
-    //                 } else if (final_remaining < 0) {
-    //                     best_fit_score -= 5000.0 * std::abs(final_remaining); // Stronger penalty
-    //                 } else {
-    //                     best_fit_score -= 4000.0 * final_remaining;
-    //                 }
-    //             }
-    //         }
-    //         score += best_fit_score;
-    //         if (!can_fill) {
-    //             score -= 1500.0; // Stronger penalty
-    //         }
-    //     }
-
-    //     // Width constraints
-    //     if (is_final_shingle) {
-    //         if (new_remaining_width >= 0 && new_remaining_width <= 0.05) {
-    //             score += 2500.0 * (0.05 - new_remaining_width); // Increased reward
-    //             if (new_remaining_width <= 0.02) {
-    //                 score += 1500.0 * (0.02 - new_remaining_width);
-    //             }
-    //         } else if (new_remaining_width > 0.05) {
-    //             score -= 5000.0 * (new_remaining_width - 0.05); // Stronger penalty
-    //         } else {
-    //             score -= 10000.0 * std::abs(new_remaining_width); // Much stronger penalty
-    //         }
-    //     } else if (new_remaining_width <= max_candidate_width && new_remaining_width >= 0) {
-    //         score += 1500.0 * (0.05 - std::min(new_remaining_width, 0.05)); // Increased reward
-    //         bool can_fill = false;
-    //         for (const auto& rem_candidate : remaining_candidates) {
-    //             if (rem_candidate != candidate && rem_candidate->extent_.x() <= new_remaining_width + 0.05) {
-    //                 can_fill = true;
-    //                 score += 200.0 * (1.0 - std::abs(rem_candidate->extent_.x() - new_remaining_width) / max_candidate_width);
-    //             }
-    //         }
-    //         if (!can_fill) {
-    //             score -= 800.0;
-    //         }
-    //     } else if (new_remaining_width < 0) {
-    //         score -= 5000.0 * std::abs(new_remaining_width); // Stronger penalty
-    //         if (new_total_width > max_length + 0.05) {
-    //             score -= 10000.0 * (new_total_width - (max_length + 0.05)); // Additional penalty for large overhang
-    //         }
-    //     } else {
-    //         score -= 4000.0 * new_remaining_width;
-    //     }
-
-    //     return score;
-    // };
         auto scoreCandidate = [&](const auto& candidate, const std::vector<double>& distances, 
                             double remaining_width, const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& remaining_candidates, 
                             double max_length) {
@@ -3978,6 +3886,266 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProc
 
     return second_row;
 }
+/////////////////////////////////////////////
+/////////////////////////////////////////////
+/////////////////////////////////////////////
+/////////////////////////////////////////////
+/////////////////////////////////////////////
+/////////////////////////////////////////////
+/////////////////////////////////////////////
+/////////////////////////////////////////////
+/////////////////////////////////////////////
+/////////////////////////////////////////////
+    // New global optimization function
+    std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> GeometryProcessor::findGloballyOptimalShingles(
+        const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
+        std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& candidates,
+        double min_stagger,
+        double max_gap,
+        double max_length,
+        bool vis_candidates, double rotation_angle) 
+    {
+        std::cout << "[DEBUG] Starting global optimization, candidates: " << candidates.size() 
+                  << ", min_stagger: " << min_stagger * 1000.0 << " mm, max_length: " << max_length * 1000.0 << " mm" << std::endl;
+
+        // Align first row (as in original)
+        std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> first_row_aligned = first_row;
+        std::vector<double> first_row_gap_positions;
+        for (size_t i = 0; i < first_row_aligned.size() - 1; ++i) {
+            double gap = first_row_aligned[i + 1]->GetCenter().x() - 
+                         (first_row_aligned[i]->GetCenter().x() + first_row_aligned[i]->extent_.x() / 2.0);
+            first_row_gap_positions.push_back(first_row_aligned[i]->GetCenter().x() + 
+                                             first_row_aligned[i]->extent_.x() / 2.0 + gap);
+        }
+
+        // Compute max candidate width
+        double max_candidate_width = 0.0;
+        for (const auto& candidate : candidates) {
+            max_candidate_width = std::max(max_candidate_width, candidate->extent_.x());
+        }
+
+        // Initialize random number generator
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_real_distribution<> dis(0.0, 1.0);
+
+        // Initialize solution: Assign ~6–7 shingles per row
+        const int num_rows = 7;
+        std::vector<std::vector<size_t>> solution(num_rows);
+        std::vector<size_t> indices(candidates.size());
+        std::iota(indices.begin(), indices.end(), 0);
+        std::shuffle(indices.begin(), indices.end(), gen);
+
+        int shingles_per_row = candidates.size() / num_rows; // ~6
+        int extra_shingles = candidates.size() % num_rows; // Distribute remainder
+        size_t idx = 0;
+        for (int r = 0; r < num_rows; ++r) {
+            int count = shingles_per_row + (r < extra_shingles ? 1 : 0);
+            for (int i = 0; i < count && idx < indices.size(); ++i) {
+                solution[r].push_back(indices[idx++]);
+            }
+        }
+
+        // Objective function: Compute total score for a solution
+        auto computeSolutionScore = [&](const std::vector<std::vector<size_t>>& sol, 
+                                       const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& prev_row,
+                                       std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& row_geometries) {
+            double total_score = 0.0;
+            row_geometries.clear();
+            row_geometries.resize(sol.size());
+            std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> current_prev_row = prev_row;
+
+            for (size_t r = 0; r < sol.size(); ++r) {
+                double total_width = 0.0;
+                Eigen::Vector3d current_right_edge(0, 0, 0);
+                std::shared_ptr<open3d::geometry::OrientedBoundingBox> last_shingle = nullptr;
+                std::vector<double> prev_row_gap_positions;
+
+                // Compute gap positions for previous row
+                for (size_t i = 0; i < current_prev_row.size() - 1; ++i) {
+                    double gap = current_prev_row[i + 1]->GetCenter().x() - 
+                                 (current_prev_row[i]->GetCenter().x() + current_prev_row[i]->extent_.x() / 2.0);
+                    prev_row_gap_positions.push_back(current_prev_row[i]->GetCenter().x() + 
+                                                    current_prev_row[i]->extent_.x() / 2.0 + gap);
+                }
+
+                // Process shingles in current row
+                for (size_t i = 0; i < sol[r].size(); ++i) {
+                    auto candidate = candidates[sol[r][i]];
+                    std::shared_ptr<open3d::geometry::OrientedBoundingBox> next_shingle;
+                    if (i == 0) {
+                        next_shingle = alignAndShiftFirstBox(current_prev_row[0], candidate, max_gap , max_length , rotation_angle);
+                    } else {
+                        next_shingle = alignAndShiftNextBox(last_shingle, candidate, max_gap);
+                    }
+
+                    double candidate_width = next_shingle->extent_.x();
+                    total_width += candidate_width;
+                    bool is_final_shingle = (i == sol[r].size() - 1) || (max_length - total_width <= max_candidate_width);
+
+                    // Compute stagger
+                    double second_row_gap = current_right_edge.x() + next_shingle->extent_.x() + max_gap;
+                    double min_stagger_margin = std::numeric_limits<double>::max();
+                    for (double first_gap : prev_row_gap_positions) {
+                        double stagger = std::abs(second_row_gap - first_gap);
+                        min_stagger_margin = std::min(min_stagger_margin, stagger);
+                    }
+
+                    // Score shingle
+                    double score = 0.0;
+                    if (!is_final_shingle && min_stagger_margin >= 0.035) {
+                        score += 250.0 * std::min(min_stagger_margin, 0.06);
+                        if (min_stagger_margin >= 0.050 && min_stagger_margin <= 0.070) {
+                            score += 500.0;
+                        }
+                    } else if (!is_final_shingle && min_stagger_margin >= 0.03 && min_stagger_margin < 0.035) {
+                        score -= 1000.0 * (0.035 - min_stagger_margin);
+                    } else if (!is_final_shingle && min_stagger_margin < 0.03) {
+                        score -= 10000.0; // Heavy penalty for invalid stagger
+                    }
+
+                    // Length penalty
+                    if (is_final_shingle) {
+                        double overhang = total_width - max_length;
+                        if (std::abs(overhang) > 0.05) {
+                            score -= 1000.0 * std::abs(overhang);
+                        } else {
+                            score += 500.0 * (0.05 - std::abs(overhang));
+                        }
+                    }
+
+                    total_score += score;
+                    row_geometries[r].push_back(next_shingle);
+                    last_shingle = next_shingle;
+                    current_right_edge = updateRightEdge(current_right_edge, next_shingle, max_gap);
+                }
+
+                // Update previous row for next iteration
+                current_prev_row = row_geometries[r];
+
+                // Row-level penalty for undercoverage
+                double overhang = total_width - max_length;
+                if (std::abs(overhang) > 0.05) {
+                    total_score -= 500.0 * std::abs(overhang);
+                }
+
+                std::cout << "[DEBUG] Row " << r + 2 << " width: " << total_width * 1000.0 << " mm, shingles: " 
+                          << sol[r].size() << ", score: " << total_score << std::endl;
+            }
+
+            return total_score;
+        };
+
+        // Simulated annealing parameters
+        double temperature = 1000.0;
+        double cooling_rate = 0.995;
+        int max_iterations = 100000;
+        double min_temperature = 0.01;
+        std::vector<std::vector<size_t>> best_solution = solution;
+        double best_score = -std::numeric_limits<double>::max();
+        std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> best_geometries;
+
+        // Compute initial score
+        double current_score = computeSolutionScore(solution, first_row_aligned, best_geometries);
+        best_score = current_score;
+        best_solution = solution;
+
+        // Main optimization loop
+        for (int iter = 0; iter < max_iterations && temperature > min_temperature; ++iter) {
+            // Generate neighbor solution
+            std::vector<std::vector<size_t>> neighbor = solution;
+            int move_type = std::uniform_int_distribution<>(0, 1)(gen);
+            if (move_type == 0 && neighbor.size() >= 2) {
+                // Swap two shingles between rows
+                int r1 = std::uniform_int_distribution<>(0, neighbor.size() - 1)(gen);
+                int r2 = std::uniform_int_distribution<>(0, neighbor.size() - 1)(gen);
+                while (r1 == r2 || neighbor[r1].empty() || neighbor[r2].empty()) {
+                    r1 = std::uniform_int_distribution<>(0, neighbor.size() - 1)(gen);
+                    r2 = std::uniform_int_distribution<>(0, neighbor.size() - 1)(gen);
+                }
+                int i1 = std::uniform_int_distribution<>(0, neighbor[r1].size() - 1)(gen);
+                int i2 = std::uniform_int_distribution<>(0, neighbor[r2].size() - 1)(gen);
+                std::swap(neighbor[r1][i1], neighbor[r2][i2]);
+            } else {
+                // Move a shingle to a different row
+                int r1 = std::uniform_int_distribution<>(0, neighbor.size() - 1)(gen);
+                int r2 = std::uniform_int_distribution<>(0, neighbor.size() - 1)(gen);
+                while (r1 == r2 || neighbor[r1].empty()) {
+                    r1 = std::uniform_int_distribution<>(0, neighbor.size() - 1)(gen);
+                    r2 = std::uniform_int_distribution<>(0, neighbor.size() - 1)(gen);
+                }
+                int i1 = std::uniform_int_distribution<>(0, neighbor[r1].size() - 1)(gen);
+                neighbor[r2].push_back(neighbor[r1][i1]);
+                neighbor[r1].erase(neighbor[r1].begin() + i1);
+                if (neighbor[r1].empty()) {
+                    // Avoid empty rows
+                    neighbor[r1].push_back(neighbor[r2].back());
+                    neighbor[r2].pop_back();
+                }
+            }
+
+            // Compute neighbor score
+            std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> neighbor_geometries;
+            double neighbor_score = computeSolutionScore(neighbor, first_row_aligned, neighbor_geometries);
+
+            // Accept or reject neighbor
+            double delta = neighbor_score - current_score;
+            if (delta > 0 || dis(gen) < std::exp(delta / temperature)) {
+                solution = neighbor;
+                current_score = neighbor_score;
+                if (neighbor_score > best_score) {
+                    best_score = neighbor_score;
+                    best_solution = neighbor;
+                    best_geometries = neighbor_geometries;
+                    std::cout << "[DEBUG] Iteration " << iter << ", new best score: " << best_score 
+                              << ", temperature: " << temperature << std::endl;
+                }
+            }
+
+            // Cool down
+            temperature *= cooling_rate;
+        }
+
+        // Construct final output
+        std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> result = best_geometries;
+
+        // Remove used candidates
+        std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> remaining_candidates;
+        std::vector<bool> used(candidates.size(), false);
+        for (const auto& row : best_solution) {
+            for (size_t idx : row) {
+                used[idx] = true;
+            }
+        }
+        for (size_t i = 0; i < candidates.size(); ++i) {
+            if (!used[i]) {
+                remaining_candidates.push_back(candidates[i]);
+            }
+        }
+        candidates = remaining_candidates;
+
+        // Visualize final arrangement
+        if (vis_candidates) {
+            for (size_t r = 0; r < result.size(); ++r) {
+                std::cout << "[DEBUG] Visualizing row " << r + 2 << std::endl;
+                visualizeShingleRows(r == 0 ? first_row_aligned : result[r - 1], result[r]);
+            }
+        }
+
+        std::cout << "[DEBUG] Optimization complete, best score: " << best_score 
+                  << ", remaining candidates: " << candidates.size() << std::endl;
+
+        return result;
+    }
+
+///////////////////////////////////
+///////////////////////////////////
+///////////////////////////////////
+///////////////////////////////////
+///////////////////////////////////
+
+
+
 
 
 ///////////////////////////////////
@@ -4586,22 +4754,92 @@ GeometryProcessor::arrangeMultipleShingleRows(
 }
 
 ///////////////////////////////
-std::vector<PC_o3d_ptr> GeometryProcessor::alignPointCloudsToArrangedBoxes(
+
+// Conversion function
+std::vector<std::tuple<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr, int>> GeometryProcessor::convertPairsToTuples(
+    const std::vector<std::pair<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr>>& pairs) {
+    std::vector<std::tuple<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr, int>> tuples;
+    tuples.reserve(pairs.size());
+
+    for (size_t i = 0; i < pairs.size(); ++i) {
+        const auto& [box, cloud] = pairs[i];
+        tuples.emplace_back(box, cloud, static_cast<int>(i));
+    }
+
+    return tuples;
+}
+//////////
+
+
+// std::vector<PC_o3d_ptr> GeometryProcessor::alignPointCloudsToArrangedBoxes(
+//     const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& arranged_boxes,
+//     const std::vector<std::pair<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr>>& original_box_cloud_pairs)
+// {
+//     std::vector<PC_o3d_ptr> aligned_clouds;
+
+//     for (const auto& row : arranged_boxes) {
+//         for (const auto& arranged_box_ptr : row) {
+//             const auto& arranged_box = *arranged_box_ptr;
+
+//             // Find corresponding original box
+//             auto it = std::find_if(
+//                 original_box_cloud_pairs.begin(),
+//                 original_box_cloud_pairs.end(),
+//                 [&arranged_box](const std::pair<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr>& pair) {
+//                     const auto& orig_box = pair.first;
+//                     return (orig_box.extent_ - arranged_box.extent_).norm() < 1e-4;
+//                 });
+
+//             if (it == original_box_cloud_pairs.end()) {
+//                 std::cerr << "Warning: No matching box found for arranged box.\n";
+//                 continue;
+//             }
+
+//             const auto& [original_box, cloud] = *it;
+
+//             // Compute transformation from original box to arranged box
+//             Eigen::Matrix3d R_src = original_box.R_;
+//             Eigen::Vector3d t_src = original_box.center_;
+//             Eigen::Matrix3d R_dst = arranged_box.R_;
+//             Eigen::Vector3d t_dst = arranged_box.center_;
+
+//             Eigen::Matrix3d R_align = R_dst * R_src.transpose();
+//             Eigen::Vector3d t_align = t_dst - R_align * t_src;
+
+//             Eigen::Matrix4d transform = Eigen::Matrix4d::Identity();
+//             transform.block<3, 3>(0, 0) = R_align;
+//             transform.block<3, 1>(0, 3) = t_align;
+
+//             // Transform the cloud
+//             auto aligned_cloud = std::make_shared<open3d::geometry::PointCloud>(*cloud);
+//             aligned_cloud->Transform(transform);
+
+//             aligned_clouds.push_back(aligned_cloud);
+//         }
+//     }
+
+//     return aligned_clouds;
+// }
+///////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+
+std::pair<std::vector<PC_o3d_ptr>, std::map<std::shared_ptr<open3d::geometry::OrientedBoundingBox>, int>> GeometryProcessor::alignPointCloudsToArrangedBoxes(
     const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& arranged_boxes,
-    const std::vector<std::pair<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr>>& original_box_cloud_pairs)
+    const std::vector<std::tuple<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr, int>>& original_box_cloud_pairs)
 {
     std::vector<PC_o3d_ptr> aligned_clouds;
+    std::map<std::shared_ptr<open3d::geometry::OrientedBoundingBox>, int> box_to_shingle_id;
 
     for (const auto& row : arranged_boxes) {
         for (const auto& arranged_box_ptr : row) {
             const auto& arranged_box = *arranged_box_ptr;
 
-            // Find corresponding original box
+            // Find corresponding original box with shingle ID
             auto it = std::find_if(
                 original_box_cloud_pairs.begin(),
                 original_box_cloud_pairs.end(),
-                [&arranged_box](const std::pair<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr>& pair) {
-                    const auto& orig_box = pair.first;
+                [&arranged_box](const std::tuple<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr, int>& tuple) {
+                    const auto& orig_box = std::get<0>(tuple);
                     return (orig_box.extent_ - arranged_box.extent_).norm() < 1e-4;
                 });
 
@@ -4610,7 +4848,7 @@ std::vector<PC_o3d_ptr> GeometryProcessor::alignPointCloudsToArrangedBoxes(
                 continue;
             }
 
-            const auto& [original_box, cloud] = *it;
+            const auto& [original_box, cloud, shingle_id] = *it;
 
             // Compute transformation from original box to arranged box
             Eigen::Matrix3d R_src = original_box.R_;
@@ -4630,10 +4868,11 @@ std::vector<PC_o3d_ptr> GeometryProcessor::alignPointCloudsToArrangedBoxes(
             aligned_cloud->Transform(transform);
 
             aligned_clouds.push_back(aligned_cloud);
+            box_to_shingle_id[arranged_box_ptr] = shingle_id;
         }
     }
 
-    return aligned_clouds;
+    return {aligned_clouds, box_to_shingle_id};
 }
 
 
@@ -4935,30 +5174,280 @@ void GeometryProcessor::visualizeShinglePlane(const std::shared_ptr<open3d::geom
 
 
 ////////////////////////////////////////////////
+// void GeometryProcessor::visualizePointClouds(
+//     const std::vector<std::shared_ptr<open3d::geometry::PointCloud>>& clouds, 
+//     std::shared_ptr<open3d::geometry::PointCloud> point_cloud = nullptr
+// ) {
+// std::shared_ptr<open3d::visualization::Visualizer> vis =
+//         std::make_shared<open3d::visualization::Visualizer>();
+//     vis->CreateVisualizerWindow("Open3D Point Cloud Viewer", 840, 680, 50, 50);
+
+//     // Set render options
+//     vis->GetRenderOption().background_color_ = Eigen::Vector3d(1.0, 1.0, 1.0); // white background
+//     vis->GetRenderOption().point_size_ = 2.0; // point size
+//     vis->GetRenderOption().point_color_option_ = open3d::visualization::RenderOption::PointColorOption::Color; // Use point colors
+
+//     // Add each point cloud from the vector
+//     for (const auto& cloud : clouds) {
+//         if (cloud->HasColors()) {
+//             std::cout << "Adding cloud with " << cloud->colors_.size() << " colors." << std::endl;
+//         } else {
+//             std::cerr << "Cloud has no colors." << std::endl;
+//         }
+//         vis->AddGeometry(cloud, true);
+//     }
+
+//     // Optionally add a single point cloud if provided
+//     if (point_cloud != nullptr) {
+//         if (point_cloud->HasColors()) {
+//             std::cout << "Adding point_cloud with " << point_cloud->colors_.size() << " colors." << std::endl;
+//         } else {
+//             std::cerr << "point_cloud has no colors, assigning default red." << std::endl;
+//             point_cloud->colors_.resize(point_cloud->points_.size(), Eigen::Vector3d(1.0, 0.0, 0.0)); // Default to red
+//         }
+//         vis->AddGeometry(point_cloud, true);
+//     }
+
+//     vis->Run();
+//     vis->DestroyVisualizerWindow();
+// }
+
 void GeometryProcessor::visualizePointClouds(
     const std::vector<std::shared_ptr<open3d::geometry::PointCloud>>& clouds, 
-    std::shared_ptr<open3d::geometry::PointCloud> point_cloud = nullptr
-) {
-    // Create a Visualizer instance
-    open3d::visualization::Visualizer visualizer;
-    visualizer.CreateVisualizerWindow("PointClouds Visualization");
+    std::shared_ptr<open3d::geometry::PointCloud> point_cloud,
+    bool save_png,
+    const std::string& output_path,
+    const Eigen::Vector3d& front,
+    const Eigen::Vector3d& lookat,
+    const Eigen::Vector3d& up,
+    double zoom)
+{
+    std::shared_ptr<open3d::visualization::Visualizer> vis =
+        std::make_shared<open3d::visualization::Visualizer>();
+    vis->CreateVisualizerWindow("Open3D Point Cloud Viewer", 1920, 1080, 50, 50);
 
-    // Add each point cloud from the vector
-    for (const auto& cloud : clouds) {
-        visualizer.AddGeometry(cloud);
-    }
+    vis->GetRenderOption().background_color_ = Eigen::Vector3d(1.0, 1.0, 1.0); // White background
+    vis->GetRenderOption().point_size_ = 2.0; // Point size
+    vis->GetRenderOption().point_color_option_ = open3d::visualization::RenderOption::PointColorOption::Color;
 
-    // Optionally add a single point cloud if provided
     if (point_cloud != nullptr) {
-        visualizer.AddGeometry(point_cloud);
+        if (point_cloud->HasColors()) {
+            std::cout << "Adding background point_cloud with " << point_cloud->colors_.size() << " colors.\n";
+        } else {
+            std::cerr << "Background point_cloud has no colors, assigning default gray.\n";
+            point_cloud->colors_.resize(point_cloud->points_.size(), Eigen::Vector3d(0.5, 0.5, 0.5));
+        }
+        vis->AddGeometry(point_cloud, true);
     }
 
-    // Run the visualizer
-    visualizer.Run();
-    visualizer.DestroyVisualizerWindow();
+    for (const auto& cloud : clouds) {
+        if (cloud->HasColors()) {
+            std::cout << "Adding cloud with " << cloud->colors_.size() << " colors.\n";
+        } else {
+            std::cerr << "Cloud has no colors, assigning default red.\n";
+            cloud->colors_.resize(cloud->points_.size(), Eigen::Vector3d(1.0, 0.0, 0.0));
+        }
+        vis->AddGeometry(cloud, true);
+    }
+
+    // Use the provided camera parameters
+    auto& view_control = vis->GetViewControl();
+    view_control.SetFront(front);
+    view_control.SetLookat(lookat);
+    view_control.SetUp(up);
+    view_control.SetZoom(zoom);
+
+    if (save_png) {
+        vis->PollEvents();
+        vis->UpdateRender();
+        vis->CaptureScreenImage(output_path);
+        std::cout << "Saved screenshot to " << output_path << "\n";
+        vis->DestroyVisualizerWindow();
+    } else {
+        vis->Run();
+        vis->DestroyVisualizerWindow();
+    }
 }
 
+//////////////////////////////////////////////////////
+void GeometryProcessor::visualizeSingleShingle(
+    std::shared_ptr<open3d::geometry::PointCloud> shingle,
+    std::shared_ptr<open3d::geometry::PointCloud> background_cloud,
+    bool save_png,
+    const std::string& output_path)
+{
+    // Create a copy of the shingle to modify its color without affecting the original
+    auto shingle_copy = std::make_shared<open3d::geometry::PointCloud>(*shingle);
+    
+    // Set the shingle color to red
+    if (!shingle_copy->HasColors()) {
+        shingle_copy->colors_.resize(shingle_copy->points_.size(), Eigen::Vector3d(1.0, 0.0, 0.0)); // Red
+    } else {
+        // If it has colors, override with red
+        shingle_copy->colors_ = std::vector<Eigen::Vector3d>(shingle_copy->points_.size(), Eigen::Vector3d(1.0, 0.0, 0.0));
+    }
 
+    // Create a copy of the background cloud to modify
+    auto modified_background = std::make_shared<open3d::geometry::PointCloud>(*background_cloud);
+    
+    // If the background has no colors, set to gray
+    if (!modified_background->HasColors()) {
+        modified_background->colors_.resize(modified_background->points_.size(), Eigen::Vector3d(0.5, 0.5, 0.5)); // Gray
+    }
+
+    // Get the bounding box of the shingle to exclude its points from the background
+    if (!shingle_copy->points_.empty()) {
+        auto shingle_bbox = shingle_copy->GetAxisAlignedBoundingBox();
+        std::vector<int> indices_to_remove;
+        
+        // Iterate over background points to find those within the shingle's bounding box
+        for (size_t i = 0; i < modified_background->points_.size(); ++i) {
+            Eigen::Vector3d point = modified_background->points_[i];
+            // Manual containment check
+            if (point.x() >= shingle_bbox.min_bound_.x() && point.x() <= shingle_bbox.max_bound_.x() &&
+                point.y() >= shingle_bbox.min_bound_.y() && point.y() <= shingle_bbox.max_bound_.y() &&
+                point.z() >= shingle_bbox.min_bound_.z() && point.z() <= shingle_bbox.max_bound_.z()) {
+                indices_to_remove.push_back(i);
+            }
+        }
+
+        // Remove points from the background cloud
+        if (!indices_to_remove.empty()) {
+            std::vector<Eigen::Vector3d> new_points;
+            std::vector<Eigen::Vector3d> new_colors;
+            new_points.reserve(modified_background->points_.size() - indices_to_remove.size());
+            if (modified_background->HasColors()) {
+                new_colors.reserve(modified_background->colors_.size() - indices_to_remove.size());
+            }
+
+            size_t current_idx = 0;
+            for (size_t i = 0; i < modified_background->points_.size(); ++i) {
+                if (current_idx < indices_to_remove.size() && i == static_cast<size_t>(indices_to_remove[current_idx])) {
+                    current_idx++;
+                    continue;
+                }
+                new_points.push_back(modified_background->points_[i]);
+                if (modified_background->HasColors()) {
+                    new_colors.push_back(modified_background->colors_[i]);
+                }
+            }
+
+            modified_background->points_ = new_points;
+            if (modified_background->HasColors()) {
+                modified_background->colors_ = new_colors;
+            }
+        }
+    }
+
+    // Define top-down camera view
+    Eigen::Vector3d front(0.0, 0.0, -1.0); // Look straight down (along negative Z-axis)
+    Eigen::Vector3d up(0.0, 1.0, 0.0);     // Y-axis as up
+    double zoom = 0.5;                      // Adjust zoom as needed
+
+    // Compute the lookat point (center of the scene)
+    Eigen::Vector3d lookat(0.0, 0.0, 0.0);
+    if (modified_background && !modified_background->points_.empty()) {
+        auto bbox = modified_background->GetAxisAlignedBoundingBox();
+        lookat = bbox.GetCenter();
+    } else if (shingle_copy && !shingle_copy->points_.empty()) {
+        auto bbox = shingle_copy->GetAxisAlignedBoundingBox();
+        lookat = bbox.GetCenter();
+    }
+
+    // Visualize using the existing visualizePointClouds function with top-down view
+    std::vector<PC_o3d_ptr> shingle_vector = {shingle_copy};
+    visualizePointClouds(shingle_vector, modified_background, save_png, output_path, front, lookat, up, zoom);
+}
+
+////////////////////////////////////////////////
+    void GeometryProcessor::visualizeArrangedCloudCorrespondence(
+        const std::vector<PC_o3d_ptr>& all_point_clouds,
+        const std::vector<PC_o3d_ptr>& arranged_clouds,
+        const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& arranged_boxes,
+        const std::vector<std::pair<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr>>& original_box_cloud_pairs)
+    {
+        auto vis = std::make_shared<open3d::visualization::Visualizer>();
+        vis->CreateVisualizerWindow("Point Cloud Correspondence Viewer", 1280, 720, 50, 50);
+        vis->GetRenderOption().background_color_ = Eigen::Vector3d(1.0, 1.0, 1.0);
+        vis->GetRenderOption().point_size_ = 2.0;
+        vis->GetRenderOption().point_color_option_ = open3d::visualization::RenderOption::PointColorOption::Color;
+
+        size_t arranged_idx = 0;
+        for (const auto& row : arranged_boxes) {
+            for (const auto& arranged_box_ptr : row) {
+                if (arranged_idx >= arranged_clouds.size()) {
+                    std::cerr << "Warning: Mismatch between arranged_boxes and arranged_clouds." << std::endl;
+                    break;
+                }
+
+                const auto& arranged_box = *arranged_box_ptr;
+                const auto& aligned_cloud = arranged_clouds[arranged_idx];
+
+                auto it = std::find_if(
+                    original_box_cloud_pairs.begin(),
+                    original_box_cloud_pairs.end(),
+                    [&arranged_box](const std::pair<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr>& pair) {
+                        const auto& orig_box = pair.first;
+                        return (orig_box.extent_ - arranged_box.extent_).norm() < 1e-4;
+                    });
+
+                if (it == original_box_cloud_pairs.end()) {
+                    std::cerr << "Warning: No matching original box for arranged cloud " << arranged_idx << "." << std::endl;
+                    arranged_idx++;
+                    continue;
+                }
+
+                const auto& original_cloud = it->second;
+                PC_o3d_ptr matched_original_cloud = nullptr;
+                for (const auto& cloud : all_point_clouds) {
+                    if (cloud == original_cloud) {
+                        matched_original_cloud = cloud;
+                        break;
+                    }
+                }
+
+                if (!matched_original_cloud) {
+                    std::cerr << "Warning: Could not find original cloud for arranged cloud " << arranged_idx << "." << std::endl;
+                    arranged_idx++;
+                    continue;
+                }
+
+                vis->ClearGeometries();
+
+                auto original_cloud_copy = std::make_shared<open3d::geometry::PointCloud>(*matched_original_cloud);
+                original_cloud_copy->Translate(Eigen::Vector3d(-1.0, 0.0, 0.0));
+                if (!original_cloud_copy->HasColors()) {
+                    original_cloud_copy->colors_.resize(original_cloud_copy->points_.size(), Eigen::Vector3d(0.0, 0.0, 1.0));
+                }
+                vis->AddGeometry(original_cloud_copy, true);
+
+                auto aligned_cloud_copy = std::make_shared<open3d::geometry::PointCloud>(*aligned_cloud);
+                aligned_cloud_copy->Translate(Eigen::Vector3d(1.0, 0.0, 0.0));
+                if (!aligned_cloud_copy->HasColors()) {
+                    aligned_cloud_copy->colors_.resize(aligned_cloud_copy->points_.size(), Eigen::Vector3d(1.0, 0.0, 0.0));
+                }
+                vis->AddGeometry(aligned_cloud_copy, true);
+
+                auto& view_control = vis->GetViewControl();
+                view_control.SetFront(Eigen::Vector3d(0.0, 0.0, 1.0));
+                view_control.SetUp(Eigen::Vector3d(0.0, 1.0, 0.0));
+                view_control.SetLookat(Eigen::Vector3d(0.0, 0.0, 0.0));
+                view_control.SetZoom(0.5);
+
+                vis->PollEvents();
+                vis->UpdateRender();
+
+                std::cout << "Visualizing pair " << arranged_idx + 1 << "/" << arranged_clouds.size()
+                          << ": Original cloud (blue, left), Aligned cloud (red, right)." << std::endl;
+                std::cout << "Press Enter to continue to the next pair (or Ctrl+C to exit)..." << std::endl;
+                std::cin.get();
+
+                arranged_idx++;
+            }
+        }
+
+        vis->DestroyVisualizerWindow();
+    }
 
 
 
@@ -5150,6 +5639,60 @@ void GeometryProcessor::exportBoundingBoxes(
         index++;
     }
 }
+
+///////////////////////////////////////////////
+void GeometryProcessor::exportPointClouds(
+    const std::vector<std::shared_ptr<open3d::geometry::PointCloud>>& arranged_clouds,
+    const std::string& folder,
+    const std::string& prefix)
+{
+    if (arranged_clouds.empty()) {
+        std::cerr << "No point clouds to export.\n";
+        return;
+    }
+
+    // Ensure output folder exists
+    std::filesystem::create_directories(folder);
+
+    int index = 0;
+    for (const auto& cloud : arranged_clouds) {
+        if (!cloud || cloud->points_.empty()) {
+            std::cerr << "Skipping empty or null point cloud at index " << index << ".\n";
+            continue;
+        }
+
+        // Check extent to detect unit scale
+        auto bbox = cloud->GetAxisAlignedBoundingBox();
+        Eigen::Vector3d extent = bbox.max_bound_ - bbox.min_bound_;
+        std::cout << "Exporting cloud " << index << " extent: " << extent.transpose() << "\n";
+
+        // Scale to meters if in millimeters
+        auto export_cloud = std::make_shared<open3d::geometry::PointCloud>(*cloud);
+        if (extent.x() > 100 || extent.y() > 100 || extent.z() > 100) {
+            std::cout << "Cloud " << index << " is in millimeters. Scaling to meters.\n";
+            export_cloud->Scale(0.001, export_cloud->GetCenter());
+        }
+
+        // Check if the point cloud has colors
+        if (!export_cloud->HasColors()) {
+            std::cerr << "Point cloud at index " << index << " has no colors. Assigning default color (white).\n";
+            export_cloud->colors_.resize(export_cloud->points_.size(), Eigen::Vector3d(1.0, 1.0, 1.0));
+        }
+
+        // Export the point cloud
+        std::string filename = folder + "/" + prefix + "cloud_" + std::to_string(index) + ".ply";
+        if (!open3d::io::WritePointCloud(filename, *export_cloud)) {
+            std::cerr << "Failed to write point cloud file: " << filename << "\n";
+        } else {
+            std::cout << "Exported point cloud to " << filename << "\n";
+        }
+        index++;
+    }
+}
+
+
+
+
 
 
 ///////////////////////////////////////////////////////////////////////////

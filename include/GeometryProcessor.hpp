@@ -380,14 +380,38 @@ std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
 
 
     //
-    std::vector<PC_o3d_ptr> alignPointCloudsToArrangedBoxes(
-    const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& arranged_boxes,
-    const std::vector<std::pair<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr>>& original_box_cloud_pairs);
-
+    // std::vector<PC_o3d_ptr> alignPointCloudsToArrangedBoxes(
+    // const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& arranged_boxes,
+    // const std::vector<std::pair<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr>>& original_box_cloud_pairs);
 
     //
-    void visualizePointClouds(const std::vector<std::shared_ptr<open3d::geometry::PointCloud>>& clouds , 
-    std::shared_ptr<open3d::geometry::PointCloud> point_cloud);
+    std::pair<std::vector<PC_o3d_ptr>, std::map<std::shared_ptr<open3d::geometry::OrientedBoundingBox>, int>> alignPointCloudsToArrangedBoxes(
+    const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& arranged_boxes,
+    const std::vector<std::tuple<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr, int>>& original_box_cloud_pairs);
+
+
+    // //
+    // void visualizePointClouds(const std::vector<std::shared_ptr<open3d::geometry::PointCloud>>& clouds , 
+    // std::shared_ptr<open3d::geometry::PointCloud> point_cloud);
+
+void visualizePointClouds(
+        const std::vector<std::shared_ptr<open3d::geometry::PointCloud>>& clouds, 
+        std::shared_ptr<open3d::geometry::PointCloud> point_cloud = nullptr,
+        bool save_png = false,
+        const std::string& output_path = "point_cloud.png",
+        const Eigen::Vector3d& front = Eigen::Vector3d(0.5, 0.4, 0.5).normalized(), // Default front
+        const Eigen::Vector3d& lookat = Eigen::Vector3d(0.5, 0.5, 0),           // Default lookat
+        const Eigen::Vector3d& up = Eigen::Vector3d(0, 0, 1),                   // Default up
+        double zoom = 0.5);
+
+    //
+    void visualizeSingleShingle(
+        std::shared_ptr<open3d::geometry::PointCloud> shingle,
+        std::shared_ptr<open3d::geometry::PointCloud> background_cloud,
+        bool save_png = false,
+        const std::string& output_path = "single_shingle.png");
+
+
 
 
 
@@ -447,8 +471,38 @@ std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
     void exportFirstRowData(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& arranged_bboxes,
     double total_length);
-    
 
+
+
+    //
+    std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> findGloballyOptimalShingles(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
+    std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& candidates,
+    double min_stagger,
+    double max_gap,
+    double max_length,
+    bool vis_candidates,
+    double rotation_angle) ;
+
+
+
+    //
+        void visualizeArrangedCloudCorrespondence(
+        const std::vector<PC_o3d_ptr>& all_point_clouds,
+        const std::vector<PC_o3d_ptr>& arranged_clouds,
+        const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& arranged_boxes,
+        const std::vector<std::pair<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr>>& original_box_cloud_pairs);
+    
+    //
+    void exportPointClouds(
+    const std::vector<std::shared_ptr<open3d::geometry::PointCloud>>& arranged_clouds,
+    const std::string& folder,
+    const std::string& prefix);
+
+
+    //
+    std::vector<std::tuple<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr, int>> convertPairsToTuples(
+    const std::vector<std::pair<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr>>& pairs);
 
 };
 

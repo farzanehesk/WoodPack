@@ -6,6 +6,7 @@
 #include "../include/PointCloudProcessor.hpp"
 #include "../include/custom_types.hpp"
 #include "../include/GeometryProcessor.hpp"
+#include <filesystem>
 
 int main() {
     
@@ -83,16 +84,9 @@ int main() {
 
 /////
 
-        // Load the point cloud
-    auto sub_structure = perception.loadPointCloud("data/scans/substructure.ply" , false);
 
-    if (sub_structure) {
-        // Visualize the stored point cloud
-        perception.visualizerPointCloud();
-    } else {
-        std::cerr << "Failed to load or process point cloud." << std::endl;
-    }
-    auto sub_structure_pc = perception.getPointCloud();
+
+
     ////////////////////////////////////////
 
 
@@ -128,13 +122,15 @@ int main() {
     /////////////////////////////////////////////////////////////
     // Create the first row of shingles with generated random boxes
     double gap = 0.003;       // 3mm gap
-    double max_length = 1.0;  // Ensure row is at least 1m long
+    double max_length = 0.80;  // Ensure row is at least 1m long
     double rotation_angle = 9; 
     // 10 degrees in radians
 
     auto first_row_of_shingles = geom_processor.arrangeFirstShingleRow(bbx_first_row , gap , max_length ,rotation_angle );
     geom_processor.visualize_bounding_boxes(first_row_of_shingles);
     
+
+
 
     /////////////////////////////////////////////////////////////
     //Second row 
@@ -152,6 +148,10 @@ int main() {
         0);
     //
     geom_processor.visualizeShingleRows(first_row_of_shingles ,second_row_of_shingles );
+
+
+
+
 
 
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -173,7 +173,7 @@ int main() {
 
 
 
-    auto sorted_boxes = geom_processor.findNextBestShinglesForMultipleRows(second_row_of_shingles , shingle_ptrs ,7  ,  0.03 , gap , max_length);
+    auto sorted_boxes = geom_processor.findNextBestShinglesForMultipleRows(second_row_of_shingles , shingle_ptrs ,10  ,  0.03 , gap , max_length);
     geom_processor.visualizeAllShingleRows(sorted_boxes);
 
     //
@@ -182,9 +182,63 @@ int main() {
 
 
     ////////////////////////////////////
-    auto arranged_clouds = geom_processor.alignPointCloudsToArrangedBoxes(arranged_boxes, box_cloud_pairs);
+    auto tuple_pairs = geom_processor.convertPairsToTuples(box_cloud_pairs);
+    auto result = geom_processor.alignPointCloudsToArrangedBoxes(arranged_boxes, tuple_pairs);
+    auto arranged_clouds = result.first;  // Extract the aligned clouds (arranged_clouds)
+    auto box_to_shingle_id = result.second;  // Extract the shingle ID mapping (optional)    
     std::cout << "Number of arranged shingles: " << arranged_clouds.size() << std::endl;
-    geom_processor.visualizePointClouds(arranged_clouds , nullptr);
+    geom_processor.visualizePointClouds(arranged_clouds , nullptr , true, "output/arranged clouds.png");
+
+
+
+    // test this
+auto full_cloud = std::make_shared<open3d::geometry::PointCloud>();
+    for (const auto& [box, cloud] : box_cloud_pairs) {
+        *full_cloud += *cloud; // Merge all original clouds
+    }
+    if (!full_cloud->HasColors()) {
+        full_cloud->colors_.resize(full_cloud->points_.size(), Eigen::Vector3d(0.5, 0.5, 0.5)); // Gray
+    }
+
+    // Construct corresponding shingles (as before)
+    std::vector<PC_o3d_ptr> corresponding_shingles;
+    corresponding_shingles.reserve(arranged_clouds.size());
+    for (const auto& row : arranged_boxes) {
+        for (const auto& arranged_box_ptr : row) {
+            auto it = box_to_shingle_id.find(arranged_box_ptr);
+            if (it == box_to_shingle_id.end()) {
+                std::cerr << "Warning: No shingle ID found for arranged box.\n";
+                continue;
+            }
+            int shingle_id = it->second;
+            if (shingle_id >= 0 && shingle_id < static_cast<int>(box_cloud_pairs.size())) {
+                corresponding_shingles.push_back(box_cloud_pairs[shingle_id].second);
+            } else {
+                std::cerr << "Warning: Invalid shingle ID " << shingle_id << " for arranged box.\n";
+            }
+        }
+    }
+
+    // Visualize and export corresponding shingles one by one
+    if (!corresponding_shingles.empty()) {
+        std::cout << "Visualizing and exporting corresponding original shingles one by one...\n";
+        std::filesystem::create_directories("corresponding_shingles");
+        std::filesystem::create_directories("corresponding_shingles/ply");
+
+        for (size_t i = 0; i < corresponding_shingles.size(); ++i) {
+            // Visualize the single corresponding shingle with the full cloud in the background (top-down view applied)
+            std::string screenshot_path = "corresponding_shingles/shingle_" + std::to_string(i) + ".png";
+            std::cout << "Visualizing shingle " << i << " (saving to " << screenshot_path << ")\n";
+            geom_processor.visualizeSingleShingle(corresponding_shingles[i], full_cloud, true, screenshot_path);
+
+            // Export the single corresponding shingle to a PLY file
+            std::vector<PC_o3d_ptr> single_shingle_for_export = {corresponding_shingles[i]};
+            geom_processor.exportPointClouds(single_shingle_for_export, "corresponding_shingles/ply", "shingle_" + std::to_string(i) + "_");
+        }
+    } else {
+        std::cerr << "No corresponding shingles to visualize.\n";
+    }
+    ////////
 
     ///////////////////////////////////////////////////////////////////////////////////////
     // 7 - 8 - 9 - 10: 
@@ -204,8 +258,23 @@ int main() {
     }
 
 
+        // Load the point cloud
+    auto sub_structure_pc = perception.loadPointCloud("data/scans/structure.ply", false);
 
+    if (sub_structure_pc && !sub_structure_pc->IsEmpty()) {
+        // Visualize the stored point cloud
+        perception.visualizerPointCloud(); // This still uses pc_ptr_, but sub_structure_pc is independent
 
+        // Check colors before passing
+        if (sub_structure_pc->HasColors()) {
+            std::cout << "sub_structure_pc has " << sub_structure_pc->colors_.size() << " colors." << std::endl;
+        } else {
+            std::cerr << "sub_structure_pc has no colors." << std::endl;
+        }
+        geom_processor.visualizePointClouds(arranged_clouds, sub_structure_pc , true, "output/sh2.png");
+        
+        }
+    auto sub_structure_pc_copy = std::make_shared<open3d::geometry::PointCloud>(*sub_structure_pc);
 
 
 
@@ -213,9 +282,19 @@ int main() {
 
     geom_processor.visualizeAllShingleRows(combined_rows);
     //geom_processor.visualizeShingleMeshes(combined_rows ,sub_structure_pc  );
-    geom_processor.visualizeShingleMeshes(combined_rows, sub_structure_pc, true, "output/my_shingles_visualization.png");
-    geom_processor.visualizePointClouds(arranged_clouds ,sub_structure_pc );
+    geom_processor.visualizeShingleMeshes(combined_rows, sub_structure_pc_copy, true, "output/my_shingles_visualization.png");
+    geom_processor.visualizePointClouds(arranged_clouds ,sub_structure_pc_copy, false, "output/my_shingles_visualization.png" );
 
+    //
+
+
+    geom_processor.visualizeArrangedCloudCorrespondence(all_point_clouds, arranged_clouds, arranged_boxes, box_cloud_pairs);
+
+
+
+    // export shingles on the structure one by GL_ONE at the same time
+    // highlight the corresponding shingle from the fist point clouds
+    // put them together to make a video
 
 
 
@@ -261,7 +340,8 @@ int main() {
     geom_processor.exportBoundingBoxes(arranged_boxes[2] ,export_folder ,{0, 1, 0}, "fifth_row_" );
     geom_processor.exportBoundingBoxes(arranged_boxes[3] ,export_folder ,{1, 0, 0}, "sixth_row_" );
 
-
+    geom_processor.exportPointClouds(arranged_clouds ,export_folder , "test_" );
+    
 
 
     return 0;

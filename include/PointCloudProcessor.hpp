@@ -77,7 +77,9 @@ class PointCloudProcessor
         void loadParameters(const std::string& config_file_name);
 
         // 6. Method to load a point cloud from a file within the 'data' directory
-        bool loadPointCloud (const std::string& filename, bool flip_z);
+        // bool loadPointCloud (const std::string& filename, bool flip_z);
+        std::shared_ptr<open3d::geometry::PointCloud> loadPointCloud(
+    const std::string& filename, bool flip_z);
 
         // 7. ImportAndMergeScans
         std::vector<std::shared_ptr<open3d::geometry::PointCloud>> loadPointClouds(const std::string& folder);

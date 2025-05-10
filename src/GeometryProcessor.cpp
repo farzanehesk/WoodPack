@@ -3312,16 +3312,13 @@ void GeometryProcessor::exportFirstRowData(
     // Debug: Log received total_length
     std::cout << "[DEBUG] exportFirstRowData received total_length: " << total_length * 1000.0 << " mm" << std::endl;
 
-    // Generate timestamp-based filename
-    std::time_t now = std::time(nullptr);
-    std::tm* local_time = std::localtime(&now);
-    std::stringstream filename;
-    filename << "output/first_row_" << std::put_time(local_time, "%Y-%m-%d_%H-%M-%S") << ".txt";
+    // Use a fixed filename instead of timestamp-based
+    std::string filename = "output/export_shingle_data/first_row.txt";
 
-    // Open file
-    std::ofstream out_file(filename.str());
+    // Open file (overwrites if it exists)
+    std::ofstream out_file(filename);
     if (!out_file.is_open()) {
-        std::cerr << "[ERROR] Failed to open file: " << filename.str() << std::endl;
+        std::cerr << "[ERROR] Failed to open file: " << filename << std::endl;
         return;
     }
 
@@ -3356,7 +3353,7 @@ void GeometryProcessor::exportFirstRowData(
 
     // Close file
     out_file.close();
-    std::cout << "[INFO] Exported first row data to: " << filename.str() << std::endl;
+    std::cout << "[INFO] Exported first row data to: " << filename << std::endl;
 }
 
 ////////////////////////////////////////
@@ -3464,8 +3461,8 @@ void GeometryProcessor::exportShingleData(
     // Generate unique filenames using a static counter
     static int file_counter = 0;
     ++file_counter;
-    std::string csv_filename = "output/shingle_data_" + std::to_string(file_counter) + ".csv";
-    std::string txt_filename = "output/shingle_data_" + std::to_string(file_counter) + ".txt";
+    std::string csv_filename = "output/export_shingle_data/shingle_data_" + std::to_string(file_counter) + ".csv";
+    std::string txt_filename = "output/export_shingle_data/shingle_data_" + std::to_string(file_counter) + ".txt";
 
     // --- CSV Export (Unchanged) ---
     std::ofstream csv_file(csv_filename);
@@ -4253,7 +4250,7 @@ GeometryProcessor::findNextBestShinglesForMultipleRows(
         std::cout << "[DEBUG] Number of candidates at the beginning of row " << i + 1 << ": " << current_candidates_copy.size() << std::endl;
 
         // Step 3: Call findNextBestShingles without modifying original candidates
-        auto next_row = findNextBestShingles(previous_row, current_candidates_copy, min_stagger, max_gap, max_length, true);
+        auto next_row = findNextBestShingles(previous_row, current_candidates_copy, min_stagger, max_gap, max_length, false);
         std::cout << "[DEBUG] Candidates AFTER arranging row " << i + 1 << ": " << current_candidates_copy.size() << "\n";
 
 
@@ -4262,13 +4259,6 @@ GeometryProcessor::findNextBestShinglesForMultipleRows(
             break;
         }
 
-        // // Step 4: Remove selected shingles from current_candidates AFTER each iteration
-        // for (const auto& shingle : next_row) {
-        //     current_candidates.erase(std::remove_if(current_candidates.begin(), current_candidates.end(),
-        //         [&shingle](const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate) {
-        //             return candidate == shingle;
-        //         }), current_candidates.end());
-        // }
         std::cout << "[DEBUG] Candidates AFTER REMOVING used shingles in row " << i + 1 << ": " << current_candidates_copy.size() << "\n";
 
         // Store the next row and update previous_row for the next iteration
@@ -5224,7 +5214,7 @@ void GeometryProcessor::visualizePointClouds(
 {
     std::shared_ptr<open3d::visualization::Visualizer> vis =
         std::make_shared<open3d::visualization::Visualizer>();
-    vis->CreateVisualizerWindow("Open3D Point Cloud Viewer", 1920, 1080, 50, 50);
+    vis->CreateVisualizerWindow("Open3D Point Cloud Viewer", 3840, 2160, 50, 50);
 
     vis->GetRenderOption().background_color_ = Eigen::Vector3d(1.0, 1.0, 1.0); // White background
     vis->GetRenderOption().point_size_ = 2.0; // Point size
@@ -5532,10 +5522,83 @@ std::shared_ptr<open3d::geometry::TriangleMesh> GeometryProcessor::CreateMeshFro
 
 
 ///////////////////////////////////////
+// void GeometryProcessor::visualizeShingleMeshes(
+//     const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& combined_rows,
+//     std::shared_ptr<open3d::geometry::PointCloud> point_cloud , // Optional argument
+//     bool save_png , // New parameter to control PNG export
+//     const std::string& output_path) // Default output path
+// {
+//     std::vector<std::shared_ptr<const open3d::geometry::Geometry>> all_geometries;
+
+//     // Define a color list for different rows (extend if more rows exist)
+//     std::vector<Eigen::Vector3d> row_colors = {
+//         {0, 0, 1},   // Blue for first row
+//         {1, 0, 0},   // Red for second row
+//         {0, 1, 0},   // Green for third row
+//         {1, 1, 0},   // Yellow for fourth row
+//         {1, 0, 1},   // Magenta for fifth row
+//         {0, 1, 1}    // Cyan for sixth row
+//     };
+
+//     for (size_t i = 0; i < combined_rows.size(); ++i) {
+//         Eigen::Vector3d color = row_colors[i % row_colors.size()]; // Cycle through colors
+
+//         for (const auto& bbox : combined_rows[i]) {
+//             auto mesh = CreateMeshFromOrientedBoundingBox(*bbox, color);
+//             all_geometries.push_back(mesh);
+//         }
+//     }
+
+//     //
+//     Eigen::Vector3d scene_center(0.0, 0.0, 0.0);
+
+//     // If a point cloud is provided, add it to the visualization
+//     if (point_cloud && !point_cloud->IsEmpty()) {
+//         point_cloud->PaintUniformColor(Eigen::Vector3d(0.5, 0.5, 0.5)); // Gray color for point cloud
+//         all_geometries.push_back(point_cloud);
+//     }
+
+//     // Add coordinate frame for reference
+//     auto coordinate_frame = open3d::geometry::TriangleMesh::CreateCoordinateFrame(0.1);
+//     all_geometries.push_back(coordinate_frame);
+
+//     if (save_png) {
+//         // Create a visualizer
+//         open3d::visualization::Visualizer visualizer;
+//         visualizer.CreateVisualizerWindow("Shingle Visualization", 1600, 1200); // Set window size for high-res
+
+//         // Add geometries
+//         for (const auto& geom : all_geometries) {
+//             visualizer.AddGeometry(geom);
+//         }
+
+//         // Optional: Adjust view for better perspective
+//         auto& view_control = visualizer.GetViewControl();
+//         //view_control.SetFront(Eigen::Vector3d(0.0, 0.0, 1.0)); // Direction camera looks
+//         view_control.SetFront(Eigen::Vector3d(0.5, 0.4, 0.5).normalized());
+//         view_control.SetLookat(Eigen::Vector3d(0.5, 0.5, 0)); // Center of the scene
+//         view_control.SetUp(Eigen::Vector3d(0, 0, 1));     // Up direction
+//         view_control.SetZoom(0.5);                        // Zoom level
+
+//         //
+
+
+//         // Render and capture the image
+//         visualizer.PollEvents();
+//         visualizer.UpdateRender();
+//         visualizer.CaptureScreenImage(output_path);
+
+//         // Close the visualizer
+//         visualizer.DestroyVisualizerWindow();
+//     } else {
+//         // Default visualization without saving
+//         open3d::visualization::DrawGeometries(all_geometries);
+//     }
+// }
 void GeometryProcessor::visualizeShingleMeshes(
     const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& combined_rows,
-    std::shared_ptr<open3d::geometry::PointCloud> point_cloud , // Optional argument
-    bool save_png , // New parameter to control PNG export
+    std::shared_ptr<open3d::geometry::PointCloud> point_cloud, // Optional argument
+    bool save_png, // New parameter to control PNG export
     const std::string& output_path) // Default output path
 {
     std::vector<std::shared_ptr<const open3d::geometry::Geometry>> all_geometries;
@@ -5559,12 +5622,10 @@ void GeometryProcessor::visualizeShingleMeshes(
         }
     }
 
-    //
-    Eigen::Vector3d scene_center(0.0, 0.0, 0.0);
+    // Eigen::Vector3d scene_center(0.0, 0.0, 0.0);
 
-    // If a point cloud is provided, add it to the visualization
+    // If a point cloud is provided, add it to the visualization without changing its color
     if (point_cloud && !point_cloud->IsEmpty()) {
-        point_cloud->PaintUniformColor(Eigen::Vector3d(0.5, 0.5, 0.5)); // Gray color for point cloud
         all_geometries.push_back(point_cloud);
     }
 
@@ -5584,14 +5645,10 @@ void GeometryProcessor::visualizeShingleMeshes(
 
         // Optional: Adjust view for better perspective
         auto& view_control = visualizer.GetViewControl();
-        //view_control.SetFront(Eigen::Vector3d(0.0, 0.0, 1.0)); // Direction camera looks
         view_control.SetFront(Eigen::Vector3d(0.5, 0.4, 0.5).normalized());
-        view_control.SetLookat(Eigen::Vector3d(0.5, 0.5, 0)); // Center of the scene
+        view_control.SetLookat(Eigen::Vector3d(0.7, 0.8, 0)); // Center of the scene
         view_control.SetUp(Eigen::Vector3d(0, 0, 1));     // Up direction
         view_control.SetZoom(0.5);                        // Zoom level
-
-        //
-
 
         // Render and capture the image
         visualizer.PollEvents();

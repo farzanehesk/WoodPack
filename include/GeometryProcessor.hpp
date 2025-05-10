@@ -400,7 +400,7 @@ void visualizePointClouds(
         bool save_png = false,
         const std::string& output_path = "point_cloud.png",
         const Eigen::Vector3d& front = Eigen::Vector3d(0.5, 0.4, 0.5).normalized(), // Default front
-        const Eigen::Vector3d& lookat = Eigen::Vector3d(0.5, 0.5, 0),           // Default lookat
+        const Eigen::Vector3d& lookat = Eigen::Vector3d(0.7, 0.8, 0),           // Default lookat
         const Eigen::Vector3d& up = Eigen::Vector3d(0, 0, 1),                   // Default up
         double zoom = 0.5);
 

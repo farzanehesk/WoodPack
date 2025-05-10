@@ -137,7 +137,7 @@ int main() {
     auto bbx_second_row = geom_processor.createBoundingBoxes(45 , 0.35, false );  // Create 10 random rectangles
     geom_processor.visualize_bounding_boxes(bbx_second_row);
     //
-    auto second_row_sorted = geom_processor.findNextBestShingles(first_row_of_shingles ,bbx_second_row , 0.03 , gap ,max_length, true);
+    auto second_row_sorted = geom_processor.findNextBestShingles(first_row_of_shingles ,bbx_second_row , 0.03 , gap ,max_length, false);
     //
     auto second_row_of_shingles = geom_processor.arrangeShingleRow(
         first_row_of_shingles,
@@ -222,12 +222,12 @@ auto full_cloud = std::make_shared<open3d::geometry::PointCloud>();
     // Visualize and export corresponding shingles one by one
     if (!corresponding_shingles.empty()) {
         std::cout << "Visualizing and exporting corresponding original shingles one by one...\n";
-        std::filesystem::create_directories("corresponding_shingles");
-        std::filesystem::create_directories("corresponding_shingles/ply");
+        std::filesystem::create_directories("output/corresponding_shingles");
+        std::filesystem::create_directories("output/corresponding_shingles/ply");
 
         for (size_t i = 0; i < corresponding_shingles.size(); ++i) {
             // Visualize the single corresponding shingle with the full cloud in the background (top-down view applied)
-            std::string screenshot_path = "corresponding_shingles/shingle_" + std::to_string(i) + ".png";
+            std::string screenshot_path = "output/corresponding_shingles/shingle_" + std::to_string(i) + ".png";
             std::cout << "Visualizing shingle " << i << " (saving to " << screenshot_path << ")\n";
             geom_processor.visualizeSingleShingle(corresponding_shingles[i], full_cloud, true, screenshot_path);
 
@@ -272,6 +272,74 @@ auto full_cloud = std::make_shared<open3d::geometry::PointCloud>();
             std::cerr << "sub_structure_pc has no colors." << std::endl;
         }
         geom_processor.visualizePointClouds(arranged_clouds, sub_structure_pc , true, "output/sh2.png");
+
+
+
+        //test this
+            // Visualize arranged clouds incrementally with substructure
+        if (!arranged_clouds.empty() && sub_structure_pc) {
+            std::vector<PC_o3d_ptr> accumulated_clouds; // To accumulate clouds over iterations
+
+            for (size_t i = 0; i < arranged_clouds.size(); ++i) {
+                // Add the current cloud to the accumulated list
+                accumulated_clouds.push_back(arranged_clouds[i]);
+
+                // Visualize the accumulated clouds with the substructure
+                std::string png_path = "output/assembly/sh_" + std::to_string(i) + ".png";
+                std::cout << "Visualizing up to cloud " << i << " (saving to " << png_path << ")\n";
+                Eigen::Vector3d custom_lookat(0.0, 0.0, 0.0);
+                if (sub_structure_pc && !sub_structure_pc->points_.empty()) {
+                    auto bbox = sub_structure_pc->GetAxisAlignedBoundingBox();
+                    custom_lookat = bbox.GetCenter();
+                }
+                geom_processor.visualizePointClouds(
+                    accumulated_clouds,
+                    sub_structure_pc,
+                    true,
+                    png_path
+                );
+
+            }
+        } else {
+            std::cerr << "No arranged clouds or substructure to visualize.\n";
+        }
+
+
+    // Visualize shingle meshes incrementally by box with substructure, preserving row colors
+        if (!combined_rows.empty() && sub_structure_pc) {
+            // Count total number of boxes for iteration
+            size_t total_boxes = 0;
+            for (const auto& row : combined_rows) {
+                total_boxes += row.size();
+            }
+
+            // Initialize accumulated_rows with the same number of rows as combined_rows
+            std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> accumulated_rows(combined_rows.size());
+            std::filesystem::create_directories("output");
+
+            size_t box_counter = 0; // To track total boxes processed
+            for (size_t row_idx = 0; row_idx < combined_rows.size() && box_counter < total_boxes; ++row_idx) {
+                const auto& row = combined_rows[row_idx];
+                for (size_t box_idx = 0; box_idx < row.size() && box_counter < total_boxes; ++box_idx) {
+                    // Add the current box to its corresponding row in accumulated_rows
+                    accumulated_rows[row_idx].push_back(row[box_idx]);
+
+                    // Visualize the accumulated rows with the substructure
+                    std::string png_path = "output/assembly/box_" + std::to_string(box_counter) + ".png";
+                    std::cout << "Visualizing up to box " << box_counter << " (saving to " << png_path << ")\n";
+                    geom_processor.visualizeShingleMeshes(
+                        accumulated_rows,
+                        sub_structure_pc,
+                        true,
+                        png_path
+                    );
+
+                    box_counter++;
+                }
+            }
+        } else {
+            std::cerr << "No combined rows or substructure to visualize.\n";
+        }
         
         }
     auto sub_structure_pc_copy = std::make_shared<open3d::geometry::PointCloud>(*sub_structure_pc);
@@ -283,7 +351,7 @@ auto full_cloud = std::make_shared<open3d::geometry::PointCloud>();
     geom_processor.visualizeAllShingleRows(combined_rows);
     //geom_processor.visualizeShingleMeshes(combined_rows ,sub_structure_pc  );
     geom_processor.visualizeShingleMeshes(combined_rows, sub_structure_pc_copy, true, "output/my_shingles_visualization.png");
-    geom_processor.visualizePointClouds(arranged_clouds ,sub_structure_pc_copy, false, "output/my_shingles_visualization.png" );
+    geom_processor.visualizePointClouds(arranged_clouds ,sub_structure_pc, false, "output/my_shingles_visualization.png" );
 
     //
 
@@ -292,28 +360,11 @@ auto full_cloud = std::make_shared<open3d::geometry::PointCloud>();
 
 
 
-    // export shingles on the structure one by GL_ONE at the same time
-    // highlight the corresponding shingle from the fist point clouds
-    // put them together to make a video
 
 
 
 
-    // 1. third forth row z overlap : done 
-    // 2. vertical overlaps : done
-    // 5. create mesh to visualize boxes : done
-    // 3. insert the substrycture point cloud under arranged shingles : done
 
-
-
-    // 4. check the angles based on the prototype built by craftspeople : done
-    // 5. use the actual shingles for arrangement : done
-    // 
-    // 6. import the substructure designed 3d model for the process
-    // 7. correct the thickness of shingles bbx to be consistent: done
-    // 8. check the length limit
-    // 9. see if we can get shorter shingles
-    
 
     
 

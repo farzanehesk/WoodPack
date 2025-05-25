@@ -533,6 +533,43 @@ PointCloudVisualizer::~PointCloudVisualizer()
 //     }
 // }
 
+// void PointCloudVisualizer::visualizerPointCloud()
+// {
+//     auto pc = getPointCloud();
+//     if (pc && !pc->IsEmpty())
+//     {
+//         std::shared_ptr<open3d::visualization::Visualizer> vis =
+//             std::make_shared<open3d::visualization::Visualizer>();
+//         vis->CreateVisualizerWindow("Open3D Point Cloud Viewer", 840, 680, 50, 50);
+//         vis->AddGeometry(pc, true);
+
+//         // Set options
+//         vis->GetRenderOption().background_color_ = Eigen::Vector3d(1.0, 1.0, 1.0); // white background
+//         vis->GetRenderOption().point_size_ = 2.0; // point size
+
+//         // Set view control
+//         auto& view_control = vis->GetViewControl();
+//         view_control.SetFront(Eigen::Vector3d(0.5, 0.5, 0.7).normalized());
+//         view_control.SetUp(Eigen::Vector3d(0.0, 0.0, 1.0));
+//         view_control.SetLookat(pc->GetCenter());
+//         view_control.SetZoom(0.5);
+
+//         // Run the visualizer
+//         vis->PollEvents();  // Needed to update the view
+//         vis->UpdateRender(); // Update rendering
+
+//         // Save screenshot
+//         vis->CaptureScreenImage("output/point_cloud_screenshot.png"); // Save in output folder
+
+//         vis->Run();
+//         vis->DestroyVisualizerWindow();
+//     }
+//     else
+//     {
+//         std::cerr << "Point cloud is empty or null. Cannot visualize." << '\n';
+//     }
+// }
+
 void PointCloudVisualizer::visualizerPointCloud()
 {
     auto pc = getPointCloud();
@@ -540,26 +577,47 @@ void PointCloudVisualizer::visualizerPointCloud()
     {
         std::shared_ptr<open3d::visualization::Visualizer> vis =
             std::make_shared<open3d::visualization::Visualizer>();
-        vis->CreateVisualizerWindow("Open3D Point Cloud Viewer", 840, 680, 50, 50);
+        vis->CreateVisualizerWindow("Open3D Point Cloud Viewer", 1920, 1080, 50, 50);
         vis->AddGeometry(pc, true);
 
         // Set options
         vis->GetRenderOption().background_color_ = Eigen::Vector3d(1.0, 1.0, 1.0); // white background
         vis->GetRenderOption().point_size_ = 2.0; // point size
 
-        // Set view control
+        // // Set view control
+        // auto& view_control = vis->GetViewControl();
+        // view_control.SetFront(Eigen::Vector3d(0.5, 0.5, 0.7).normalized());
+        // view_control.SetUp(Eigen::Vector3d(0.0, 0.0, 1.0));
+        // view_control.SetLookat(pc->GetCenter());
+        // view_control.SetZoom(0.5);
+
+                // Set view control (top-down orthographic)
         auto& view_control = vis->GetViewControl();
-        view_control.SetFront(Eigen::Vector3d(0.5, 0.5, 0.7).normalized());
-        view_control.SetUp(Eigen::Vector3d(0.0, 0.0, 1.0));
-        view_control.SetLookat(pc->GetCenter());
-        view_control.SetZoom(0.5);
+        view_control.SetFront(Eigen::Vector3d(0.0, 0.0, -1.0)); // Look down Z-axis
+        view_control.SetUp(Eigen::Vector3d(0.0, 1.0, 0.0)); // Y-axis is up
+        view_control.SetLookat(pc->GetCenter()); // Center of point cloud
+        view_control.SetZoom(0.8); // Adjusted for top-down fit
+        //view_control.ChangeProjection(open3d::visualization::ViewControl::ProjectionMode::Orthographic);
+
 
         // Run the visualizer
         vis->PollEvents();  // Needed to update the view
         vis->UpdateRender(); // Update rendering
 
+        // Create output directory if it doesn't exist
+        std::filesystem::create_directories("output");
+
+        // Generate dynamic filename with timestamp
+        auto now = std::chrono::system_clock::now();
+        auto time_t = std::chrono::system_clock::to_time_t(now);
+        std::stringstream ss;
+        ss << "output/point_cloud_screenshot_"
+           << std::put_time(std::localtime(&time_t), "%Y%m%d_%H%M%S")
+           << ".png";
+        std::string filename = ss.str();
+
         // Save screenshot
-        vis->CaptureScreenImage("output/point_cloud_screenshot.png"); // Save in output folder
+        vis->CaptureScreenImage(filename); // Save with dynamic filename
 
         vis->Run();
         vis->DestroyVisualizerWindow();
@@ -571,57 +629,276 @@ void PointCloudVisualizer::visualizerPointCloud()
 }
 
 
-    // visualizerClusters
-// void PointCloudVisualizer::visualizerClusters(const std::vector<PC_o3d_ptr>& clusters) {
-//     // Visualize the clusters passed to the function
+////////////////////////////////////////
+
+// void PointCloudVisualizer::visualizerClusters(const std::vector<PC_o3d_ptr>& clusters, bool keep_original_color) {
 //     std::vector<std::shared_ptr<const open3d::geometry::Geometry>> geometries;
 
-//     // Random color generator (you can use a different approach to assign specific colors)
 //     std::random_device rd;
 //     std::mt19937 gen(rd());
 //     std::uniform_real_distribution<double> dis(0.0, 1.0);  // RGB range between 0 and 1
 
-//     // Iterate over clusters and assign a random color to each one
 //     for (size_t i = 0; i < clusters.size(); i++) {
 //         auto cluster = clusters[i];
-        
-//         // Assign a single random color to each cluster
-//         Eigen::Vector3d color(dis(gen), dis(gen), dis(gen));  // Random RGB color
-        
-//         // Assign this color to all points in the cluster
-//         cluster->colors_.clear();  // Clear any existing colors
-//         cluster->colors_.resize(cluster->points_.size(), color);  // Assign color to all points in the cluster
-        
-//         // Add this cluster to the list of geometries to visualize
+
+//         if (!keep_original_color || cluster->colors_.empty()) {
+//             // Assign random color
+//             Eigen::Vector3d color(dis(gen), dis(gen), dis(gen));
+//             cluster->colors_.clear();
+//             cluster->colors_.resize(cluster->points_.size(), color);
+//         }
+
 //         geometries.push_back(cluster);
 //     }
 
-//     // Visualize all clusters with distinct colors
 //     open3d::visualization::DrawGeometries(geometries, "Clustered Point Cloud");
 // }
 
+// void PointCloudVisualizer::visualizerClusters(const std::vector<PC_o3d_ptr>& clusters, bool keep_original_color) {
+//     // Validate input
+//     if (clusters.empty()) {
+//         std::cerr << "No clusters to visualize." << '\n';
+//         return;
+//     }
+
+//     std::vector<std::shared_ptr<open3d::geometry::Geometry>> geometries;
+
+//     std::random_device rd;
+//     std::mt19937 gen(rd());
+//     std::uniform_real_distribution<double> dis(0.0, 1.0);  // RGB range between 0 and 1
+
+//     // Log cluster details
+//     std::cout << "Visualizing " << clusters.size() << " clusters." << '\n';
+//     for (size_t i = 0; i < clusters.size(); ++i) {
+//         std::cout << "Cluster " << i << ": " << clusters[i]->points_.size() << " points." << '\n';
+//     }
+
+//     for (size_t i = 0; i < clusters.size(); i++) {
+//         auto cluster = clusters[i];
+
+//         if (!cluster->points_.empty()) {
+//             if (!keep_original_color || cluster->colors_.empty()) {
+//                 // Assign random color
+//                 Eigen::Vector3d color(dis(gen), dis(gen), dis(gen));
+//                 cluster->colors_.clear();
+//                 cluster->colors_.resize(cluster->points_.size(), color);
+//             }
+//             geometries.push_back(cluster);
+//         } else {
+//             std::cerr << "Cluster " << i << " is empty, skipping." << '\n';
+//         }
+//     }
+
+//     // Check if any valid geometries were added
+//     if (geometries.empty()) {
+//         std::cerr << "No valid clusters to visualize." << '\n';
+//         return;
+//     }
+
+//     // Visualize and save screenshot
+//     {
+//         std::shared_ptr<open3d::visualization::Visualizer> vis =
+//             std::make_shared<open3d::visualization::Visualizer>();
+//         vis->CreateVisualizerWindow("Clustered Point Cloud", 1920, 1080, 50, 50);
+
+//         // Add all geometries
+//         for (const auto& geom : geometries) {
+//             vis->AddGeometry(geom, true);
+//         }
+
+//         // Set options
+//         vis->GetRenderOption().background_color_ = Eigen::Vector3d(1.0, 1.0, 1.0); // White background
+//         vis->GetRenderOption().point_size_ = 2.0; // Point size
+
+//         // Compute centroid and max extent of all cluster points
+//         Eigen::Vector3d centroid(0.0, 0.0, 0.0);
+//         double max_extent = 0.0;
+//         size_t total_points = 0;
+//         for (const auto& cluster : clusters) {
+//             if (!cluster->points_.empty()) {
+//                 auto bbox = cluster->GetAxisAlignedBoundingBox();
+//                 centroid += bbox.GetCenter() * cluster->points_.size();
+//                 total_points += cluster->points_.size();
+//                 max_extent = std::max(max_extent, bbox.GetExtent().maxCoeff());
+//             }
+//         }
+//         if (total_points > 0) {
+//             centroid /= total_points;
+//         }
+
+//         // Set view control (top-down orthographic)
+//         auto& view_control = vis->GetViewControl();
+//         view_control.SetFront(Eigen::Vector3d(0.0, 0.0, -1.0)); // Look down Z-axis
+//         view_control.SetUp(Eigen::Vector3d(0.0, 1.0, 0.0)); // Y-axis is up
+//         view_control.SetLookat(centroid); // Center of clusters
+//         // Dynamic zoom based on extent
+//         double zoom = 0.8 / (1.0 + max_extent);
+//         view_control.SetZoom(std::min(zoom, 1.0)); // Cap at 1.0 to avoid over-zooming
+
+//         // Ensure rendering
+//         vis->PollEvents();
+//         vis->UpdateRender();
+//         vis->PollEvents(); // Additional call for rendering completion
+
+//         // Create output directory if it doesn't exist
+//         //std::filesystem::create_directories("output");
+
+//         // Generate dynamic filename with timestamp
+//         auto now = std::chrono::system_clock::now();
+//         auto time_t = std::chrono::system_clock::to_time_t(now);
+//         std::stringstream ss;
+//         ss << "output/clustered_point_cloud_"
+//            << std::put_time(std::localtime(&time_t), "%Y%m%d_%H%M%S")
+//            << ".png";
+//         std::string filename = ss.str();
+
+//         // Save screenshot
+//         vis->CaptureScreenImage(filename);
+
+//         // Clean up
+//         vis->Run();
+//         vis->DestroyVisualizerWindow();
+//     }
+// }
+
+
+// Helper function to convert HSV to RGB
+Eigen::Vector3d HSVToRGB(double h, double s, double v) {
+    // Hue: 0-360, Saturation/Value: 0-1
+    double c = v * s; // Chroma
+    double h_prime = h / 60.0;
+    double x = c * (1.0 - std::abs(std::fmod(h_prime, 2.0) - 1.0));
+    double m = v - c;
+
+    double r = 0.0, g = 0.0, b = 0.0;
+    if (h_prime >= 0.0 && h_prime < 1.0) {
+        r = c; g = x; b = 0.0;
+    } else if (h_prime < 2.0) {
+        r = x; g = c; b = 0.0;
+    } else if (h_prime < 3.0) {
+        r = 0.0; g = c; b = x;
+    } else if (h_prime < 4.0) {
+        r = 0.0; g = x; b = c;
+    } else if (h_prime < 5.0) {
+        r = x; g = 0.0; b = c;
+    } else if (h_prime < 6.0) {
+        r = c; g = 0.0; b = x;
+    }
+
+    return Eigen::Vector3d(r + m, g + m, b + m);
+}
 
 void PointCloudVisualizer::visualizerClusters(const std::vector<PC_o3d_ptr>& clusters, bool keep_original_color) {
-    std::vector<std::shared_ptr<const open3d::geometry::Geometry>> geometries;
+    // Validate input
+    if (clusters.empty()) {
+        std::cerr << "No clusters to visualize." << '\n';
+        return;
+    }
+
+    std::vector<std::shared_ptr<open3d::geometry::Geometry>> geometries;
 
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_real_distribution<double> dis(0.0, 1.0);  // RGB range between 0 and 1
+    std::uniform_real_distribution<double> hue_dis(0.0, 360.0); // Hue: 0-360 degrees
+    std::uniform_real_distribution<double> sat_dis(0.7, 1.0);   // Saturation: 0.7-1.0
+    std::uniform_real_distribution<double> val_dis(0.7, 0.9);   // Value: 0.7-0.9
+
+    // Log cluster details
+    std::cout << "Visualizing " << clusters.size() << " clusters (keep_original_color = " 
+              << (keep_original_color ? "true" : "false") << ")." << '\n';
+    for (size_t i = 0; i < clusters.size(); ++i) {
+        std::cout << "Cluster " << i << ": " << clusters[i]->points_.size() << " points, "
+                  << "has colors: " << (!clusters[i]->colors_.empty() ? "Yes" : "No") << '\n';
+    }
 
     for (size_t i = 0; i < clusters.size(); i++) {
         auto cluster = clusters[i];
 
-        if (!keep_original_color || cluster->colors_.empty()) {
-            // Assign random color
-            Eigen::Vector3d color(dis(gen), dis(gen), dis(gen));
-            cluster->colors_.clear();
-            cluster->colors_.resize(cluster->points_.size(), color);
+        if (!cluster->points_.empty()) {
+            if (!keep_original_color || cluster->colors_.empty()) {
+                // Assign vibrant random color using HSV
+                double hue = hue_dis(gen);
+                double sat = sat_dis(gen);
+                double val = val_dis(gen);
+                Eigen::Vector3d color = HSVToRGB(hue, sat, val);
+                cluster->colors_.clear();
+                cluster->colors_.resize(cluster->points_.size(), color);
+            }
+            geometries.push_back(cluster);
+        } else {
+            std::cerr << "Cluster " << i << " is empty, skipping." << '\n';
         }
-
-        geometries.push_back(cluster);
     }
 
-    open3d::visualization::DrawGeometries(geometries, "Clustered Point Cloud");
+    // Check if any valid geometries were added
+    if (geometries.empty()) {
+        std::cerr << "No valid clusters to visualize." << '\n';
+        return;
+    }
+
+    // Visualize and save screenshot
+    {
+        std::shared_ptr<open3d::visualization::Visualizer> vis =
+            std::make_shared<open3d::visualization::Visualizer>();
+        vis->CreateVisualizerWindow("Clustered Point Cloud", 1920, 1080, 50, 50);
+
+        // Add all geometries
+        for (const auto& geom : geometries) {
+            vis->AddGeometry(geom, true);
+        }
+
+        // Set options
+        vis->GetRenderOption().background_color_ = Eigen::Vector3d(1.0, 1.0, 1.0); // White background
+        vis->GetRenderOption().point_size_ = 2.0; // Point size
+
+        // Compute centroid and max extent of all cluster points
+        Eigen::Vector3d centroid(0.0, 0.0, 0.0);
+        double max_extent = 0.0;
+        size_t total_points = 0;
+        for (const auto& cluster : clusters) {
+            if (!cluster->points_.empty()) {
+                auto bbox = cluster->GetAxisAlignedBoundingBox();
+                centroid += bbox.GetCenter() * cluster->points_.size();
+                total_points += cluster->points_.size();
+                max_extent = std::max(max_extent, bbox.GetExtent().maxCoeff());
+            }
+        }
+        if (total_points > 0) {
+            centroid /= total_points;
+        }
+        std::cout << "Centroid: " << centroid.transpose() << ", Max extent: " << max_extent << '\n';
+
+        // Set view control (top-down orthographic)
+        auto& view_control = vis->GetViewControl();
+        view_control.SetFront(Eigen::Vector3d(0.0, 0.0, -1.0)); // Look down Z-axis
+        view_control.SetUp(Eigen::Vector3d(0.0, 1.0, 0.0)); // Y-axis is up
+        view_control.SetLookat(centroid); // Center of clusters
+        // Dynamic zoom based on extent
+        double zoom = 0.8 / (1.0 + max_extent);
+        view_control.SetZoom(std::min(zoom, 1.0)); // Cap at 1.0 to avoid over-zooming
+
+        // Ensure rendering
+        vis->PollEvents();
+        vis->UpdateRender();
+        vis->PollEvents(); // Additional call for rendering completion
+
+
+        // Generate dynamic filename with timestamp
+        auto now = std::chrono::system_clock::now();
+        auto time_t = std::chrono::system_clock::to_time_t(now);
+        std::stringstream ss;
+        ss << "output/clustered_point_cloud_"
+           << std::put_time(std::localtime(&time_t), "%Y%m%d_%H%M%S")
+           << ".png";
+        std::string filename = ss.str();
+
+        // Save screenshot
+        vis->CaptureScreenImage(filename);
+
+        // Clean up
+        vis->Run();
+        vis->DestroyVisualizerWindow(); // Closes immediately
+    }
 }
 
 
@@ -692,7 +969,37 @@ bool PointCloudPerception::refinePointCloud()
 
 /////////////////////////////////////////////////////////////////////
 // 2. segmentAndRemovePlane
-void PointCloudPerception::segmentAndRemovePlane() {  // Make sure this matches
+// void PointCloudPerception::segmentAndRemovePlane() {  // Make sure this matches
+//     if (!checkPointCloud()) {
+//         return;
+//     }
+
+//     auto pc = getPointCloud();
+
+//     // Step 1: Segment the largest plane using RANSAC
+//     auto [plane_model, inlier_indices] = pc->SegmentPlane(0.006, ransac_n_, num_iterations_);
+
+//     log("Detected plane equation: " +
+//         std::to_string(plane_model(0)) + "x + " +
+//         std::to_string(plane_model(1)) + "y + " +
+//         std::to_string(plane_model(2)) + "z + " +
+//         std::to_string(plane_model(3)) + " = 0");
+
+//     // Step 2: Extract inliers (plane points) and outliers (remaining points)
+//     auto plane_pc = pc->SelectByIndex(inlier_indices);
+//     auto non_plane_pc = pc->SelectByIndex(inlier_indices, true); // true -> invert selection
+
+//     logPointCloudSize("Plane (removed)", plane_pc);
+//     logPointCloudSize("Remaining after plane removal", non_plane_pc);
+//     open3d::visualization::DrawGeometries({plane_pc}, "Segmented Plane");
+
+//     // Step 3: Update the class member with the processed point cloud
+//     setPointCloud(non_plane_pc);
+//     visualizerPointCloud();
+// }
+
+
+void PointCloudPerception::segmentAndRemovePlane() {
     if (!checkPointCloud()) {
         return;
     }
@@ -714,7 +1021,50 @@ void PointCloudPerception::segmentAndRemovePlane() {  // Make sure this matches
 
     logPointCloudSize("Plane (removed)", plane_pc);
     logPointCloudSize("Remaining after plane removal", non_plane_pc);
-    //open3d::visualization::DrawGeometries({plane_pc}, "Segmented Plane");
+
+    // // Visualize and save screenshot of segmented plane
+    // {
+    //     std::shared_ptr<open3d::visualization::Visualizer> vis =
+    //         std::make_shared<open3d::visualization::Visualizer>();
+    //     vis->CreateVisualizerWindow("Segmented Plane", 1920, 1080, 50, 50);
+    //     vis->AddGeometry(plane_pc, true);
+
+    //     // Set options (consistent with visualizerPointCloud)
+    //     vis->GetRenderOption().background_color_ = Eigen::Vector3d(1.0, 1.0, 1.0); // white background
+    //     vis->GetRenderOption().point_size_ = 2.0; // point size
+
+        //         // Set view control (top-down orthographic)
+        // auto& view_control = vis->GetViewControl();
+        // view_control.SetFront(Eigen::Vector3d(0.0, 0.0, -1.0)); // Look down Z-axis
+        // view_control.SetUp(Eigen::Vector3d(0.0, 1.0, 0.0)); // Y-axis is up
+        // view_control.SetLookat(pc->GetCenter()); // Center of point cloud
+        // view_control.SetZoom(0.8); // Adjusted for top-down fit
+        // //view_control.ChangeProjection(open3d::visualization::ViewControl::ProjectionMode::Orthographic);
+
+        // // Render and capture screenshot
+        // vis->PollEvents();  // Update the view
+        // vis->UpdateRender(); // Update rendering
+
+        // // Create output directory if it doesn't exist
+        // std::filesystem::create_directories("output");
+
+        // // Generate dynamic filename with timestamp
+        // auto now = std::chrono::system_clock::now();
+        // auto time_t = std::chrono::system_clock::to_time_t(now);
+        // std::stringstream ss;
+        // ss << "output/segmented_plane_"
+        //    << std::put_time(std::localtime(&time_t), "%Y%m%d_%H%M%S")
+        //    << ".png";
+        // std::string filename = ss.str();
+
+        // // Save screenshot
+        // vis->CaptureScreenImage(filename);
+
+        // Clean up 
+    //     vis->Run();
+    //     vis->DestroyVisualizerWindow();
+
+    // }
 
     // Step 3: Update the class member with the processed point cloud
     setPointCloud(non_plane_pc);
@@ -754,7 +1104,8 @@ void PointCloudPerception::processPointClouds(const std::vector<std::shared_ptr<
     setPointCloud(merged_pc);
 
     // Optionally, visualize the merged point cloud
-    open3d::visualization::DrawGeometries({merged_pc}, "Merged Point Cloud", 800, 600);
+    // open3d::visualization::DrawGeometries({merged_pc}, "Merged Point Cloud", 800, 600);
+    visualizerPointCloud();
 }
 
 
@@ -804,7 +1155,9 @@ void PointCloudPerception::EuclideanClustering(bool debug) {
     log("Clustering completed. " + std::to_string(cluster_clouds.size()) + " clusters detected.");
 
     //     // Visualize clustered point cloud
+    visualizerClusters(cluster_clouds , true);
     //visualizerClusters(cluster_clouds , true);
+
 
     // Optional: Visualize all clusters separately
     if (debug)

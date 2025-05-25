@@ -233,7 +233,7 @@ auto full_cloud = std::make_shared<open3d::geometry::PointCloud>();
 
             // Export the single corresponding shingle to a PLY file
             std::vector<PC_o3d_ptr> single_shingle_for_export = {corresponding_shingles[i]};
-            geom_processor.exportPointClouds(single_shingle_for_export, "corresponding_shingles/ply", "shingle_" + std::to_string(i) + "_");
+            geom_processor.exportPointClouds(single_shingle_for_export, "output/corresponding_shingles/ply", "shingle_" + std::to_string(i) + "_");
         }
     } else {
         std::cerr << "No corresponding shingles to visualize.\n";
@@ -241,7 +241,6 @@ auto full_cloud = std::make_shared<open3d::geometry::PointCloud>();
     ////////
 
     ///////////////////////////////////////////////////////////////////////////////////////
-    // 7 - 8 - 9 - 10: 
 
 
 
@@ -263,7 +262,7 @@ auto full_cloud = std::make_shared<open3d::geometry::PointCloud>();
 
     if (sub_structure_pc && !sub_structure_pc->IsEmpty()) {
         // Visualize the stored point cloud
-        perception.visualizerPointCloud(); // This still uses pc_ptr_, but sub_structure_pc is independent
+        //perception.visualizerPointCloud(); // This still uses pc_ptr_, but sub_structure_pc is independent
 
         // Check colors before passing
         if (sub_structure_pc->HasColors()) {
@@ -271,7 +270,7 @@ auto full_cloud = std::make_shared<open3d::geometry::PointCloud>();
         } else {
             std::cerr << "sub_structure_pc has no colors." << std::endl;
         }
-        geom_processor.visualizePointClouds(arranged_clouds, sub_structure_pc , true, "output/sh2.png");
+        //geom_processor.visualizePointClouds(arranged_clouds, sub_structure_pc , true, "output/sh2.png");
 
 
 
@@ -298,6 +297,9 @@ auto full_cloud = std::make_shared<open3d::geometry::PointCloud>();
                     true,
                     png_path
                 );
+
+                //
+
 
             }
         } else {

@@ -510,7 +510,21 @@ std::vector<open3d::geometry::OrientedBoundingBox> GeometryProcessor::computeMin
 void GeometryProcessor::VisualizeBoundingBoxesAxis(
     const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes) {
 
+    // Validate input
+    if (bounding_boxes.empty()) {
+        std::cerr << "No bounding boxes to visualize." << '\n';
+        return;
+    }
+
     std::vector<std::shared_ptr<open3d::geometry::Geometry>> geometries;
+
+    // Log bounding box details
+    std::cout << "Visualizing " << bounding_boxes.size() << " bounding boxes." << '\n';
+    for (size_t i = 0; i < bounding_boxes.size(); ++i) {
+        const auto& box = bounding_boxes[i];
+        std::cout << "Box " << i << ": center = " << box.center_.transpose()
+                  << ", extent = " << box.extent_.transpose() << '\n';
+    }
 
     for (const auto& box : bounding_boxes) {
         // Copy bounding box
@@ -549,17 +563,65 @@ void GeometryProcessor::VisualizeBoundingBoxesAxis(
         geometries.push_back(line_set);
     }
 
-    // Convert to const pointers for DrawGeometries
-    std::vector<std::shared_ptr<const open3d::geometry::Geometry>> const_geometries;
-    for (const auto& geom : geometries) {
-        const_geometries.push_back(std::static_pointer_cast<const open3d::geometry::Geometry>(geom));
+    // Visualize and save screenshot
+    {
+        std::shared_ptr<open3d::visualization::Visualizer> vis =
+            std::make_shared<open3d::visualization::Visualizer>();
+        vis->CreateVisualizerWindow("Bounding Boxes with Axes", 1920, 1080, 50, 50);
+
+        // Add all geometries
+        for (const auto& geom : geometries) {
+            vis->AddGeometry(geom, true);
+        }
+
+        // Set options
+        vis->GetRenderOption().background_color_ = Eigen::Vector3d(1.0, 1.0, 1.0); // White background
+        vis->GetRenderOption().point_size_ = 2.0; // Point size (for points)
+        vis->GetRenderOption().line_width_ = 5.0; // Thicker lines for visibility
+
+        // Compute centroid and max extent of bounding box centers
+        Eigen::Vector3d centroid(0.0, 0.0, 0.0);
+        double max_extent = 0.0;
+        for (const auto& box : bounding_boxes) {
+            centroid += box.center_;
+            max_extent = std::max(max_extent, box.extent_.maxCoeff());
+        }
+        if (!bounding_boxes.empty()) {
+            centroid /= bounding_boxes.size();
+        }
+
+        // Set view control (top-down orthographic)
+        auto& view_control = vis->GetViewControl();
+        view_control.SetFront(Eigen::Vector3d(0.0, 0.0, -1.0)); // Look down Z-axis
+        view_control.SetUp(Eigen::Vector3d(0.0, 1.0, 0.0)); // Y-axis is up
+        view_control.SetLookat(centroid); // Center of bounding boxes
+        // Dynamic zoom based on extent
+        double zoom = 0.8 / (1.0 + max_extent);
+        view_control.SetZoom(std::min(zoom, 1.0)); // Cap at 1.0 to avoid over-zooming
+
+        // Ensure rendering
+        vis->PollEvents();
+        vis->UpdateRender();
+        vis->PollEvents(); // Additional call to ensure rendering completion
+
+
+        // Generate dynamic filename with timestamp
+        auto now = std::chrono::system_clock::now();
+        auto time_t = std::chrono::system_clock::to_time_t(now);
+        std::stringstream ss;
+        ss << "output/bounding_boxes_"
+           << std::put_time(std::localtime(&time_t), "%Y%m%d_%H%M%S")
+           << ".png";
+        std::string filename = ss.str();
+
+        // Save screenshot
+        vis->CaptureScreenImage(filename);
+
+        // Clean up
+        vis->Run();
+        vis->DestroyVisualizerWindow();
     }
-
-    // Visualize bounding boxes and axes
-    open3d::visualization::DrawGeometries(const_geometries, "Bounding Boxes with Axes");
 }
-
-
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -5253,10 +5315,14 @@ void GeometryProcessor::visualizePointClouds(
         vis->CaptureScreenImage(output_path);
         std::cout << "Saved screenshot to " << output_path << "\n";
         vis->DestroyVisualizerWindow();
-    } else {
+    } 
+    else {
         vis->Run();
         vis->DestroyVisualizerWindow();
     }
+    
+
+
 }
 
 //////////////////////////////////////////////////////

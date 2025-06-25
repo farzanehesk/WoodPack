@@ -96,6 +96,7 @@ add_executable(${PROJECT_NAME}
     src/main.cpp 
     src/PointCloudProcessor.cpp 
     src/GeometryProcessor.cpp
+    src/utils.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC Open3D::Open3D ${PCL_LIBRARIES} ${VTK_LIBRARIES} MPI::MPI_CXX)

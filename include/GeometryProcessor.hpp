@@ -432,6 +432,23 @@ std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
 
 
 
+
+
+    //
+    std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
+    arrangeLastTwoShingleRows(
+    const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& reference_row,
+    std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& candidate_rows,
+    double gap,
+    double max_length,
+    double rotation_angle,
+    double vertical_overlap);
+
+
+
+    //
+
+
     //
     void visualizeShingleRows(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
@@ -504,7 +521,37 @@ std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
     std::vector<std::tuple<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr, int>> convertPairsToTuples(
     const std::vector<std::pair<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr>>& pairs);
 
+
+
+    //
+    void visualizeAndExportCorrespondingShingles(
+        const std::vector<PC_o3d_ptr>& corresponding_shingles,
+        const PC_o3d_ptr& full_cloud,
+        const std::string& screenshot_dir = "output/corresponding_shingles",
+        const std::string& ply_dir = "output/corresponding_shingles/ply"
+    );
+
+    //
+        void visualizeArrangedCloudsIncrementally(
+        const std::vector<PC_o3d_ptr>& arranged_clouds,
+        const PC_o3d_ptr& sub_structure_pc,
+        const std::string& output_dir = "output/assembly"
+    );
+
+    //
+        void visualizeShingleMeshesIncrementally(
+        const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& combined_rows,
+        const PC_o3d_ptr& sub_structure_pc,
+        const std::string& output_dir = "output/assembly"
+    );
+
+
+
+
+
 };
+
+
 
 
 

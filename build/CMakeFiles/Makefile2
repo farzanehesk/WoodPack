@@ -83,12 +83,12 @@ clean: CMakeFiles/analyze_shingle_widths.dir/clean
 CMakeFiles/Shingle_Optimization.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles --progress-num=1,2,3,4 "Built target Shingle_Optimization"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles --progress-num=1,2,3,4,5 "Built target Shingle_Optimization"
 .PHONY : CMakeFiles/Shingle_Optimization.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/Shingle_Optimization.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles 5
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/Shingle_Optimization.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles 0
 .PHONY : CMakeFiles/Shingle_Optimization.dir/rule
@@ -109,7 +109,7 @@ CMakeFiles/Shingle_Optimization.dir/clean:
 CMakeFiles/analyze_shingle_widths.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/analyze_shingle_widths.dir/build.make CMakeFiles/analyze_shingle_widths.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/analyze_shingle_widths.dir/build.make CMakeFiles/analyze_shingle_widths.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles --progress-num=5,6,7,8 "Built target analyze_shingle_widths"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles --progress-num=6,7,8,9 "Built target analyze_shingle_widths"
 .PHONY : CMakeFiles/analyze_shingle_widths.dir/all
 
 # Build rule for subdir invocation for target.

@@ -5,6 +5,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/Shingle_Optimization.dir/src/PointCloudProcessor.cpp.o.d"
   "CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o"
   "CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o.d"
+  "CMakeFiles/Shingle_Optimization.dir/src/utils.cpp.o"
+  "CMakeFiles/Shingle_Optimization.dir/src/utils.cpp.o.d"
   "Shingle_Optimization"
   "Shingle_Optimization.pdb"
 )

@@ -570,7 +570,7 @@ PointCloudVisualizer::~PointCloudVisualizer()
 //     }
 // }
 
-void PointCloudVisualizer::visualizerPointCloud()
+void PointCloudVisualizer::visualizerPointCloud(double zoom = 0.5)
 {
     auto pc = getPointCloud();
     if (pc && !pc->IsEmpty())
@@ -584,28 +584,19 @@ void PointCloudVisualizer::visualizerPointCloud()
         vis->GetRenderOption().background_color_ = Eigen::Vector3d(1.0, 1.0, 1.0); // white background
         vis->GetRenderOption().point_size_ = 2.0; // point size
 
-        // // Set view control
-        // auto& view_control = vis->GetViewControl();
-        // view_control.SetFront(Eigen::Vector3d(0.5, 0.5, 0.7).normalized());
-        // view_control.SetUp(Eigen::Vector3d(0.0, 0.0, 1.0));
-        // view_control.SetLookat(pc->GetCenter());
-        // view_control.SetZoom(0.5);
-
-                // Set view control (top-down orthographic)
+        // Set top-down orthographic view control
         auto& view_control = vis->GetViewControl();
         view_control.SetFront(Eigen::Vector3d(0.0, 0.0, -1.0)); // Look down Z-axis
         view_control.SetUp(Eigen::Vector3d(0.0, 1.0, 0.0)); // Y-axis is up
         view_control.SetLookat(pc->GetCenter()); // Center of point cloud
-        view_control.SetZoom(0.8); // Adjusted for top-down fit
-        //view_control.ChangeProjection(open3d::visualization::ViewControl::ProjectionMode::Orthographic);
-
+        view_control.SetZoom(zoom); // Use parameter, default 0.5
 
         // Run the visualizer
         vis->PollEvents();  // Needed to update the view
         vis->UpdateRender(); // Update rendering
 
         // Create output directory if it doesn't exist
-        std::filesystem::create_directories("output");
+        //std::filesystem::create_directories("output");
 
         // Generate dynamic filename with timestamp
         auto now = std::chrono::system_clock::now();
@@ -627,7 +618,6 @@ void PointCloudVisualizer::visualizerPointCloud()
         std::cerr << "Point cloud is empty or null. Cannot visualize." << '\n';
     }
 }
-
 
 ////////////////////////////////////////
 
@@ -874,7 +864,7 @@ void PointCloudVisualizer::visualizerClusters(const std::vector<PC_o3d_ptr>& clu
         view_control.SetUp(Eigen::Vector3d(0.0, 1.0, 0.0)); // Y-axis is up
         view_control.SetLookat(centroid); // Center of clusters
         // Dynamic zoom based on extent
-        double zoom = 0.8 / (1.0 + max_extent);
+        double zoom = 0.5 / (1.0 + max_extent);
         view_control.SetZoom(std::min(zoom, 1.0)); // Cap at 1.0 to avoid over-zooming
 
         // Ensure rendering

@@ -101,7 +101,7 @@ class PointCloudVisualizer:  public virtual PointCloudProcessor
     ~PointCloudVisualizer();
     
     //Member Functions
-    void visualizerPointCloud();
+    void visualizerPointCloud(double zoom );
     //
     
     //void visualizerClusters(const std::vector<PC_o3d_ptr>& clusters);  // Visualize clusters
@@ -146,3 +146,4 @@ class PointCloudPerception : public virtual PointCloudProcessor , public PointCl
 
 
 #endif // POINTCLOUDPROCESSOR_H
+

@@ -6,6 +6,8 @@
 #include "../include/PointCloudProcessor.hpp"
 #include "../include/custom_types.hpp"
 #include "../include/GeometryProcessor.hpp"
+#include "../include/utils.hpp"
+
 #include <filesystem>
 
 int main() {
@@ -131,7 +133,6 @@ int main() {
     
 
 
-
     /////////////////////////////////////////////////////////////
     //Second row 
     auto bbx_second_row = geom_processor.createBoundingBoxes(45 , 0.35, false );  // Create 10 random rectangles
@@ -157,7 +158,7 @@ int main() {
     ///////////////////////////////////////////////////////////////////////////////////////
     // 3-4-5-6 th rows
     std::cout << "starting third and forth row'\n\n\n\n" ;
-    auto bbx_third_and_forth_row = geom_processor.createBoundingBoxes(45 , 0.45, false );  // Create 10 random rectangles
+    auto bbx_third_and_forth_row = geom_processor.createBoundingBoxes(45 , 0.45, false );  // Create 45 random rectangles
     // std::cout << "Number of RECTANGLES in rect_third_and_forth_row: " << bbx_third_and_forth_row.size() << std::endl;
 
 
@@ -181,7 +182,63 @@ int main() {
    std::cout << "Number of rows in third_forth_row_: " << arranged_boxes.size() << std::endl;
 
 
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+    // last two rows
+
+    // create boxes
+        std::cout << "starting last rows'\n\n\n\n" ;
+    auto bbx_last_rows = geom_processor.createBoundingBoxes(20 , 0.35, false );  // Create 45 random rectangles
+
+
+    auto last_vector = arranged_boxes.back();
+
+    auto sorted_boxes_last_rows = geom_processor.findNextBestShinglesForMultipleRows(last_vector , bbx_last_rows ,3 ,  0.03 , gap , max_length);
+    geom_processor.visualizeAllShingleRows(sorted_boxes);
+
+    //
+    auto arranged_boxes_last_rows = geom_processor.arrangeLastTwoShingleRows(last_vector ,sorted_boxes_last_rows , gap , max_length , rotation_angle , -0.11 );
+    //std::cout << "Number of rows in third_forth_row_: " << arranged_boxes.size() << std::endl;
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+
+
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+
+    // Create a vector to hold all the rows
+    std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> combined_rows;
+
+    // Add the first and second rows to the combined rows
+    combined_rows.push_back(first_row_of_shingles);
+    combined_rows.push_back(second_row_of_shingles);
+
+    // Add all rows from the third_forth_row to the combined rows
+    for (const auto& row : arranged_boxes) {
+        combined_rows.push_back(row);
+    }
+
+    for (const auto& row : arranged_boxes_last_rows) {
+        combined_rows.push_back(row);
+    }
+    ////
+    geom_processor.visualizeAllShingleRows(combined_rows);
+
+
+
+    //////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
     ////////////////////////////////////
+    ////////////////////////////////////
+
     auto tuple_pairs = geom_processor.convertPairsToTuples(box_cloud_pairs);
     auto result = geom_processor.alignPointCloudsToArrangedBoxes(arranged_boxes, tuple_pairs);
     auto arranged_clouds = result.first;  // Extract the aligned clouds (arranged_clouds)
@@ -190,9 +247,8 @@ int main() {
     geom_processor.visualizePointClouds(arranged_clouds , nullptr , true, "output/arranged clouds.png");
 
 
-
-    // test this
-auto full_cloud = std::make_shared<open3d::geometry::PointCloud>();
+    // visualizeAndExportCorrespondingShingles
+    auto full_cloud = std::make_shared<open3d::geometry::PointCloud>();
     for (const auto& [box, cloud] : box_cloud_pairs) {
         *full_cloud += *cloud; // Merge all original clouds
     }
@@ -218,133 +274,51 @@ auto full_cloud = std::make_shared<open3d::geometry::PointCloud>();
             }
         }
     }
+    ////////////////////////////////////////////////////////////
 
-    // Visualize and export corresponding shingles one by one
     if (!corresponding_shingles.empty()) {
-        std::cout << "Visualizing and exporting corresponding original shingles one by one...\n";
-        std::filesystem::create_directories("output/corresponding_shingles");
-        std::filesystem::create_directories("output/corresponding_shingles/ply");
-
-        for (size_t i = 0; i < corresponding_shingles.size(); ++i) {
-            // Visualize the single corresponding shingle with the full cloud in the background (top-down view applied)
-            std::string screenshot_path = "output/corresponding_shingles/shingle_" + std::to_string(i) + ".png";
-            std::cout << "Visualizing shingle " << i << " (saving to " << screenshot_path << ")\n";
-            geom_processor.visualizeSingleShingle(corresponding_shingles[i], full_cloud, true, screenshot_path);
-
-            // Export the single corresponding shingle to a PLY file
-            std::vector<PC_o3d_ptr> single_shingle_for_export = {corresponding_shingles[i]};
-            geom_processor.exportPointClouds(single_shingle_for_export, "output/corresponding_shingles/ply", "shingle_" + std::to_string(i) + "_");
-        }
+        geom_processor.visualizeAndExportCorrespondingShingles(corresponding_shingles, full_cloud);
     } else {
         std::cerr << "No corresponding shingles to visualize.\n";
     }
-    ////////
-
-    ///////////////////////////////////////////////////////////////////////////////////////
-
+    ////////////////////////////////////
+    ////////////////////////////////////
 
 
-    // Create a vector to hold all the rows
-    std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> combined_rows;
-
-    // Add the first and second rows to the combined rows
-    combined_rows.push_back(first_row_of_shingles);
-    combined_rows.push_back(second_row_of_shingles);
-
-    // Add all rows from the third_forth_row to the combined rows
-    for (const auto& row : arranged_boxes) {
-        combined_rows.push_back(row);
-    }
 
 
-        // Load the point cloud
+
+
+
+
+
+
+
+//     ///////////////////////////////////////////////////////////////////////////////////////
+
+
+    // Load the point cloud
     auto sub_structure_pc = perception.loadPointCloud("data/scans/structure.ply", false);
 
+
+    if (sub_structure_pc && !sub_structure_pc->IsEmpty()) 
+        {
+            geom_processor.visualizePointClouds(arranged_clouds, sub_structure_pc, true, "output/sh2.png");
+            geom_processor.visualizeArrangedCloudsIncrementally(arranged_clouds, sub_structure_pc);
+        };  
+
+
+    // // Visualize shingle meshes incrementally by box with substructure, preserving row colors
     if (sub_structure_pc && !sub_structure_pc->IsEmpty()) {
-        // Visualize the stored point cloud
-        //perception.visualizerPointCloud(); // This still uses pc_ptr_, but sub_structure_pc is independent
-
-        // Check colors before passing
-        if (sub_structure_pc->HasColors()) {
-            std::cout << "sub_structure_pc has " << sub_structure_pc->colors_.size() << " colors." << std::endl;
-        } else {
-            std::cerr << "sub_structure_pc has no colors." << std::endl;
-        }
-        //geom_processor.visualizePointClouds(arranged_clouds, sub_structure_pc , true, "output/sh2.png");
-
-
-
-        //test this
-            // Visualize arranged clouds incrementally with substructure
-        if (!arranged_clouds.empty() && sub_structure_pc) {
-            std::vector<PC_o3d_ptr> accumulated_clouds; // To accumulate clouds over iterations
-
-            for (size_t i = 0; i < arranged_clouds.size(); ++i) {
-                // Add the current cloud to the accumulated list
-                accumulated_clouds.push_back(arranged_clouds[i]);
-
-                // Visualize the accumulated clouds with the substructure
-                std::string png_path = "output/assembly/sh_" + std::to_string(i) + ".png";
-                std::cout << "Visualizing up to cloud " << i << " (saving to " << png_path << ")\n";
-                Eigen::Vector3d custom_lookat(0.0, 0.0, 0.0);
-                if (sub_structure_pc && !sub_structure_pc->points_.empty()) {
-                    auto bbox = sub_structure_pc->GetAxisAlignedBoundingBox();
-                    custom_lookat = bbox.GetCenter();
-                }
-                geom_processor.visualizePointClouds(
-                    accumulated_clouds,
-                    sub_structure_pc,
-                    true,
-                    png_path
-                );
-
-                //
-
-
-            }
-        } else {
-            std::cerr << "No arranged clouds or substructure to visualize.\n";
-        }
-
-
-    // Visualize shingle meshes incrementally by box with substructure, preserving row colors
-        if (!combined_rows.empty() && sub_structure_pc) {
-            // Count total number of boxes for iteration
-            size_t total_boxes = 0;
-            for (const auto& row : combined_rows) {
-                total_boxes += row.size();
-            }
-
-            // Initialize accumulated_rows with the same number of rows as combined_rows
-            std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> accumulated_rows(combined_rows.size());
-            std::filesystem::create_directories("output");
-
-            size_t box_counter = 0; // To track total boxes processed
-            for (size_t row_idx = 0; row_idx < combined_rows.size() && box_counter < total_boxes; ++row_idx) {
-                const auto& row = combined_rows[row_idx];
-                for (size_t box_idx = 0; box_idx < row.size() && box_counter < total_boxes; ++box_idx) {
-                    // Add the current box to its corresponding row in accumulated_rows
-                    accumulated_rows[row_idx].push_back(row[box_idx]);
-
-                    // Visualize the accumulated rows with the substructure
-                    std::string png_path = "output/assembly/box_" + std::to_string(box_counter) + ".png";
-                    std::cout << "Visualizing up to box " << box_counter << " (saving to " << png_path << ")\n";
-                    geom_processor.visualizeShingleMeshes(
-                        accumulated_rows,
-                        sub_structure_pc,
-                        true,
-                        png_path
-                    );
-
-                    box_counter++;
-                }
-            }
-        } else {
-            std::cerr << "No combined rows or substructure to visualize.\n";
-        }
-        
-        }
+    geom_processor.visualizeShingleMeshesIncrementally(combined_rows, sub_structure_pc);
+    }
     auto sub_structure_pc_copy = std::make_shared<open3d::geometry::PointCloud>(*sub_structure_pc);
+
+
+
+
+
+
 
 
 
@@ -352,7 +326,7 @@ auto full_cloud = std::make_shared<open3d::geometry::PointCloud>();
 
     geom_processor.visualizeAllShingleRows(combined_rows);
     //geom_processor.visualizeShingleMeshes(combined_rows ,sub_structure_pc  );
-    geom_processor.visualizeShingleMeshes(combined_rows, sub_structure_pc_copy, true, "output/my_shingles_visualization.png");
+    geom_processor.visualizeShingleMeshes(combined_rows, sub_structure_pc_copy, true, "output/my_shingles_boxes_visualization.png");
     geom_processor.visualizePointClouds(arranged_clouds ,sub_structure_pc, false, "output/my_shingles_visualization.png" );
 
     //
@@ -385,13 +359,21 @@ auto full_cloud = std::make_shared<open3d::geometry::PointCloud>();
 
 
 
-//     // export
-    geom_processor.exportBoundingBoxes(first_row_of_shingles ,export_folder ,{0, 0, 1} ,  "first_row_" );
-    geom_processor.exportBoundingBoxes(second_row_of_shingles ,export_folder ,{0, 1, 0}, "second_row_" );
-    geom_processor.exportBoundingBoxes(arranged_boxes[0] ,export_folder ,{1, 0, 0}, "third_row_" );
-    geom_processor.exportBoundingBoxes(arranged_boxes[1] ,export_folder , {0, 0, 1} ,"forth_row_" );
-    geom_processor.exportBoundingBoxes(arranged_boxes[2] ,export_folder ,{0, 1, 0}, "fifth_row_" );
-    geom_processor.exportBoundingBoxes(arranged_boxes[3] ,export_folder ,{1, 0, 0}, "sixth_row_" );
+    // Generate color gradient
+    std::vector<Eigen::Vector3d> colors = generateColorGradient(combined_rows.size());
+
+    // Export all rows
+    for (size_t i = 0; i < combined_rows.size(); ++i) {
+        std::string prefix = "row_" + std::to_string(i) + "_";
+        geom_processor.exportBoundingBoxes(combined_rows[i], export_folder, colors[i], prefix);
+    }
+
+//     // geom_processor.exportBoundingBoxes(first_row_of_shingles ,export_folder ,{0, 0, 1} ,  "first_row_" );
+//     // geom_processor.exportBoundingBoxes(second_row_of_shingles ,export_folder ,{0, 1, 0}, "second_row_" );
+//     // geom_processor.exportBoundingBoxes(arranged_boxes[0] ,export_folder ,{1, 0, 0}, "third_row_" );
+//     // geom_processor.exportBoundingBoxes(arranged_boxes[1] ,export_folder , {0, 0, 1} ,"forth_row_" );
+//     // geom_processor.exportBoundingBoxes(arranged_boxes[2] ,export_folder ,{0, 1, 0}, "fifth_row_" );
+//     // geom_processor.exportBoundingBoxes(arranged_boxes[3] ,export_folder ,{1, 0, 0}, "sixth_row_" );
 
     geom_processor.exportPointClouds(arranged_clouds ,export_folder , "test_" );
     

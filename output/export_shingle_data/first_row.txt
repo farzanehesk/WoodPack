@@ -1,2 +1,2 @@
-widths = [8,18,13,8,16,15]
-total length = [0.800005]
+widths = [12,12,14,8,13,18]
+total length = [0.800006]

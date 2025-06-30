@@ -174,7 +174,7 @@ int main() {
 
 
 
-    auto sorted_boxes = geom_processor.findNextBestShinglesForMultipleRows(second_row_of_shingles , shingle_ptrs ,10  ,  0.03 , gap , max_length);
+    auto sorted_boxes = geom_processor.findNextBestShinglesForMultipleRows(second_row_of_shingles , shingle_ptrs ,11  ,  0.03 , gap , max_length);
     geom_processor.visualizeAllShingleRows(sorted_boxes);
 
     //
@@ -186,20 +186,20 @@ int main() {
     //////////////////////////////////////////////////////////
     // last two rows
 
-    // create boxes
+    // Method 1: create boxes
         std::cout << "starting last rows'\n\n\n\n" ;
     auto bbx_last_rows = geom_processor.createBoundingBoxes(20 , 0.35, false );  // Create 45 random rectangles
 
+    // Method 2 : import shingle scans, with length 35 cm
+
 
     auto last_vector = arranged_boxes.back();
-
     auto sorted_boxes_last_rows = geom_processor.findNextBestShinglesForMultipleRows(last_vector , bbx_last_rows ,3 ,  0.03 , gap , max_length);
     geom_processor.visualizeAllShingleRows(sorted_boxes);
 
     //
     auto arranged_boxes_last_rows = geom_processor.arrangeLastTwoShingleRows(last_vector ,sorted_boxes_last_rows , gap , max_length , rotation_angle , -0.11 );
-    //std::cout << "Number of rows in third_forth_row_: " << arranged_boxes.size() << std::endl;
-    //////////////////////////////////////////////////////////
+    std::cout << "Number of rows in third_forth_row_: " << arranged_boxes_last_rows.size() << std::endl;
     //////////////////////////////////////////////////////////
 
 
@@ -223,21 +223,13 @@ int main() {
     }
     ////
     geom_processor.visualizeAllShingleRows(combined_rows);
+    //////////////////////////////////////////////////////////
 
 
 
-    //////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-    ////////////////////////////////////
-    ////////////////////////////////////
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+    // // // visualizeAndExportCorrespondingShingles
 
     auto tuple_pairs = geom_processor.convertPairsToTuples(box_cloud_pairs);
     auto result = geom_processor.alignPointCloudsToArrangedBoxes(arranged_boxes, tuple_pairs);
@@ -247,7 +239,6 @@ int main() {
     geom_processor.visualizePointClouds(arranged_clouds , nullptr , true, "output/arranged clouds.png");
 
 
-    // visualizeAndExportCorrespondingShingles
     auto full_cloud = std::make_shared<open3d::geometry::PointCloud>();
     for (const auto& [box, cloud] : box_cloud_pairs) {
         *full_cloud += *cloud; // Merge all original clouds
@@ -274,30 +265,23 @@ int main() {
             }
         }
     }
-    ////////////////////////////////////////////////////////////
+    
 
     if (!corresponding_shingles.empty()) {
         geom_processor.visualizeAndExportCorrespondingShingles(corresponding_shingles, full_cloud);
     } else {
         std::cerr << "No corresponding shingles to visualize.\n";
     }
-    ////////////////////////////////////
-    ////////////////////////////////////
+    //////////////////////////////////////////////////////////
 
 
 
 
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+    // visualizeShingleMeshesIncrementally
 
-
-
-
-
-
-
-//     ///////////////////////////////////////////////////////////////////////////////////////
-
-
-    // Load the point cloud
+    // Load the sub-structure
     auto sub_structure_pc = perception.loadPointCloud("data/scans/structure.ply", false);
 
 
@@ -308,18 +292,12 @@ int main() {
         };  
 
 
-    // // Visualize shingle meshes incrementally by box with substructure, preserving row colors
+    // Visualize shingle meshes incrementally by box with substructure, preserving row colors
     if (sub_structure_pc && !sub_structure_pc->IsEmpty()) {
     geom_processor.visualizeShingleMeshesIncrementally(combined_rows, sub_structure_pc);
     }
     auto sub_structure_pc_copy = std::make_shared<open3d::geometry::PointCloud>(*sub_structure_pc);
-
-
-
-
-
-
-
+    ////
 
 
     std::cout << "Number of rows in combined_rows: " << combined_rows.size() << std::endl;
@@ -329,36 +307,13 @@ int main() {
     geom_processor.visualizeShingleMeshes(combined_rows, sub_structure_pc_copy, true, "output/my_shingles_boxes_visualization.png");
     geom_processor.visualizePointClouds(arranged_clouds ,sub_structure_pc, false, "output/my_shingles_visualization.png" );
 
-    //
-
-
     geom_processor.visualizeArrangedCloudCorrespondence(all_point_clouds, arranged_clouds, arranged_boxes, box_cloud_pairs);
+     //////////////////////////////////////////////////////////
 
 
 
-
-
-
-
-
-
-    
-
-
-    
-
-
-
-    
-
-
-
-
-    
-    
-
-
-
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
     // Generate color gradient
     std::vector<Eigen::Vector3d> colors = generateColorGradient(combined_rows.size());
 
@@ -368,15 +323,8 @@ int main() {
         geom_processor.exportBoundingBoxes(combined_rows[i], export_folder, colors[i], prefix);
     }
 
-//     // geom_processor.exportBoundingBoxes(first_row_of_shingles ,export_folder ,{0, 0, 1} ,  "first_row_" );
-//     // geom_processor.exportBoundingBoxes(second_row_of_shingles ,export_folder ,{0, 1, 0}, "second_row_" );
-//     // geom_processor.exportBoundingBoxes(arranged_boxes[0] ,export_folder ,{1, 0, 0}, "third_row_" );
-//     // geom_processor.exportBoundingBoxes(arranged_boxes[1] ,export_folder , {0, 0, 1} ,"forth_row_" );
-//     // geom_processor.exportBoundingBoxes(arranged_boxes[2] ,export_folder ,{0, 1, 0}, "fifth_row_" );
-//     // geom_processor.exportBoundingBoxes(arranged_boxes[3] ,export_folder ,{1, 0, 0}, "sixth_row_" );
-
     geom_processor.exportPointClouds(arranged_clouds ,export_folder , "test_" );
-    
+    //////////////////////////////////////////////////////////
 
 
     return 0;

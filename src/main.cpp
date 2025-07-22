@@ -80,9 +80,35 @@ int main() {
             boxes.push_back(*ptr);  // Dereference and copy the value
         }
     }
+    
+
+////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+    //      // Convert std::vector<open3d::geometry::OrientedBoundingBox> to std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>
+    // std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> shared_boxes;
+    // for (const auto& box : boxes) {
+    //     shared_boxes.push_back(std::make_shared<open3d::geometry::OrientedBoundingBox>(box));
+    // }
+
+    Eigen::Vector3d color(0.0, 0.0, 1.0); // Blue color
+    // Define filename prefix
+    std::string prefix = "boundingbox_";
+    
+    // Define scale factor (meters to millimeters)
+    double scale_factor = 1000.0;
+
+    // Call exportBoundingBoxesAsPolylines
+    geom_processor.exportBoundingBoxesAsPolylines(boxes, export_folder, color, prefix, scale_factor);
+
+    ////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////
 
     // Now pass it to the function
     geom_processor.VisualizeBoundingBoxesAxis(boxes);
+////////////////////////////////////////////////////////////////////////
+
+
 
 /////
 
@@ -125,7 +151,7 @@ int main() {
     // Create the first row of shingles with generated random boxes
     double gap = 0.003;       // 3mm gap
     double max_length = 0.80;  // Ensure row is at least 1m long
-    double rotation_angle = 9; 
+    double rotation_angle = 8; 
     // 10 degrees in radians
 
     auto first_row_of_shingles = geom_processor.arrangeFirstShingleRow(bbx_first_row , gap , max_length ,rotation_angle );
@@ -267,11 +293,11 @@ int main() {
     }
     
 
-    if (!corresponding_shingles.empty()) {
-        geom_processor.visualizeAndExportCorrespondingShingles(corresponding_shingles, full_cloud);
-    } else {
-        std::cerr << "No corresponding shingles to visualize.\n";
-    }
+    // if (!corresponding_shingles.empty()) {
+    //     geom_processor.visualizeAndExportCorrespondingShingles(corresponding_shingles, full_cloud);
+    // } else {
+    //     std::cerr << "No corresponding shingles to visualize.\n";
+    // }
     //////////////////////////////////////////////////////////
 
 
@@ -285,17 +311,17 @@ int main() {
     auto sub_structure_pc = perception.loadPointCloud("data/scans/structure.ply", false);
 
 
-    if (sub_structure_pc && !sub_structure_pc->IsEmpty()) 
-        {
-            geom_processor.visualizePointClouds(arranged_clouds, sub_structure_pc, true, "output/sh2.png");
-            geom_processor.visualizeArrangedCloudsIncrementally(arranged_clouds, sub_structure_pc);
-        };  
+    // if (sub_structure_pc && !sub_structure_pc->IsEmpty()) 
+    //     {
+    //         geom_processor.visualizePointClouds(arranged_clouds, sub_structure_pc, true, "output/sh2.png");
+    //         geom_processor.visualizeArrangedCloudsIncrementally(arranged_clouds, sub_structure_pc);
+    //     };  
 
 
-    // Visualize shingle meshes incrementally by box with substructure, preserving row colors
-    if (sub_structure_pc && !sub_structure_pc->IsEmpty()) {
-    geom_processor.visualizeShingleMeshesIncrementally(combined_rows, sub_structure_pc);
-    }
+    // // Visualize shingle meshes incrementally by box with substructure, preserving row colors
+    // if (sub_structure_pc && !sub_structure_pc->IsEmpty()) {
+    // geom_processor.visualizeShingleMeshesIncrementally(combined_rows, sub_structure_pc);
+    // }
     auto sub_structure_pc_copy = std::make_shared<open3d::geometry::PointCloud>(*sub_structure_pc);
     ////
 
@@ -305,7 +331,7 @@ int main() {
     geom_processor.visualizeAllShingleRows(combined_rows);
     //geom_processor.visualizeShingleMeshes(combined_rows ,sub_structure_pc  );
     geom_processor.visualizeShingleMeshes(combined_rows, sub_structure_pc_copy, true, "output/my_shingles_boxes_visualization.png");
-    geom_processor.visualizePointClouds(arranged_clouds ,sub_structure_pc, false, "output/my_shingles_visualization.png" );
+    geom_processor.visualizePointClouds(arranged_clouds ,sub_structure_pc, true, "output/my_shingles_visualization.png" );
 
     geom_processor.visualizeArrangedCloudCorrespondence(all_point_clouds, arranged_clouds, arranged_boxes, box_cloud_pairs);
      //////////////////////////////////////////////////////////

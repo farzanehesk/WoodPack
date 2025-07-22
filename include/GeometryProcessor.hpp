@@ -545,6 +545,15 @@ std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
         const std::string& output_dir = "output/assembly"
     );
 
+    //
+    void exportBoundingBoxesAsPolylines(
+        const std::vector<open3d::geometry::OrientedBoundingBox>& boxes,
+        const std::string& folder,
+        const Eigen::Vector3d& color, // RGB color for vertices
+        const std::string& prefix,
+        double scale_factor = 1000.0 // Scale factor (e.g., meters to millimeters)
+    );
+
 
 
 

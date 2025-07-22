@@ -5575,6 +5575,100 @@ void GeometryProcessor::exportBoundingBoxes(
     }
 }
 
+
+
+//////////////////////////////////////////////
+
+void GeometryProcessor::exportBoundingBoxesAsPolylines(
+    const std::vector<open3d::geometry::OrientedBoundingBox>& boxes,
+    const std::string& folder,
+    const Eigen::Vector3d& color,
+    const std::string& prefix,
+    double scale_factor)
+{
+    // Ensure output folder exists
+    std::filesystem::create_directories(folder);
+
+    int index = 0;
+    for (const auto& box : boxes) {
+        // Compute the eight vertices of the oriented bounding box
+        Eigen::Vector3d center = box.center_ * scale_factor; // Scale center
+        Eigen::Vector3d extent = box.extent_ * scale_factor; // Scale extent
+        Eigen::Matrix3d R = box.R_; // Rotation matrix (unitless, no scaling)
+
+        // Define the eight corners of the box in local coordinates
+        std::vector<Eigen::Vector3d> local_vertices = {
+            Eigen::Vector3d(-extent(0), -extent(1), -extent(2)), // 0: bottom-left-back
+            Eigen::Vector3d( extent(0), -extent(1), -extent(2)), // 1: bottom-right-back
+            Eigen::Vector3d( extent(0),  extent(1), -extent(2)), // 2: top-right-back
+            Eigen::Vector3d(-extent(0),  extent(1), -extent(2)), // 3: top-left-back
+            Eigen::Vector3d(-extent(0), -extent(1),  extent(2)), // 4: bottom-left-front
+            Eigen::Vector3d( extent(0), -extent(1),  extent(2)), // 5: bottom-right-front
+            Eigen::Vector3d( extent(0),  extent(1),  extent(2)), // 6: top-right-front
+            Eigen::Vector3d(-extent(0),  extent(1),  extent(2))  // 7: top-left-front
+        };
+
+        // Transform vertices to world coordinates
+        std::vector<Eigen::Vector3d> vertices;
+        for (const auto& local_vertex : local_vertices) {
+            vertices.push_back(R * local_vertex + center);
+        }
+
+        // Debug: Print vertex coordinates
+        std::cout << "Box " << index << " vertices (mm):\n";
+        for (size_t i = 0; i < vertices.size(); ++i) {
+            std::cout << "  Vertex " << i << ": (" << vertices[i](0) << ", "
+                      << vertices[i](1) << ", " << vertices[i](2) << ")\n";
+        }
+
+        // Define the 12 edges of the box
+        std::vector<Eigen::Vector2i> edges = {
+            {0, 1}, {1, 2}, {2, 3}, {3, 0}, // Back face
+            {4, 5}, {5, 6}, {6, 7}, {7, 4}, // Front face
+            {0, 4}, {1, 5}, {2, 6}, {3, 7}  // Connecting edges
+        };
+
+        // Create PLY file
+        std::string filename = folder + "/" + prefix + "box_" + std::to_string(index) + ".ply";
+        std::ofstream file(filename);
+        if (!file.is_open()) {
+            std::cerr << "Failed to open file: " << filename << std::endl;
+            continue;
+        }
+
+        // Write PLY header
+        file << "ply\n";
+        file << "format ascii 1.0\n";
+        file << "element vertex " << vertices.size() << "\n";
+        file << "property float x\n";
+        file << "property float y\n";
+        file << "property float z\n";
+        file << "property uchar red\n"; // Use uchar for Rhino compatibility
+        file << "property uchar green\n";
+        file << "property uchar blue\n";
+        file << "element edge " << edges.size() << "\n";
+        file << "property int vertex1\n";
+        file << "property int vertex2\n";
+        file << "end_header\n";
+
+        // Write vertices with color (scale RGB to [0, 255] for uchar)
+        for (const auto& vertex : vertices) {
+            file << vertex(0) << " " << vertex(1) << " " << vertex(2) << " "
+                 << static_cast<int>(color(0) * 255) << " "
+                 << static_cast<int>(color(1) * 255) << " "
+                 << static_cast<int>(color(2) * 255) << "\n";
+        }
+
+        // Write edges
+        for (const auto& edge : edges) {
+            file << edge(0) << " " << edge(1) << "\n";
+        }
+
+        file.close();
+        std::cout << "Exported bounding box to " << filename << std::endl;
+        index++;
+    }
+}
 ///////////////////////////////////////////////
 void GeometryProcessor::exportPointClouds(
     const std::vector<std::shared_ptr<open3d::geometry::PointCloud>>& arranged_clouds,

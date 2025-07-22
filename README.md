@@ -32,11 +32,6 @@
 
 
 
-### Flowchart
-
-    mmdc -i point_cloud_pipeline.mmd -o point_cloud_pipeline.png -w 1920 -H 1080 --scale 2 
-
-    
 
 
 

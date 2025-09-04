@@ -3615,7 +3615,7 @@ void GeometryProcessor::exportShingleData(
 
 //////////////////////////////////////////
 // ///////////////////////////////////////
-// this is the main function that works well
+// 
 std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> GeometryProcessor::findNextBestShingles(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& candidates,

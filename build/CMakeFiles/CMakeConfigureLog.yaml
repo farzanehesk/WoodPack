@@ -1690,3 +1690,111 @@ events:
         
       exitCode: 0
 ...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/local/share/cmake-3.27/Modules/FindMPI.cmake:1278 (try_compile)"
+      - "/usr/local/share/cmake-3.27/Modules/FindMPI.cmake:1322 (_MPI_try_staged_settings)"
+      - "/usr/local/share/cmake-3.27/Modules/FindMPI.cmake:1645 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:25 (find_package)"
+    description: "The MPI test test_mpi for C in mode normal"
+    directories:
+      source: "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles/CMakeScratch/TryCompile-HLo7cC"
+      binary: "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles/CMakeScratch/TryCompile-HLo7cC"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: ""
+    buildResult:
+      variable: "MPI_RESULT_C_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles/CMakeScratch/TryCompile-HLo7cC'
+        
+        Run Build Command(s): /usr/local/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_2fdbe/fast
+        gmake[1]: Entering directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles/CMakeScratch/TryCompile-HLo7cC'
+        /usr/bin/gmake  -f CMakeFiles/cmTC_2fdbe.dir/build.make CMakeFiles/cmTC_2fdbe.dir/build
+        gmake[2]: Entering directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles/CMakeScratch/TryCompile-HLo7cC'
+        Building C object CMakeFiles/cmTC_2fdbe.dir/test_mpi.c.o
+        /usr/bin/cc  -isystem /usr/lib/x86_64-linux-gnu/openmpi/include -isystem /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi  -o CMakeFiles/cmTC_2fdbe.dir/test_mpi.c.o -c /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles/CMakeScratch/TryCompile-HLo7cC/test_mpi.c
+        Linking C executable cmTC_2fdbe
+        /usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2fdbe.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_2fdbe.dir/test_mpi.c.o -o cmTC_2fdbe  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/openmpi/lib /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so 
+        gmake[2]: Leaving directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles/CMakeScratch/TryCompile-HLo7cC'
+        gmake[1]: Leaving directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles/CMakeScratch/TryCompile-HLo7cC'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/local/share/cmake-3.27/Modules/FindMPI.cmake:1278 (try_compile)"
+      - "/usr/local/share/cmake-3.27/Modules/FindMPI.cmake:1322 (_MPI_try_staged_settings)"
+      - "/usr/local/share/cmake-3.27/Modules/FindMPI.cmake:1645 (_MPI_check_lang_works)"
+      - "CMakeLists.txt:25 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode normal"
+    directories:
+      source: "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles/CMakeScratch/TryCompile-9kBPJo"
+      binary: "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles/CMakeScratch/TryCompile-9kBPJo"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_normal"
+      cached: true
+      stdout: |
+        Change Dir: '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles/CMakeScratch/TryCompile-9kBPJo'
+        
+        Run Build Command(s): /usr/local/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_30d37/fast
+        gmake[1]: Entering directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles/CMakeScratch/TryCompile-9kBPJo'
+        /usr/bin/gmake  -f CMakeFiles/cmTC_30d37.dir/build.make CMakeFiles/cmTC_30d37.dir/build
+        gmake[2]: Entering directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles/CMakeScratch/TryCompile-9kBPJo'
+        Building CXX object CMakeFiles/cmTC_30d37.dir/test_mpi.cpp.o
+        /usr/bin/c++  -isystem /usr/lib/x86_64-linux-gnu/openmpi/include -isystem /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -std=gnu++17 -o CMakeFiles/cmTC_30d37.dir/test_mpi.cpp.o -c /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles/CMakeScratch/TryCompile-9kBPJo/test_mpi.cpp
+        Linking CXX executable cmTC_30d37
+        /usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_30d37.dir/link.txt --verbose=1
+        /usr/bin/c++ CMakeFiles/cmTC_30d37.dir/test_mpi.cpp.o -o cmTC_30d37  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/openmpi/lib /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so 
+        gmake[2]: Leaving directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles/CMakeScratch/TryCompile-9kBPJo'
+        gmake[1]: Leaving directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles/CMakeScratch/TryCompile-9kBPJo'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/local/share/cmake-3.27/Modules/FindMPI.cmake:1278 (try_compile)"
+      - "/usr/local/share/cmake-3.27/Modules/FindMPI.cmake:1672 (_MPI_try_staged_settings)"
+      - "CMakeLists.txt:25 (find_package)"
+    description: "The MPI test test_mpi for CXX in mode MPICXX"
+    directories:
+      source: "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles/CMakeScratch/TryCompile-zBcwfL"
+      binary: "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles/CMakeScratch/TryCompile-zBcwfL"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: ""
+    buildResult:
+      variable: "MPI_RESULT_CXX_test_mpi_MPICXX"
+      cached: true
+      stdout: |
+        Change Dir: '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles/CMakeScratch/TryCompile-zBcwfL'
+        
+        Run Build Command(s): /usr/local/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_afbc9/fast
+        gmake[1]: Entering directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles/CMakeScratch/TryCompile-zBcwfL'
+        /usr/bin/gmake  -f CMakeFiles/cmTC_afbc9.dir/build.make CMakeFiles/cmTC_afbc9.dir/build
+        gmake[2]: Entering directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles/CMakeScratch/TryCompile-zBcwfL'
+        Building CXX object CMakeFiles/cmTC_afbc9.dir/test_mpi.cpp.o
+        /usr/bin/c++  -isystem /usr/lib/x86_64-linux-gnu/openmpi/include -isystem /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi -std=gnu++17 -o CMakeFiles/cmTC_afbc9.dir/test_mpi.cpp.o -c /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles/CMakeScratch/TryCompile-zBcwfL/test_mpi.cpp
+        Linking CXX executable cmTC_afbc9
+        /usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_afbc9.dir/link.txt --verbose=1
+        /usr/bin/c++ CMakeFiles/cmTC_afbc9.dir/test_mpi.cpp.o -o cmTC_afbc9  -Wl,-rpath,/usr/lib/x86_64-linux-gnu/openmpi/lib /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so 
+        gmake[2]: Leaving directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles/CMakeScratch/TryCompile-zBcwfL'
+        gmake[1]: Leaving directory '/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles/CMakeScratch/TryCompile-zBcwfL'
+        
+      exitCode: 0
+...

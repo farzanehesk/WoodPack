@@ -1,2 +1,2 @@
-widths = [19,16,10,11,14,8]
-total length = [0.800001]
+widths = [10,12,14,19,8,15]
+total length = [0.800003]

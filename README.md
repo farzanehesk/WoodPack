@@ -24,12 +24,6 @@ WoodPack requires the following software to be installed first. See [INSTALL.md]
 
 
 
-## Bugs & Feature Requests
-
-
-
-
-
 ## Citation
 
 

@@ -84,11 +84,7 @@ int main() {
 
 ////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////
-    //      // Convert std::vector<open3d::geometry::OrientedBoundingBox> to std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>
-    // std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> shared_boxes;
-    // for (const auto& box : boxes) {
-    //     shared_boxes.push_back(std::make_shared<open3d::geometry::OrientedBoundingBox>(box));
-    // }
+
 
     Eigen::Vector3d color(0.0, 0.0, 1.0); // Blue color
     // Define filename prefix
@@ -100,11 +96,7 @@ int main() {
     // Call exportBoundingBoxesAsPolylines
     geom_processor.exportBoundingBoxesAsPolylines(boxes, export_folder, color, prefix, scale_factor);
 
-    ////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////
 
-    // Now pass it to the function
     geom_processor.VisualizeBoundingBoxesAxis(boxes);
 ////////////////////////////////////////////////////////////////////////
 

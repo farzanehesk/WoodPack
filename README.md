@@ -30,6 +30,7 @@ WoodPack requires the following software to be installed first. See [INSTALL.md]
 
 ## Citation
 
+[1]Farzaneh Eskandari, “farzanehesk/WoodPack: v0.2.0-alpha”. Zenodo, Sep. 05, 2025. doi: 10.5281/zenodo.17064228.
 
 
 ## License

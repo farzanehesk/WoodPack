@@ -13,17 +13,6 @@ using PC_o3d_ptr = std::shared_ptr<open3d::geometry::PointCloud>;
 
 
 
-
-// class Edge
-// {
-
-
-
-
-// };
-
-
-
 class Rectangle 
 {
 public: 
@@ -65,7 +54,7 @@ void computeProperties();
 
 
 
-
+////////////////////////////////////////
 class GeometryProcessor
 {
 
@@ -99,15 +88,6 @@ public:
     void visualizeBoundingBoxes (
         const std::vector<PC_o3d_ptr>& clusters, 
         const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes) ;
-
-    // 3. Method to compute axis-aligned bounding boxes for a vector of point clouds
-    // std::vector<open3d::geometry::AxisAlignedBoundingBox> computeAxisAlignedBoundingBoxes(
-    //     const std::vector<PC_o3d_ptr>& clusters);
-
-    // 4. Method to visualize clusters with AABBs
-    // void visualizeBoundingBoxes(
-    //     const std::vector<PC_o3d_ptr>& clusters,
-    //     const std::vector<open3d::geometry::AxisAlignedBoundingBox>& bounding_boxes);
 
 
     // 5. Method to visualize bounding boxes on the original poitn cloud
@@ -179,9 +159,6 @@ std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundi
 
 
 
-    // 20.  /// Creates n random rectangles placed randomly on a horizontal surface.
-            /// Each rectangle has a fixed length of 0.15m and a random width between 0.08m and 0.20m.
-            /// Returns a vector of Rectangle objects.
     std::vector<Rectangle> createRandomRectangles(int n, double fixed_length);
 
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>> createBoundingBoxes(int n , double fixed_length , bool debug) ;
@@ -226,12 +203,6 @@ double getRandomWidth(double min, double max, std::map<double, int>& width_count
     void VisualizeBoundingBoxesAxis(
     const std::vector<open3d::geometry::OrientedBoundingBox>& bounding_boxes);
 
-
-
-
-    //
-    //void alignBoxToXYPlane(const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& bbox) ;
-
     //
     void alignBoxToXYPlane(std::shared_ptr<open3d::geometry::OrientedBoundingBox>& bbox);
 
@@ -243,9 +214,6 @@ double getRandomWidth(double min, double max, std::map<double, int>& width_count
 
 
     //
-
-
-    //
     double calculateTotalWidth(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row);
 
@@ -253,16 +221,6 @@ double getRandomWidth(double min, double max, std::map<double, int>& width_count
     std::vector<double> calculateRightEdgeDistancesFromCandidate(
     const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate_shingle,
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row);
-
-    //
-    // bool lineSegmentIntersection(const Eigen::Vector3d& p1, const Eigen::Vector3d& p2,
-    //                               const Eigen::Vector3d& q1, const Eigen::Vector3d& q2) ;
-
-
-    // //
-    // std::shared_ptr<open3d::geometry::OrientedBoundingBox> findIntersectingShingle(
-    // const std::shared_ptr<open3d::geometry::OrientedBoundingBox>& candidate_bbox,
-    // const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row_bboxes) ;
 
 
     ///
@@ -305,14 +263,6 @@ double getRandomWidth(double min, double max, std::map<double, int>& width_count
 
 
     ///
-    // void visualizeShingleMeshes(
-    // const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& combined_rows);
-
-    // void visualizeShingleMeshes(
-    // const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& combined_rows,
-    // std::shared_ptr<open3d::geometry::PointCloud> point_cloud );
-
-    //
     void visualizeShingleMeshes(
     const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& combined_rows,
     std::shared_ptr<open3d::geometry::PointCloud> point_cloud = nullptr, // Optional argument
@@ -349,7 +299,7 @@ double getRandomWidth(double min, double max, std::map<double, int>& width_count
 
 
     //
-std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> 
+    std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>> 
     findNextBestShinglesForMultipleRows(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row, 
     std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& candidates, 
@@ -378,12 +328,6 @@ std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
     double third_fourth_overlap,  // New argument for 3rd & 4th row overlap
     double staggered_vertical_overlap);
 
-
-    //
-    // std::vector<PC_o3d_ptr> alignPointCloudsToArrangedBoxes(
-    // const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& arranged_boxes,
-    // const std::vector<std::pair<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr>>& original_box_cloud_pairs);
-
     //
     std::pair<std::vector<PC_o3d_ptr>, std::map<std::shared_ptr<open3d::geometry::OrientedBoundingBox>, int>> alignPointCloudsToArrangedBoxes(
     const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& arranged_boxes,
@@ -391,10 +335,8 @@ std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
 
 
     // //
-    // void visualizePointClouds(const std::vector<std::shared_ptr<open3d::geometry::PointCloud>>& clouds , 
-    // std::shared_ptr<open3d::geometry::PointCloud> point_cloud);
 
-void visualizePointClouds(
+    void visualizePointClouds(
         const std::vector<std::shared_ptr<open3d::geometry::PointCloud>>& clouds, 
         std::shared_ptr<open3d::geometry::PointCloud> point_cloud = nullptr,
         bool save_png = false,
@@ -421,7 +363,7 @@ void visualizePointClouds(
 
 
     //
-std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
+    std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
     arrangeMultipleShingleRows(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& reference_row,
     std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& candidate_rows,  // Non-const reference
@@ -447,9 +389,6 @@ std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
 
 
     //
-
-
-    //
     void visualizeShingleRows(
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row,
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row,
@@ -470,11 +409,6 @@ std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
     const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& first_row_aligned,
     const std::vector<double>& first_row_gap_positions,
     double max_gap) const ;
-
-
-    //
-        // void exportShingleWidths(
-        // const std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>& second_row) const;
 
     //
     void exportShingleData(
@@ -504,12 +438,12 @@ std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
 
 
     //
-        void visualizeArrangedCloudCorrespondence(
-        const std::vector<PC_o3d_ptr>& all_point_clouds,
-        const std::vector<PC_o3d_ptr>& arranged_clouds,
-        const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& arranged_boxes,
-        const std::vector<std::pair<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr>>& original_box_cloud_pairs);
-    
+    void visualizeArrangedCloudCorrespondence(
+    const std::vector<PC_o3d_ptr>& all_point_clouds,
+    const std::vector<PC_o3d_ptr>& arranged_clouds,
+    const std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>& arranged_boxes,
+    const std::vector<std::pair<open3d::geometry::OrientedBoundingBox, PC_o3d_ptr>>& original_box_cloud_pairs);
+
     //
     void exportPointClouds(
     const std::vector<std::shared_ptr<open3d::geometry::PointCloud>>& arranged_clouds,
@@ -559,13 +493,6 @@ std::vector<std::vector<std::shared_ptr<open3d::geometry::OrientedBoundingBox>>>
 
 
 };
-
-
-
-
-
-
-
 
 
 

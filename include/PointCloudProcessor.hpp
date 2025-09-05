@@ -18,10 +18,6 @@ class PointCloudProcessor
         PC_o3d_ptr pc_ptr_ ; // Internal shared pointer to the point cloud
         std::vector <PC_o3d_ptr> clusters_ptr_ ;
 
-
-
-
-
     public:
 
 

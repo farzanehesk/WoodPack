@@ -15,19 +15,9 @@
 
 
 
-### PCL
 
-	sudo apt update
-	sudo apt install git build-essential cmake libeigen3-dev libflann-dev libboost-all-dev libvtk9-dev libqhull-dev libusb-1.0-0-dev libpcap-dev libpng-dev libjpeg-dev
-	git clone https://github.com/PointCloudLibrary/pcl.git
-	cd pcl
-	mkdir build
-	cd build
-	cmake .. -DCMAKE_BUILD_TYPE=Release
-	make -j$(nproc)
-	sudo make install
 
-### vtk
+### VTK
 
 	git clone https://gitlab.kitware.com/vtk/vtk.git
 	cd vtk

@@ -8,9 +8,9 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/GeometryProcessor.cpp" "CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.o" "gcc" "CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.o.d"
-  "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/PointCloudProcessor.cpp" "CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.o" "gcc" "CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.o.d"
-  "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/tools/analyze_shingle_widths.cpp" "CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.o" "gcc" "CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.o.d"
+  "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/src/GeometryProcessor.cpp" "CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.o" "gcc" "CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.o.d"
+  "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/src/PointCloudProcessor.cpp" "CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.o" "gcc" "CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.o.d"
+  "/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/tools/analyze_shingle_widths.cpp" "CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.o" "gcc" "CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

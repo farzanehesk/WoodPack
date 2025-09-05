@@ -1,5 +1,5 @@
 CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.o: \
- /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/tools/analyze_shingle_widths.cpp \
+ /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/tools/analyze_shingle_widths.cpp \
  /usr/include/stdc-predef.h /usr/include/c++/11/iostream \
  /usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/os_defines.h \
@@ -205,91 +205,8 @@ CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.o: \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/emmintrin.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/xmmintrin.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/mm_malloc.h \
- /usr/include/c++/11/stdlib.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/pmmintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/mwaitintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/tmmintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/smmintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/popcntintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/nmmintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/immintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/x86gprintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/ia32intrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/adxintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/bmiintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/bmi2intrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/cetintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/cldemoteintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/clflushoptintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/clwbintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/clzerointrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/enqcmdintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/fxsrintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/lzcntintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/lwpintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/movdirintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/mwaitxintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/pconfigintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/pkuintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/rdseedintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/rtmintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/serializeintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/sgxintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/tbmintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/tsxldtrkintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/uintrintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/waitpkgintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/wbnoinvdintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/xsaveintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/xsavecintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/xsaveoptintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/xsavesintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/xtestintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/hresetintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/wmmintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avxintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avxvnniintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avx2intrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512fintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512erintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512pfintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512cdintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vlintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512bwintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512dqintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vlbwintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vldqintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512ifmaintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512ifmavlintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vbmiintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vbmivlintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avx5124fmapsintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avx5124vnniwintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vpopcntdqintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vbmi2intrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vbmi2vlintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vnniintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vnnivlintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vpopcntdqvlintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512bitalgintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vp2intersectintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vp2intersectvlintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/shaintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/fmaintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/f16cintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/gfniintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/vaesintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/vpclmulqdqintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512bf16vlintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512bf16intrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/amxtileintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/amxint8intrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/amxbf16intrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/prfchwintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/keylockerintrin.h \
- /usr/include/c++/11/complex \
+ /usr/include/c++/11/stdlib.h /usr/include/c++/11/complex \
  /usr/include/eigen3/Eigen/src/Core/util/MKL_support.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/omp.h \
  /usr/include/c++/11/cstddef /usr/include/c++/11/cassert \
  /usr/include/assert.h /usr/include/c++/11/functional \
  /usr/include/c++/11/bits/std_function.h \
@@ -338,12 +255,8 @@ CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.o: \
  /usr/include/eigen3/Eigen/src/Core/arch/Default/GenericPacketMathFunctionsFwd.h \
  /usr/include/eigen3/Eigen/src/Core/arch/SSE/PacketMath.h \
  /usr/include/eigen3/Eigen/src/Core/arch/SSE/TypeCasting.h \
- /usr/include/eigen3/Eigen/src/Core/arch/SSE/Complex.h \
- /usr/include/eigen3/Eigen/src/Core/arch/AVX/PacketMath.h \
- /usr/include/eigen3/Eigen/src/Core/arch/AVX/TypeCasting.h \
- /usr/include/eigen3/Eigen/src/Core/arch/AVX/Complex.h \
  /usr/include/eigen3/Eigen/src/Core/arch/SSE/MathFunctions.h \
- /usr/include/eigen3/Eigen/src/Core/arch/AVX/MathFunctions.h \
+ /usr/include/eigen3/Eigen/src/Core/arch/SSE/Complex.h \
  /usr/include/eigen3/Eigen/src/Core/arch/Default/Settings.h \
  /usr/include/eigen3/Eigen/src/Core/arch/Default/GenericPacketMathFunctions.h \
  /usr/include/eigen3/Eigen/src/Core/functors/TernaryFunctors.h \
@@ -727,11 +640,11 @@ CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.o: \
  /usr/local/include/open3d/t/io/sensor/realsense/RealSenseSensorConfig.h \
  /usr/local/include/open3d/visualization/webrtc_server/WebRTCWindowSystem.h \
  /usr/local/include/open3d/visualization/gui/BitmapWindowSystem.h \
- /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/tools/../include/PointCloudProcessor.hpp \
- /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/tools/../include/../include/PointCloudProcessor.hpp \
- /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/tools/../include/../include/custom_types.hpp \
- /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/tools/../include/GeometryProcessor.hpp \
- /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/tools/../include/custom_types.hpp \
+ /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/tools/../include/PointCloudProcessor.hpp \
+ /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/tools/../include/../include/PointCloudProcessor.hpp \
+ /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/tools/../include/../include/custom_types.hpp \
+ /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/tools/../include/GeometryProcessor.hpp \
+ /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/tools/../include/custom_types.hpp \
  /usr/include/eigen3/Eigen/Dense /usr/include/eigen3/Eigen/Geometry \
  /usr/include/eigen3/Eigen/Eigenvalues \
  /usr/include/eigen3/Eigen/src/Eigenvalues/Tridiagonalization.h \
@@ -750,4 +663,4 @@ CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.o: \
  /usr/include/eigen3/Eigen/src/Eigenvalues/GeneralizedEigenSolver.h \
  /usr/include/eigen3/Eigen/src/Eigenvalues/RealQZ.h \
  /usr/include/eigen3/Eigen/src/Eigenvalues/MatrixBaseEigenvalues.h \
- /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/tools/../include/custom_types.hpp
+ /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/tools/../include/custom_types.hpp

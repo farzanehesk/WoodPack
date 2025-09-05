@@ -54,16 +54,16 @@ RM = /usr/local/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization
+CMAKE_SOURCE_DIR = /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build
+CMAKE_BINARY_DIR = /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build
 
 #=============================================================================
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
-all: CMakeFiles/Shingle_Optimization.dir/all
+all: CMakeFiles/WoodPack.dir/all
 all: CMakeFiles/analyze_shingle_widths.dir/all
 .PHONY : all
 
@@ -72,35 +72,35 @@ preinstall:
 .PHONY : preinstall
 
 # The main recursive "clean" target.
-clean: CMakeFiles/Shingle_Optimization.dir/clean
+clean: CMakeFiles/WoodPack.dir/clean
 clean: CMakeFiles/analyze_shingle_widths.dir/clean
 .PHONY : clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/Shingle_Optimization.dir
+# Target rules for target CMakeFiles/WoodPack.dir
 
 # All Build rule for target.
-CMakeFiles/Shingle_Optimization.dir/all:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/depend
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles --progress-num=1,2,3,4,5 "Built target Shingle_Optimization"
-.PHONY : CMakeFiles/Shingle_Optimization.dir/all
+CMakeFiles/WoodPack.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/WoodPack.dir/build.make CMakeFiles/WoodPack.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/WoodPack.dir/build.make CMakeFiles/WoodPack.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles --progress-num=1,2,3,4,5 "Built target WoodPack"
+.PHONY : CMakeFiles/WoodPack.dir/all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/Shingle_Optimization.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles 5
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/Shingle_Optimization.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles 0
-.PHONY : CMakeFiles/Shingle_Optimization.dir/rule
+CMakeFiles/WoodPack.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles 5
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/WoodPack.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles 0
+.PHONY : CMakeFiles/WoodPack.dir/rule
 
 # Convenience name for target.
-Shingle_Optimization: CMakeFiles/Shingle_Optimization.dir/rule
-.PHONY : Shingle_Optimization
+WoodPack: CMakeFiles/WoodPack.dir/rule
+.PHONY : WoodPack
 
 # clean rule for target.
-CMakeFiles/Shingle_Optimization.dir/clean:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/clean
-.PHONY : CMakeFiles/Shingle_Optimization.dir/clean
+CMakeFiles/WoodPack.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/WoodPack.dir/build.make CMakeFiles/WoodPack.dir/clean
+.PHONY : CMakeFiles/WoodPack.dir/clean
 
 #=============================================================================
 # Target rules for target CMakeFiles/analyze_shingle_widths.dir
@@ -109,14 +109,14 @@ CMakeFiles/Shingle_Optimization.dir/clean:
 CMakeFiles/analyze_shingle_widths.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/analyze_shingle_widths.dir/build.make CMakeFiles/analyze_shingle_widths.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/analyze_shingle_widths.dir/build.make CMakeFiles/analyze_shingle_widths.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles --progress-num=6,7,8,9 "Built target analyze_shingle_widths"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles --progress-num=6,7,8,9 "Built target analyze_shingle_widths"
 .PHONY : CMakeFiles/analyze_shingle_widths.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/analyze_shingle_widths.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles 4
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/analyze_shingle_widths.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles 0
 .PHONY : CMakeFiles/analyze_shingle_widths.dir/rule
 
 # Convenience name for target.

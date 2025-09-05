@@ -53,10 +53,10 @@ RM = /usr/local/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization
+CMAKE_SOURCE_DIR = /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build
+CMAKE_BINARY_DIR = /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/analyze_shingle_widths.dir/depend.make
@@ -70,46 +70,46 @@ include CMakeFiles/analyze_shingle_widths.dir/progress.make
 include CMakeFiles/analyze_shingle_widths.dir/flags.make
 
 CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.o: CMakeFiles/analyze_shingle_widths.dir/flags.make
-CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.o: /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/tools/analyze_shingle_widths.cpp
+CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.o: /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/tools/analyze_shingle_widths.cpp
 CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.o: CMakeFiles/analyze_shingle_widths.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.o -MF CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.o.d -o CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.o -c /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/tools/analyze_shingle_widths.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.o -MF CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.o.d -o CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.o -c /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/tools/analyze_shingle_widths.cpp
 
 CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/tools/analyze_shingle_widths.cpp > CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/tools/analyze_shingle_widths.cpp > CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.i
 
 CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/tools/analyze_shingle_widths.cpp -o CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/tools/analyze_shingle_widths.cpp -o CMakeFiles/analyze_shingle_widths.dir/tools/analyze_shingle_widths.cpp.s
 
 CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.o: CMakeFiles/analyze_shingle_widths.dir/flags.make
-CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.o: /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/PointCloudProcessor.cpp
+CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.o: /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/src/PointCloudProcessor.cpp
 CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.o: CMakeFiles/analyze_shingle_widths.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.o -MF CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.o.d -o CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.o -c /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/PointCloudProcessor.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.o -MF CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.o.d -o CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.o -c /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/src/PointCloudProcessor.cpp
 
 CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/PointCloudProcessor.cpp > CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/src/PointCloudProcessor.cpp > CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.i
 
 CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/PointCloudProcessor.cpp -o CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/src/PointCloudProcessor.cpp -o CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.s
 
 CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.o: CMakeFiles/analyze_shingle_widths.dir/flags.make
-CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.o: /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/GeometryProcessor.cpp
+CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.o: /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/src/GeometryProcessor.cpp
 CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.o: CMakeFiles/analyze_shingle_widths.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.o -MF CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.o.d -o CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.o -c /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/GeometryProcessor.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.o -MF CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.o.d -o CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.o -c /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/src/GeometryProcessor.cpp
 
 CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/GeometryProcessor.cpp > CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/src/GeometryProcessor.cpp > CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.i
 
 CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/src/GeometryProcessor.cpp -o CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/src/GeometryProcessor.cpp -o CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.s
 
 # Object files for target analyze_shingle_widths
 analyze_shingle_widths_OBJECTS = \
@@ -125,90 +125,21 @@ analyze_shingle_widths: CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProc
 analyze_shingle_widths: CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.o
 analyze_shingle_widths: CMakeFiles/analyze_shingle_widths.dir/build.make
 analyze_shingle_widths: /usr/local/lib/libOpen3D.so.0.19.0
-analyze_shingle_widths: /usr/local/lib/libpcl_surface.so
-analyze_shingle_widths: /usr/local/lib/libpcl_keypoints.so
-analyze_shingle_widths: /usr/local/lib/libpcl_tracking.so
-analyze_shingle_widths: /usr/local/lib/libpcl_recognition.so
-analyze_shingle_widths: /usr/local/lib/libpcl_stereo.so
-analyze_shingle_widths: /usr/local/lib/libpcl_outofcore.so
-analyze_shingle_widths: /usr/local/lib/libpcl_people.so
-analyze_shingle_widths: /usr/lib/libOpenNI.so
-analyze_shingle_widths: /usr/lib/x86_64-linux-gnu/libusb-1.0.so
-analyze_shingle_widths: /usr/lib/x86_64-linux-gnu/libOpenNI2.so
-analyze_shingle_widths: /usr/lib/x86_64-linux-gnu/libusb-1.0.so
-analyze_shingle_widths: /usr/lib/x86_64-linux-gnu/libflann_cpp.so
-analyze_shingle_widths: /usr/local/lib/libpcl_registration.so
-analyze_shingle_widths: /usr/local/lib/libpcl_segmentation.so
-analyze_shingle_widths: /usr/local/lib/libpcl_features.so
-analyze_shingle_widths: /usr/local/lib/libpcl_filters.so
-analyze_shingle_widths: /usr/local/lib/libpcl_sample_consensus.so
-analyze_shingle_widths: /usr/local/lib/libpcl_ml.so
-analyze_shingle_widths: /usr/local/lib/libpcl_visualization.so
-analyze_shingle_widths: /usr/local/lib/libpcl_search.so
-analyze_shingle_widths: /usr/local/lib/libpcl_kdtree.so
-analyze_shingle_widths: /usr/local/lib/libpcl_io.so
-analyze_shingle_widths: /usr/local/lib/libpcl_octree.so
-analyze_shingle_widths: /usr/local/lib/libpcl_io_ply.so
-analyze_shingle_widths: /usr/lib/gcc/x86_64-linux-gnu/11/libgomp.so
-analyze_shingle_widths: /usr/lib/x86_64-linux-gnu/libpthread.a
-analyze_shingle_widths: /usr/lib/x86_64-linux-gnu/libpng.so
-analyze_shingle_widths: /usr/lib/x86_64-linux-gnu/libz.so
-analyze_shingle_widths: /usr/lib/libOpenNI.so
-analyze_shingle_widths: /usr/lib/x86_64-linux-gnu/libusb-1.0.so
-analyze_shingle_widths: /usr/lib/x86_64-linux-gnu/libOpenNI2.so
-analyze_shingle_widths: /usr/local/lib/libvtkChartsCore-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkInteractionImage-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkIOGeometry-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkjsoncpp-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkIOPLY-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkRenderingLOD-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkViewsContext2D-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkViewsCore-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkInteractionWidgets-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkFiltersModeling-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkInteractionStyle-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkFiltersExtraction-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkIOLegacy-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkIOCore-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkRenderingAnnotation-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkImagingSources-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkIOImage-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkRenderingContextOpenGL2-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkImagingCore-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkRenderingContext2D-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkRenderingFreeType-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkfreetype-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkzlib-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkRenderingOpenGL2-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkRenderingUI-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkRenderingCore-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkCommonColor-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkFiltersGeometry-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkFiltersSources-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkFiltersGeneral-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkCommonComputationalGeometry-9.1.so.9.1.0
 analyze_shingle_widths: /usr/local/lib/libvtkFiltersCore-9.1.so.9.1.0
+analyze_shingle_widths: /usr/local/lib/libvtkIOImage-9.1.so.9.1.0
+analyze_shingle_widths: /usr/local/lib/libvtkImagingCore-9.1.so.9.1.0
 analyze_shingle_widths: /usr/local/lib/libvtkCommonExecutionModel-9.1.so.9.1.0
 analyze_shingle_widths: /usr/local/lib/libvtkCommonDataModel-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkCommonMisc-9.1.so.9.1.0
 analyze_shingle_widths: /usr/local/lib/libvtkCommonTransforms-9.1.so.9.1.0
+analyze_shingle_widths: /usr/local/lib/libvtkCommonMisc-9.1.so.9.1.0
 analyze_shingle_widths: /usr/local/lib/libvtkCommonMath-9.1.so.9.1.0
 analyze_shingle_widths: /usr/local/lib/libvtkkissfft-9.1.so.9.1.0
-analyze_shingle_widths: /usr/lib/x86_64-linux-gnu/libX11.so
 analyze_shingle_widths: /usr/local/lib/libvtkCommonCore-9.1.so.9.1.0
 analyze_shingle_widths: /usr/local/lib/libvtksys-9.1.so.9.1.0
-analyze_shingle_widths: /usr/local/lib/libvtkglew-9.1.so.9.1.0
-analyze_shingle_widths: /usr/lib/x86_64-linux-gnu/libGLX.so
-analyze_shingle_widths: /usr/lib/x86_64-linux-gnu/libOpenGL.so
-analyze_shingle_widths: /usr/local/lib/libpcl_common.so
-analyze_shingle_widths: /usr/lib/x86_64-linux-gnu/libboost_system.so.1.74.0
-analyze_shingle_widths: /usr/lib/x86_64-linux-gnu/libboost_iostreams.so.1.74.0
-analyze_shingle_widths: /usr/lib/x86_64-linux-gnu/libboost_filesystem.so.1.74.0
-analyze_shingle_widths: /usr/lib/x86_64-linux-gnu/libboost_serialization.so.1.74.0
 analyze_shingle_widths: /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so
 analyze_shingle_widths: /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so
 analyze_shingle_widths: CMakeFiles/analyze_shingle_widths.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable analyze_shingle_widths"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable analyze_shingle_widths"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/analyze_shingle_widths.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -220,6 +151,6 @@ CMakeFiles/analyze_shingle_widths.dir/clean:
 .PHONY : CMakeFiles/analyze_shingle_widths.dir/clean
 
 CMakeFiles/analyze_shingle_widths.dir/depend:
-	cd /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles/analyze_shingle_widths.dir/DependInfo.cmake "--color=$(COLOR)"
+	cd /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles/analyze_shingle_widths.dir/DependInfo.cmake "--color=$(COLOR)"
 .PHONY : CMakeFiles/analyze_shingle_widths.dir/depend
 

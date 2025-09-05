@@ -57,10 +57,10 @@ RM = /usr/local/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization
+CMAKE_SOURCE_DIR = /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build
+CMAKE_BINARY_DIR = /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/Shingle_Optimization/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/farzaneh/Work/EPFL/Thesis/Shingle_Project/WoodPack/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -117,17 +117,17 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named Shingle_Optimization
+# Target rules for targets named WoodPack
 
 # Build rule for target.
-Shingle_Optimization: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 Shingle_Optimization
-.PHONY : Shingle_Optimization
+WoodPack: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 WoodPack
+.PHONY : WoodPack
 
 # fast build rule for target.
-Shingle_Optimization/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/build
-.PHONY : Shingle_Optimization/fast
+WoodPack/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/WoodPack.dir/build.make CMakeFiles/WoodPack.dir/build
+.PHONY : WoodPack/fast
 
 #=============================================================================
 # Target rules for targets named analyze_shingle_widths
@@ -147,7 +147,7 @@ src/GeometryProcessor.o: src/GeometryProcessor.cpp.o
 
 # target to build an object file
 src/GeometryProcessor.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/src/GeometryProcessor.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/WoodPack.dir/build.make CMakeFiles/WoodPack.dir/src/GeometryProcessor.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/analyze_shingle_widths.dir/build.make CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.o
 .PHONY : src/GeometryProcessor.cpp.o
 
@@ -156,7 +156,7 @@ src/GeometryProcessor.i: src/GeometryProcessor.cpp.i
 
 # target to preprocess a source file
 src/GeometryProcessor.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/src/GeometryProcessor.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/WoodPack.dir/build.make CMakeFiles/WoodPack.dir/src/GeometryProcessor.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/analyze_shingle_widths.dir/build.make CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.i
 .PHONY : src/GeometryProcessor.cpp.i
 
@@ -165,7 +165,7 @@ src/GeometryProcessor.s: src/GeometryProcessor.cpp.s
 
 # target to generate assembly for a file
 src/GeometryProcessor.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/src/GeometryProcessor.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/WoodPack.dir/build.make CMakeFiles/WoodPack.dir/src/GeometryProcessor.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/analyze_shingle_widths.dir/build.make CMakeFiles/analyze_shingle_widths.dir/src/GeometryProcessor.cpp.s
 .PHONY : src/GeometryProcessor.cpp.s
 
@@ -174,7 +174,7 @@ src/PointCloudProcessor.o: src/PointCloudProcessor.cpp.o
 
 # target to build an object file
 src/PointCloudProcessor.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/src/PointCloudProcessor.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/WoodPack.dir/build.make CMakeFiles/WoodPack.dir/src/PointCloudProcessor.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/analyze_shingle_widths.dir/build.make CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.o
 .PHONY : src/PointCloudProcessor.cpp.o
 
@@ -183,7 +183,7 @@ src/PointCloudProcessor.i: src/PointCloudProcessor.cpp.i
 
 # target to preprocess a source file
 src/PointCloudProcessor.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/src/PointCloudProcessor.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/WoodPack.dir/build.make CMakeFiles/WoodPack.dir/src/PointCloudProcessor.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/analyze_shingle_widths.dir/build.make CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.i
 .PHONY : src/PointCloudProcessor.cpp.i
 
@@ -192,7 +192,7 @@ src/PointCloudProcessor.s: src/PointCloudProcessor.cpp.s
 
 # target to generate assembly for a file
 src/PointCloudProcessor.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/src/PointCloudProcessor.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/WoodPack.dir/build.make CMakeFiles/WoodPack.dir/src/PointCloudProcessor.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/analyze_shingle_widths.dir/build.make CMakeFiles/analyze_shingle_widths.dir/src/PointCloudProcessor.cpp.s
 .PHONY : src/PointCloudProcessor.cpp.s
 
@@ -201,7 +201,7 @@ src/main.o: src/main.cpp.o
 
 # target to build an object file
 src/main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/src/main.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/WoodPack.dir/build.make CMakeFiles/WoodPack.dir/src/main.cpp.o
 .PHONY : src/main.cpp.o
 
 src/main.i: src/main.cpp.i
@@ -209,7 +209,7 @@ src/main.i: src/main.cpp.i
 
 # target to preprocess a source file
 src/main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/src/main.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/WoodPack.dir/build.make CMakeFiles/WoodPack.dir/src/main.cpp.i
 .PHONY : src/main.cpp.i
 
 src/main.s: src/main.cpp.s
@@ -217,7 +217,7 @@ src/main.s: src/main.cpp.s
 
 # target to generate assembly for a file
 src/main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/src/main.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/WoodPack.dir/build.make CMakeFiles/WoodPack.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
 src/utils.o: src/utils.cpp.o
@@ -225,7 +225,7 @@ src/utils.o: src/utils.cpp.o
 
 # target to build an object file
 src/utils.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/src/utils.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/WoodPack.dir/build.make CMakeFiles/WoodPack.dir/src/utils.cpp.o
 .PHONY : src/utils.cpp.o
 
 src/utils.i: src/utils.cpp.i
@@ -233,7 +233,7 @@ src/utils.i: src/utils.cpp.i
 
 # target to preprocess a source file
 src/utils.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/src/utils.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/WoodPack.dir/build.make CMakeFiles/WoodPack.dir/src/utils.cpp.i
 .PHONY : src/utils.cpp.i
 
 src/utils.s: src/utils.cpp.s
@@ -241,7 +241,7 @@ src/utils.s: src/utils.cpp.s
 
 # target to generate assembly for a file
 src/utils.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Shingle_Optimization.dir/build.make CMakeFiles/Shingle_Optimization.dir/src/utils.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/WoodPack.dir/build.make CMakeFiles/WoodPack.dir/src/utils.cpp.s
 .PHONY : src/utils.cpp.s
 
 tools/analyze_shingle_widths.o: tools/analyze_shingle_widths.cpp.o
@@ -276,7 +276,7 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... Shingle_Optimization"
+	@echo "... WoodPack"
 	@echo "... analyze_shingle_widths"
 	@echo "... src/GeometryProcessor.o"
 	@echo "... src/GeometryProcessor.i"

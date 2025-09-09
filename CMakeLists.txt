@@ -1,4 +1,3 @@
-
 cmake_minimum_required(VERSION 3.18)
 project(WoodPack LANGUAGES C CXX)
 
@@ -18,13 +17,11 @@ find_package(VTK REQUIRED COMPONENTS
     CommonDataModel
     FiltersCore
     IOImage
-    # Add other VTK components as needed
 )
 
 # Find MPI
 find_package(MPI REQUIRED)
 include_directories(${MPI_INCLUDE_PATH})
-
 
 # Main executable
 add_executable(${PROJECT_NAME}
@@ -35,13 +32,3 @@ add_executable(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC Open3D::Open3D ${VTK_LIBRARIES} MPI::MPI_CXX)
-
-
-# Analysis executable in tools/
-add_executable(analyze_shingle_widths 
-    tools/analyze_shingle_widths.cpp 
-    src/PointCloudProcessor.cpp 
-    src/GeometryProcessor.cpp
-)
-
-target_link_libraries(analyze_shingle_widths PUBLIC Open3D::Open3D ${VTK_LIBRARIES} MPI::MPI_CXX)

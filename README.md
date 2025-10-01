@@ -9,6 +9,8 @@
 ![Design Automation](images/design_automation.png)
 *WoodPack's automated design process for optimizing shingle arrangements and prefabrication of sorted packs.*
 
+[![Watch the video](images/WOODPACK_demo.mp4)
+
 ## Installation
 
     git clone https://github.com/farzanehesk/WoodPack.git

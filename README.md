@@ -10,7 +10,7 @@
 *WoodPack's automated design process for optimizing shingle arrangements and prefabrication of sorted packs.*
 
 ## Demo Video
-The following video demonstrates the *WoodPack* shingle arrangement process, including arrangement automation and optimization, assembly on the structure, and prefabrication of sorted packs of shingles:
+The following video demonstrates the *WoodPack* shingle arrangement process, including arrangement automation and optimisation, assembly on the structure, and prefabrication the sorted packs of shingles:
 
 ![Demo](videos/demo.gif)
 
@@ -36,7 +36,11 @@ WoodPack requires the following software to be installed first. See [INSTALL.md]
 
 ## Citation
 
-[1]Farzaneh Eskandari, “farzanehesk/WoodPack: v0.2.0”. Zenodo, Oct. 03, 2025. doi: 10.5281/zenodo.17257367.
+Farzaneh Eskandari. (2025). farzanehesk/WoodPack: v0.2.0 (v0.2.0). Zenodo. https://doi.org/10.5281/zenodo.17257367
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17257368.svg)](https://doi.org/10.5281/zenodo.17257368)
+
+
 
 
 ## License

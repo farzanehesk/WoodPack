@@ -10,7 +10,7 @@
 *WoodPack's automated design process for optimizing shingle arrangements and prefabrication of sorted packs.*
 
 ## Demo Video
-The following video demonstrates the *WoodPack* shingle arrangement process, including shingle highlighting, assembly on the structure, and packing:
+The following video demonstrates the *WoodPack* shingle arrangement process, including arrangement automation and optimization, assembly on the structure, and prefabrication of sorted packs of shingles:
 
 ![Demo](videos/demo.gif)
 

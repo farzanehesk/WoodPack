@@ -12,8 +12,8 @@
 ## Demo Video
 The following video demonstrates the *WoodPack* shingle arrangement process, including shingle highlighting, assembly on the structure, and packing:
 
-<video controls>
-  <source src="images/WOODPACK_demo.mp4" type="video/mp4">
+<video controls width="800">
+  <source src="https://raw.githubusercontent.com/farzanehesk/WoodPack/main/videos/WOODPACK_demo.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video>
 

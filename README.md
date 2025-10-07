@@ -3,16 +3,11 @@
 **WoodPack**, a material-driven computational tool, automates the design of non-standard *Bardeaux* shingles, replacing labor-intensive manual arranegemtn with prefabrication of sorted shingle packs for watertight building envelopes. It delivers optimized shingle arrangements to minimize material waste, ensure watertightness, reduce construction time through prefabrication, and facilitate integration into modern construction workflows, as described in [our paper](#citation).
 
 
-![Craftsperson Searching](images/craftsperson_searching.png)
-*Traditional manual selection and arrangement of wooden shingles from random packs of shingles, replaced by WoodPack's automation.*
-
-![Design Automation](images/design_automation.png)
-*WoodPack's automated design process for optimizing shingle arrangements and prefabrication of sorted packs.*
 
 ## Demo Video
-The following video demonstrates the *WoodPack* shingle arrangement process, including arrangement automation and optimisation, assembly on the structure, and prefabrication the sorted packs of shingles:
+The demo contrasts the labor-intensive, time-consuming, and less precise manual assembly of *Bardeaux* shingles, relying on visual selection for stagger compliance, with *WoodPack*’s automated and optimized shingle arrangement and prefabrication of sorted packs:
 
-![Demo](videos/demo.gif)
+![Demo](videos/demo_full.gif)
 
 
 ## Installation
